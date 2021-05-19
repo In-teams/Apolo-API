@@ -11,8 +11,10 @@ class db {
       password: DB_PASS,
       database: DB_NAME,
     });
-
-    config.connect((err) => console.log("database connect"));
+    
+    
+    // config.connect((err) => console.log("database connect"));
+    return config
   }
 }
 

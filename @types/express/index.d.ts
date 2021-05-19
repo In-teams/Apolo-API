@@ -5,6 +5,7 @@ declare global {
       interface Request {
           validated?: any,
           log?: any,
+          db?: any,
       }
   }
 }

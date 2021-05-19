@@ -14,12 +14,13 @@ class App {
   }
 
   protected secure(): void {
-    database();
+    database().connect((err) => console.log("database running well"));
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cors());
     this.app.use((req: Request, res: Response, next: NextFunction) => {
-      req.log = logging.writeLog
+      req.log = logging.writeLog;
+      req.db = database();
       next();
     });
   }

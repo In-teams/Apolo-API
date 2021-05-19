@@ -7,7 +7,7 @@ import fs from "./FileSystem";
 class Logging {
   protected getTimestampAndIp = async (): Promise<string> => {
     const { data } = await axios.get("https://api.ipify.org/?format=json");
-    return moment().format("DD-MM-YYYY H:m:s") + " => " + data.ip;
+    return moment().format("DD-MM-YYYY H:mm:ss") + " => " + data.ip;
   };
 
   protected getToday = (): string => {
