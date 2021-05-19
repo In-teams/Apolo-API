@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import joi from "joi";
 import { pathExcel } from "../config/app";
 import fs from "../helpers/FileSystem";
+import {genSaltSync, hashSync} from 'bcrypt'
 
 class Auth {
   login(req: Request, res: Response, next: NextFunction): any {
@@ -45,7 +46,7 @@ class Auth {
       let row: any[] = [];
       let resp: any[] = [];
       data.map((x: any[]) => {
-        let password: string = "password " + x[1]; // password hash
+        let password: string = hashSync(x[1], genSaltSync(1)); // password hash
         row.push(x[0], password);
         resp.push(row);
         row = [];

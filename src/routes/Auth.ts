@@ -12,9 +12,9 @@ class Auth implements IRouter {
   }
 
   public routes(): void {
-    this.router.post("/", AuthRequest.login, AuthController.post);
-    this.router.post("/register", AuthRequest.login, AuthController.post);
-    this.router.post("/register/excel", AuthRequest.registerByImpExcel, AuthController.post);
+    this.router.post("/", AuthRequest.login, AuthController.login);
+    // this.router.post("/register", AuthRequest.login, AuthController.register);
+    this.router.post("/register/excel", AuthRequest.registerByImpExcel, AuthController.register);
   }
 }
 
