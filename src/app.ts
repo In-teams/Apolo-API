@@ -29,11 +29,11 @@ class App {
     const route = this.app;
     route.use("/api/v1", Route);
     route.get("*", (req: Request, res: Response) => {
-      req.log(false, "Access unknown endpoint [404]");
+      req.log(req, false, "Access unknown endpoint [404]");
       res.status(404).send("not found");
     });
     route.post("*", (req: Request, res: Response) => {
-      req.log(false, "Access unknown endpoint [404]");
+      req.log(req, false, "Access unknown endpoint [404]");
       res.status(404).send("not found");
     });
   }

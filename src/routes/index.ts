@@ -1,4 +1,5 @@
 import { Router } from "express";
+import Token from "../helpers/Token";
 import IRouter from "../types/RouterInterface";
 import AuthRoute from "./Auth";
 import ExampleRoute from "./Example";
@@ -11,8 +12,8 @@ class Index implements IRouter {
     this.routes();
   }
 
-  public routes(): void {
-    this.router.use("/example", ExampleRoute);
+  public routes() :void {
+    this.router.use("/example", Token.checkToken, ExampleRoute);
     this.router.use("/auth", AuthRoute);
   }
 }

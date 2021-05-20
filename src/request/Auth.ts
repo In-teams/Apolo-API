@@ -35,6 +35,7 @@ class Auth {
       const { value, error } = schema.validate(req.body);
       if (error) {
         req.log(
+          req,
           true,
           `Register By Import Excel Validation Error [400] : ${error.message}`
         );
@@ -49,18 +50,22 @@ class Auth {
       let isError: boolean = false;
       data.map((x: any[]) => {
         if (!x[1]) isError = true;
-        let password: string = hashSync(x[1] || "", genSaltSync(1)); // password hash
+        let password: string = hashSync(x[1].toString() || "", genSaltSync(1)); // password hash
         row.push(x[0], password);
         resp.push(row);
         row = [];
       });
 
       await fs.DeleteFile(path);
-      if (isError) return response(res, false, null, "File unknown", 400);
+      if (isError) {
+        req.log(req, true, "Structure file is not allowed [400]");
+        return response(res, false, null, "Structure file is not allowed", 400);
+      }
 
       req.validated = resp;
       next();
     } catch (error) {
+      req.log(req, true, JSON.stringify(error.message));
       console.log(error);
     }
   }
