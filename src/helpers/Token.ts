@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { sign, verify } from "jsonwebtoken";
-import { ExpJwtKey, jwtKey } from "../config/app";
+import { ExpKey, ExpRefreshKey, jwtKey } from "../config/app";
 import response from "./Response";
 
 class Token {
-  createToken(data: object) {
-    return sign({ data }, jwtKey, { expiresIn: ExpJwtKey });
+  createToken(data: object, refresh?:boolean) {
+    return sign({ data }, jwtKey, { expiresIn: refresh ? ExpRefreshKey : ExpKey });
   }
 
   checkToken(req: Request, res: Response, next: NextFunction): any {

@@ -26,6 +26,7 @@ class Auth {
       delete data[0].password;
 
       data[0].token = Token.createToken(data[0]);
+      data[0].refreshtoken = Token.createToken(data[0], true);
       return response(res, true, data[0], null, 200);
     } catch (error) {
       req.log(req, true, JSON.stringify(error));
