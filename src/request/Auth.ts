@@ -1,8 +1,9 @@
+import { genSaltSync, hashSync } from "bcrypt";
 import { NextFunction, Request, Response } from "express";
 import joi from "joi";
 import { pathExcel } from "../config/app";
 import fs from "../helpers/FileSystem";
-import {genSaltSync, hashSync} from 'bcrypt'
+import response from "../helpers/Response";
 
 class Auth {
   login(req: Request, res: Response, next: NextFunction): any {
@@ -14,7 +15,7 @@ class Auth {
     const { value, error } = schema.validate(req.body);
     if (error) {
       req.log(true, `Login Validation Error [400] : ${error.message}`);
-      return res.status(400).send({ error: true, msg: error.message });
+      return response(res, false, null, error.message, 400);
     }
 
     req.validated = value;
@@ -37,7 +38,7 @@ class Auth {
           true,
           `Register By Import Excel Validation Error [400] : ${error.message}`
         );
-        return res.status(400).send({ error: true, msg: error.message });
+        return response(res, false, null, error.message, 400);
       }
 
       const path: string = `${pathExcel}/${Date.now()}.xlsx`;
@@ -45,15 +46,19 @@ class Auth {
       let data = await fs.ReadExcelFile(path);
       let row: any[] = [];
       let resp: any[] = [];
+      let isError: boolean = false;
       data.map((x: any[]) => {
-        let password: string = hashSync(x[1], genSaltSync(1)); // password hash
+        if (!x[1]) isError = true;
+        let password: string = hashSync(x[1] || "", genSaltSync(1)); // password hash
         row.push(x[0], password);
         resp.push(row);
         row = [];
       });
 
-      req.validated = resp;
       await fs.DeleteFile(path);
+      if (isError) return response(res, false, null, "File unknown", 400);
+
+      req.validated = resp;
       next();
     } catch (error) {
       console.log(error);

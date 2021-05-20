@@ -39,6 +39,7 @@ class FileSystem {
       //   username: x[0],
       //   password: x[1],
       // }));
+      data.shift()
 
       return data;
     } catch (error) {}
