@@ -19,11 +19,11 @@ class Auth {
 
     const { value, error } = schema.validate(req.query);
     if (error) {
-      req.log(true, `Validation Error [400] : ${error.message}`);
+      req.log(req, true, `Validation Error [400] : ${error.message}`);
       return response(res, false, null, error.message, 400);
     }
-
-    req.validated = value;
+    const { page = 1, month = new Date().getMonth() + 1 } = value;
+    req.validated = { ...value, page, month };
     next();
   }
 }
