@@ -13,6 +13,7 @@ class Distributor {
         "ms_distributor.distributor_id",
         "ms_outlet.distributor_id"
       )
+      .innerJoin("ms_region", "ms_outlet.region_id", "ms_region.region_id")
       .where({
         ...(outlet_id && { "ms_outlet.outlet_id": outlet_id }),
         ...(area_id && { "ms_outlet.area_id": area_id }),
