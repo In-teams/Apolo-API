@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import response from "../helpers/Response";
-import Service from "../services/Area";
+import Service from "../services/Region";
 
-class Area {
+class Region {
   async get(req: Request, res: Response): Promise<object | undefined> {
     try {
       const data = await Service.get(req);
@@ -15,4 +15,4 @@ class Area {
   }
 }
 
-export default new Area();
+export default new Region();
