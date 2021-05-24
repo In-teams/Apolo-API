@@ -11,7 +11,7 @@ class Region {
       region_id,
     } = req.validated;
     const query = db()
-      .select("ms_dist_pic.asm_id", "ms_user.user_profile as name")
+      .select("ms_dist_pic.asm_id", "ms_pic.nama_pic")
       .distinct("ms_dist_pic.distributor_id")
       .from("ms_dist_pic")
       .innerJoin(
@@ -19,7 +19,7 @@ class Region {
         "ms_dist_pic.distributor_id",
         "ms_outlet.distributor_id"
       )
-      .innerJoin("ms_user", "ms_dist_pic.asm_id", "ms_user.user_id")
+      .innerJoin("ms_pic", "ms_dist_pic.ass_id", "ms_pic.kode_pic")
       .innerJoin("ms_region", "ms_outlet.region_id", "ms_region.region_id")
       .where({
         ...(outlet_id && { "ms_outlet.outlet_id": outlet_id }),
@@ -41,7 +41,7 @@ class Region {
       region_id,
     } = req.validated;
     const query = db()
-      .select("ms_dist_pic.ass_id", "ms_user.user_profile as name")
+      .select("ms_dist_pic.ass_id", "ms_pic.nama_pic")
       .distinct("ms_dist_pic.distributor_id")
       .from("ms_dist_pic")
       .innerJoin(
@@ -49,7 +49,7 @@ class Region {
         "ms_dist_pic.distributor_id",
         "ms_outlet.distributor_id"
       )
-      .innerJoin("ms_user", "ms_dist_pic.ass_id", "ms_user.user_id")
+      .innerJoin("ms_pic", "ms_dist_pic.ass_id", "ms_pic.kode_pic")
       .innerJoin("ms_region", "ms_outlet.region_id", "ms_region.region_id")
       .where({
         ...(outlet_id && { "ms_outlet.outlet_id": outlet_id }),
