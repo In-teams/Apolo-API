@@ -4,15 +4,22 @@ import response from "../helpers/Response";
 import Service from "../services/Sales";
 
 class Auth {
-  async getTarget(req: Request, res: Response): Promise<object | undefined> {
+  async get(req: Request, res: Response): Promise<object | undefined> {
     try {
-      const { area, wilayah, region, distributor, outlet } = req.query;
-      let data: any[1] = [];
-      if (area && !distributor) data = await Service.getTargetByArea(req);
-      if (distributor && !outlet) data = await Service.getTargetByDistributor(req);
-      data = NumberFormat(data, "total");
-      req.log(req, false, "Success add user data [200]");
-      return response(res, true, data, null, 200);
+      let target: any[1] = await Service.getTarget(req);
+      let aktual: any[1] = await Service.getAktual(req);
+
+      let selisih : any[1] = [{ total: aktual[0].total - target[0].total }];
+      aktual = NumberFormat(aktual, "total");
+      target = NumberFormat(target, "total");
+      selisih = NumberFormat(selisih, "total");
+      const result = {
+        target: target[0].total,
+        aktual: aktual[0].total,
+        selisih: selisih[0].total,
+      };
+      // req.log(req, false, "Success add user target [200]");
+      return response(res, true, result, null, 200);
     } catch (error) {
       req.log(req, true, JSON.stringify(error.message));
       return response(res, false, null, JSON.stringify(error.message), 500);
