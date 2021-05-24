@@ -8,6 +8,7 @@ import RegionRoute from "./Region";
 import WilayahRoute from "./Wilayah";
 import DistributorRoute from "./Distributor";
 import OutletRoute from "./Outlet";
+import UserRoute from "./User";
 import ExampleRoute from "./Example";
 
 class Index implements IRouter {
@@ -24,6 +25,7 @@ class Index implements IRouter {
     this.router.use("/region", RegionRoute);
     this.router.use("/wilayah", WilayahRoute);
     this.router.use("/outlet", OutletRoute);
+    this.router.use("/user", UserRoute);
     this.router.use("/distributor", DistributorRoute);
     this.router.use("/example", Token.checkToken, ExampleRoute);
     this.router.use("/auth", AuthRoute);
