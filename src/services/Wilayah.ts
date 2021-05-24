@@ -1,7 +1,7 @@
 import { Request } from "express";
 import db from "../config/db";
 
-class Region {
+class Wilayah {
   get(req: Request): any {
     const { outlet_id, area_id, region_id, distributor_id } = req.validated;
     const query = db()
@@ -20,10 +20,10 @@ class Region {
         ...(region_id && { "ms_outlet.region_id": region_id }),
         ...(distributor_id && { "ms_outlet.distributor_id": distributor_id }),
       })
-      .orderBy("ms_region.region_id");
+      .orderBy("ms_head_region.head_region_id");
     // console.log(query.toSQL().toNative());
     return query;
   }
 }
 
-export default new Region();
+export default new Wilayah();
