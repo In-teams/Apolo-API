@@ -2,14 +2,20 @@ import { Request, Response } from "express";
 import NumberFormat from "../helpers/NumberFormat";
 import response from "../helpers/Response";
 import Service from "../services/Sales";
+import OutletService from "../services/Outlet";
 
 class Auth {
   async get(req: Request, res: Response): Promise<object | undefined> {
     try {
       let target: any[1] = await Service.getTarget(req);
       let aktual: any[1] = await Service.getAktual(req);
+      let totalOutlet: any[1] = await OutletService.getCount(req);
 
-      let selisih : any[1] = [{ total: aktual[0].total - target[0].total }];
+      let ratarata: any[1] = [
+        { total: aktual[0].total / totalOutlet[0].total },
+      ];
+      let selisih: any[1] = [{ total: aktual[0].total - target[0].total }];
+      ratarata = NumberFormat(ratarata, "total");
       aktual = NumberFormat(aktual, "total");
       target = NumberFormat(target, "total");
       selisih = NumberFormat(selisih, "total");
@@ -17,6 +23,8 @@ class Auth {
         target: target[0].total,
         aktual: aktual[0].total,
         selisih: selisih[0].total,
+        ratarata: ratarata[0].total,
+        totalOutlet: totalOutlet[0].total,
       };
       // req.log(req, false, "Success add user target [200]");
       return response(res, true, result, null, 200);
