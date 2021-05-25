@@ -15,6 +15,8 @@ class Auth {
         { total: aktual[0].total / totalOutlet[0].total },
       ];
       let selisih: any[1] = [{ total: aktual[0].total - target[0].total }];
+      let percentage: string =
+        ((aktual[0].total / target[0].total) * 100).toFixed(2) + " %";
       ratarata = NumberFormat(ratarata, "total");
       aktual = NumberFormat(aktual, "total");
       target = NumberFormat(target, "total");
@@ -25,6 +27,7 @@ class Auth {
         selisih: selisih[0].total,
         ratarata: ratarata[0].total,
         totalOutlet: totalOutlet[0].total,
+        percentage,
       };
       // req.log(req, false, "Success add user target [200]");
       return response(res, true, result, null, 200);
