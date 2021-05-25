@@ -9,6 +9,7 @@ class Auth {
       area_id: joi.string(),
       asm_id: joi.string(),
       ass_id: joi.string(),
+      salesman_id: joi.string(),
       region_id: joi.string(),
       level: joi.string().required(),
       distributor_id: joi.string(),
