@@ -9,6 +9,9 @@ class Auth {
       region_id: joi.string(),
       distributor_id: joi.string(),
       outlet_id: joi.string(),
+      ass_id: joi.string(),
+      asm_id: joi.string(),
+      salesman_id: joi.string(),
     });
 
     const { value, error } = schema.validate(req.query);
