@@ -86,7 +86,7 @@ class Sales {
         ...(salesman_id && { "ms_user.user_id": salesman_id }),
       })
       .andWhereRaw("MONTHNAME(trx_transaksi.tgl_transaksi) = ?", [month]);
-    console.log(query.toSQL().toNative().sql);
+    // console.log(query.toSQL().toNative().sql);
     return query;
   }
 }

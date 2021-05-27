@@ -13,6 +13,60 @@ class Outlet {
       return response(res, false, null, JSON.stringify(error.message), 500);
     }
   }
+  async getOutletTransaction(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      const aktif :any[] = await Service.getOutletTActive(req);
+      const totalOutlet :any[] = await Service.getOutletCount(req);
+      const result :object = {
+        aktif: aktif[0].aktif,
+        totalOutlet: totalOutlet[0].total
+      }
+      req.log(req, false, "Success get outlet data [200]");
+      return response(res, true, result, null, 200);
+    } catch (error) {
+      req.log(req, true, JSON.stringify(error.message));
+      return response(res, false, null, JSON.stringify(error.message), 500);
+    }
+  }
+  async getOutletRegistrasi(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      const regist :any[] = await Service.getOutletRegisrCount(req);
+      const totalOutlet :any[] = await Service.getOutletCount(req);
+      const result :object = {
+        regist: regist[0].total,
+        totalOutlet: totalOutlet[0].total
+      }
+      req.log(req, false, "Success get outlet data [200]");
+      return response(res, true, result, null, 200);
+    } catch (error) {
+      req.log(req, true, JSON.stringify(error.message));
+      return response(res, false, null, JSON.stringify(error.message), 500);
+    }
+  }
+  async getOutletPoint(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      const achiev :any[] = await Service.getOutletPoint(req);
+      const redeem :any[] = await Service.getOutletPointRedeem(req);
+      const result :object = {
+        achiev: new Intl.NumberFormat('id').format(achiev[0].perolehan),
+        redeem: new Intl.NumberFormat('id').format(redeem[0].penukaran * redeem[0].qty)
+      }
+      req.log(req, false, "Success get outlet data [200]");
+      return response(res, true, result, null, 200);
+    } catch (error) {
+      req.log(req, true, JSON.stringify(error.message));
+      return response(res, false, null, JSON.stringify(error.message), 500);
+    }
+  }
 }
 
 export default new Outlet();

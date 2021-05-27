@@ -13,6 +13,9 @@ class Outlet implements IRouter {
 
   public routes(): void {
     this.router.get("/", OutletRequest.get, OutletController.get);
+    this.router.get("/transaksi", OutletRequest.get, OutletController.getOutletTransaction);
+    this.router.get("/registrasi", OutletRequest.get, OutletController.getOutletRegistrasi);
+    this.router.get("/poin-reward", OutletRequest.get, OutletController.getOutletPoint);
   }
 }
 
