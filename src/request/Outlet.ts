@@ -13,6 +13,7 @@ class Auth {
       ass_id: joi.string(),
       asm_id: joi.string(),
       salesman_id: joi.string(),
+      sort: joi.string(),
     });
 
     const { value, error } = schema.validate(req.query);
@@ -20,7 +21,7 @@ class Auth {
       req.log(req, true, `Validation Error [400] : ${error.message}`);
       return response(res, false, null, error.message, 400);
     }
-    req.validated = value
+    req.validated = { ...value, sort: value.sort || "ASC" };
     next();
   }
 }
