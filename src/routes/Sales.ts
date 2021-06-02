@@ -13,6 +13,7 @@ class Sales implements IRouter {
 
   public routes(): void {
     this.router.get("/", SalesRequest.get, SalesController.get);
+    this.router.get("/summary", SalesRequest.get, SalesController.getSummary);
   }
 }
 

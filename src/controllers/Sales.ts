@@ -36,6 +36,16 @@ class Auth {
       return response(res, false, null, JSON.stringify(error.message), 500);
     }
   }
+  
+  async getSummary(req: Request, res: Response): Promise<object | undefined> {
+    try {
+      const data: any[] = await Service.getSummary(req)
+      return response(res, true, data, null, 200);
+    } catch (error) {
+      req.log(req, true, JSON.stringify(error.message));
+      return response(res, false, null, JSON.stringify(error.message), 500);
+    }
+  }
 }
 
 export default new Auth();

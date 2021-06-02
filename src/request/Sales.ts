@@ -27,8 +27,8 @@ class Auth {
     }
 
     if(!isNaN(value.month)) return response(res, false, null, 'month just allowed string (monthname)', 400);
-    const { page = 1, month = new Date().getMonth() + 1 } = value;
-    req.validated = { ...value, page, month };
+    const { page = 1 } = value;
+    req.validated = { ...value, page };
     next();
   }
 }
