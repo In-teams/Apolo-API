@@ -18,6 +18,25 @@ class Poin {
       return response(res, false, null, JSON.stringify(error.message), 500);
     }
   }
+  async getPointSummaryByHR(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      let point : any[1] = await Service.getPointSummaryByHR(req);
+      point = point.map((val:any) => ({
+        ...val,
+        diff: val.achieve - val.redeem,
+        percentage: ((val.redeem / val.achieve) * 100).toFixed(2) + "%"
+      }))
+      point = NumberFormat(point, false, "achieve", "redeem", "diff");
+      req.log(req, false, "Success get Poin data [200]");
+      return response(res, true, point, null, 200);
+    } catch (error) {
+      req.log(req, true, JSON.stringify(error.message));
+      return response(res, false, null, JSON.stringify(error.message), 500);
+    }
+  }
 }
-
+// result redeem tidak sama, karna join ke outlet
 export default new Poin();

@@ -13,6 +13,7 @@ class Poin implements IRouter {
 
   public routes(): void {
     this.router.get("/", PoinRequest.get, PoinController.getPointSummary);
+    this.router.get("/summary", PoinRequest.get, PoinController.getPointSummaryByHR);
   }
 }
 
