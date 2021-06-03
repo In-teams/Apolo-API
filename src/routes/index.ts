@@ -8,6 +8,7 @@ import RegionRoute from "./Region";
 import WilayahRoute from "./Wilayah";
 import DistributorRoute from "./Distributor";
 import OutletRoute from "./Outlet";
+import PoinRoute from "./Poin";
 import RegistrationRoute from "./Registration";
 import UserRoute from "./User";
 import ExampleRoute from "./Example";
@@ -21,16 +22,18 @@ class Index implements IRouter {
   }
 
   public routes(): void {
-    this.router.use("/sales", SalesRoute);
-    this.router.use("/area", AreaRoute);
-    this.router.use("/region", RegionRoute);
-    this.router.use("/wilayah", WilayahRoute);
-    this.router.use("/outlet", OutletRoute);
-    this.router.use("/registration", RegistrationRoute);
-    this.router.use("/user", UserRoute);
-    this.router.use("/distributor", DistributorRoute);
-    this.router.use("/example", Token.checkToken, ExampleRoute);
-    this.router.use("/auth", AuthRoute);
+    const route = this.router
+    route.use("/sales", SalesRoute);
+    route.use("/area", AreaRoute);
+    route.use("/region", RegionRoute);
+    route.use("/wilayah", WilayahRoute);
+    route.use("/outlet", OutletRoute);
+    route.use("/poin", PoinRoute);
+    route.use("/registration", RegistrationRoute);
+    route.use("/user", UserRoute);
+    route.use("/distributor", DistributorRoute);
+    route.use("/example", Token.checkToken, ExampleRoute);
+    route.use("/auth", AuthRoute);
   }
 }
 
