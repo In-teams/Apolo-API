@@ -8,6 +8,7 @@ class Auth {
       page: joi.number(),
       show: joi.number(),
       quarter: joi.string(),
+      sort: joi.string(),
       year: joi.string(),
       month: joi.string(),
       wilayah_id: joi.string(),
@@ -27,8 +28,8 @@ class Auth {
     }
 
     if(!isNaN(value.month)) return response(res, false, null, 'month just allowed string (monthname)', 400);
-    const { page = 1 } = value;
-    req.validated = { ...value, page };
+    const { page = 1, sort = "ASC" } = value;
+    req.validated = { ...value, page, sort };
     next();
   }
 }
