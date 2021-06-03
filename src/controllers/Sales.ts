@@ -9,7 +9,7 @@ class Auth {
     try {
       let target: any[1] = await Service.getTarget(req);
       let aktual: any[1] = await Service.getAktual(req);
-      let totalOutlet: any[1] = await OutletService.getCount(req);
+      let totalOutlet: any[1] = await OutletService.getOutletCount(req);
 
       let ratarata: any[1] = [
         { total: aktual[0].total / totalOutlet[0].total },
