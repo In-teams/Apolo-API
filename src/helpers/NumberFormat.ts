@@ -1,9 +1,9 @@
 class NumberFormat {
-  index(data: [], ...key: string[]): any[] {
+  index(data: [], isMoney: boolean = true, ...key: string[]): any[] {
     return data.map((row: any) => {
       let res: any | string = {};
       for (let a of key.values()) {
-        res[a] = Intl.NumberFormat("id").format(row[a]?.toFixed() || 0);
+        res[a] = isMoney ? Intl.NumberFormat("id").format(row[a]?.toFixed() || 0) :Intl.NumberFormat("id").format(row[a] || 0);
       }
       return { ...row, ...res };
     });

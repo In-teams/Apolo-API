@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import NumberFormat from "../helpers/NumberFormat";
 import response from "../helpers/Response";
 import Service from "../services/Outlet";
 
@@ -13,39 +14,29 @@ class Outlet {
       return response(res, false, null, JSON.stringify(error.message), 500);
     }
   }
-  async getOutletTransaction(
+  async getOutletActive(
     req: Request,
     res: Response
   ): Promise<object | undefined> {
     try {
-      const aktif :any[] = await Service.getOutletTActive(req);
-      const totalOutlet :any[] = await Service.getOutletCount(req);
-      const result :object = {
-        aktif: aktif[0].aktif,
-        totalOutlet: totalOutlet[0].total
-      }
+      const active: any[] = await Service.getOutletActive(req);
       req.log(req, false, "Success get outlet data [200]");
-      return response(res, true, result, null, 200);
+      return response(res, true, active[0], null, 200);
     } catch (error) {
       req.log(req, true, JSON.stringify(error.message));
       return response(res, false, null, JSON.stringify(error.message), 500);
     }
   }
-  
-  
-  async getOutletPoint(
+
+  async getPointSummary(
     req: Request,
     res: Response
   ): Promise<object | undefined> {
     try {
-      const achiev :any[] = await Service.getOutletPoint(req);
-      const redeem :any[] = await Service.getOutletPointRedeem(req);
-      const result :object = {
-        achiev: new Intl.NumberFormat('id').format(achiev[0].perolehan),
-        redeem: new Intl.NumberFormat('id').format(redeem[0].penukaran * redeem[0].qty)
-      }
+      let point = await Service.getPointSummary(req);
+      point = NumberFormat(point, false, "achieve", "redeem");
       req.log(req, false, "Success get outlet data [200]");
-      return response(res, true, result, null, 200);
+      return response(res, true, point[0], null, 200);
     } catch (error) {
       req.log(req, true, JSON.stringify(error.message));
       return response(res, false, null, JSON.stringify(error.message), 500);

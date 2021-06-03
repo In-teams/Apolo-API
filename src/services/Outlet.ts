@@ -39,7 +39,7 @@ class Outlet {
     // console.log(query.toSQL().toNative().sql);
     return query;
   }
-  getOutletTActive(req: Request): any {
+  getOutletActive(req: Request): any {
     const {
       distributor_id,
       outlet_id,
@@ -51,32 +51,28 @@ class Outlet {
       salesman_id,
     } = req.validated;
     const query = db()
-      .select("")
-      .countDistinct("trx_transaksi.no_id as aktif")
-      .from("trx_transaksi")
+      .select(this.getOutletCount(req).as("total_outlet"))
+      .countDistinct("tr.no_id as aktif")
+      .from("trx_transaksi as tr")
       .innerJoin(
-        "trx_transaksi_barang",
-        "trx_transaksi.kd_transaksi",
-        "trx_transaksi_barang.kd_transaksi"
+        "trx_transaksi_barang as trb",
+        "tr.kd_transaksi",
+        "trb.kd_transaksi"
       )
-      .innerJoin("ms_outlet", "trx_transaksi.no_id", "ms_outlet.outlet_id")
-      .innerJoin("ms_region", "ms_outlet.region_id", "ms_region.region_id")
-      .innerJoin(
-        "ms_dist_pic",
-        "ms_outlet.distributor_id",
-        "ms_dist_pic.distributor_id"
-      )
-      .innerJoin("ms_user_scope", "ms_outlet.outlet_id", "ms_user_scope.scope")
-      .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
+      .innerJoin("ms_outlet as o", "tr.no_id", "o.outlet_id")
+      .innerJoin("ms_region as r", "o.region_id", "r.region_id")
+      .innerJoin("ms_dist_pic as pic", "o.distributor_id", "pic.distributor_id")
+      // .innerJoin("ms_user_scope", "ms_outlet.outlet_id", "ms_user_scope.scope")
+      // .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
       .where({
-        ...(distributor_id && { "ms_outlet.distributor_id": distributor_id }),
-        ...(outlet_id && { "ms_outlet.outlet_id": outlet_id }),
-        ...(area_id && { "ms_outlet.area_id": area_id }),
-        ...(region_id && { "ms_outlet.region_id": region_id }),
-        ...(wilayah_id && { "ms_region.head_region_id": wilayah_id }),
-        ...(ass_id && { "ms_dist_pic.ass_id": ass_id }),
-        ...(asm_id && { "ms_dist_pic.asm_id": asm_id }),
-        ...(salesman_id && { "ms_user.user_id": salesman_id }),
+        ...(distributor_id && { "o.distributor_id": distributor_id }),
+        ...(outlet_id && { "o.outlet_id": outlet_id }),
+        ...(area_id && { "o.area_id": area_id }),
+        ...(region_id && { "o.region_id": region_id }),
+        ...(wilayah_id && { "r.head_region_id": wilayah_id }),
+        ...(ass_id && { "pic.ass_id": ass_id }),
+        ...(asm_id && { "pic.asm_id": asm_id }),
+        // ...(salesman_id && { "ms_user.user_id": salesman_id }),
       });
     return query;
   }
@@ -112,7 +108,7 @@ class Outlet {
       });
     return query;
   }
-  getOutletPoint(req: Request): any {
+  getPoint(req: Request): any {
     const {
       distributor_id,
       outlet_id,
@@ -125,35 +121,31 @@ class Outlet {
     } = req.validated;
     const query = db()
       .select("")
-      .sum("trx_transaksi_barang.point_satuan as perolehan")
-      .from("trx_transaksi")
+      .sum("trb.point_satuan as perolehan")
+      .from("trx_transaksi as tr")
       .innerJoin(
-        "trx_transaksi_barang",
-        "trx_transaksi.kd_transaksi",
-        "trx_transaksi_barang.kd_transaksi"
+        "trx_transaksi_barang as trb",
+        "tr.kd_transaksi",
+        "trb.kd_transaksi"
       )
-      .innerJoin("ms_outlet", "trx_transaksi.no_id", "ms_outlet.outlet_id")
-      .innerJoin("ms_region", "ms_outlet.region_id", "ms_region.region_id")
-      .innerJoin(
-        "ms_dist_pic",
-        "ms_outlet.distributor_id",
-        "ms_dist_pic.distributor_id"
-      )
-      .innerJoin("ms_user_scope", "ms_outlet.outlet_id", "ms_user_scope.scope")
-      .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
+      .innerJoin("ms_outlet as o", "tr.no_id", "o.outlet_id")
+      .innerJoin("ms_region as r", "o.region_id", "r.region_id")
+      .innerJoin("ms_dist_pic as pic", "o.distributor_id", "pic.distributor_id")
+      // .innerJoin("ms_user_scope", "ms_outlet.outlet_id", "ms_user_scope.scope")
+      // .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
       .where({
-        ...(distributor_id && { "ms_outlet.distributor_id": distributor_id }),
-        ...(outlet_id && { "ms_outlet.outlet_id": outlet_id }),
-        ...(area_id && { "ms_outlet.area_id": area_id }),
-        ...(region_id && { "ms_outlet.region_id": region_id }),
-        ...(wilayah_id && { "ms_region.head_region_id": wilayah_id }),
-        ...(ass_id && { "ms_dist_pic.ass_id": ass_id }),
-        ...(asm_id && { "ms_dist_pic.asm_id": asm_id }),
-        ...(salesman_id && { "ms_user.user_id": salesman_id }),
+        ...(distributor_id && { "o.distributor_id": distributor_id }),
+        ...(outlet_id && { "o.outlet_id": outlet_id }),
+        ...(area_id && { "o.area_id": area_id }),
+        ...(region_id && { "o.region_id": region_id }),
+        ...(wilayah_id && { "r.head_region_id": wilayah_id }),
+        ...(ass_id && { "pic.ass_id": ass_id }),
+        ...(asm_id && { "pic.asm_id": asm_id }),
+        // ...(salesman_id && { "ms_user.user_id": salesman_id }),
       });
     return query;
   }
-  getOutletPointRedeem(req: Request): any {
+  getPointRedeem(req: Request): any {
     const {
       distributor_id,
       outlet_id,
@@ -165,27 +157,18 @@ class Outlet {
       salesman_id,
     } = req.validated;
     const query = db()
-      .select("trx_transaksi_redeem_barang.quantity as qty")
-      .sum("trx_transaksi_redeem_barang.point_satuan as penukaran")
-      .from("trx_transaksi_redeem")
+      .select(db().raw("SUM(trrb.point_satuan) * trrb.quantity as redeem"))
+      .from("trx_transaksi_redeem as trr")
       .innerJoin(
-        "trx_transaksi_redeem_barang",
-        "trx_transaksi_redeem.kd_transaksi",
-        "trx_transaksi_redeem_barang.kd_transaksi"
+        "trx_transaksi_redeem_barang as trrb",
+        "trr.kd_transaksi",
+        "trrb.kd_transaksi"
       )
-      .innerJoin(
-        "ms_outlet",
-        "trx_transaksi_redeem.no_id",
-        "ms_outlet.outlet_id"
-      )
-      .innerJoin("ms_region", "ms_outlet.region_id", "ms_region.region_id")
-      .innerJoin(
-        "ms_dist_pic",
-        "ms_outlet.distributor_id",
-        "ms_dist_pic.distributor_id"
-      )
-      .innerJoin("ms_user_scope", "ms_outlet.outlet_id", "ms_user_scope.scope")
-      .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
+      .innerJoin("ms_outlet as o", "trr.no_id", "o.outlet_id")
+      .innerJoin("ms_region as r", "o.region_id", "r.region_id")
+      .innerJoin("ms_dist_pic as pic", "o.distributor_id", "pic.distributor_id")
+      // .innerJoin("ms_user_scope", "ms_outlet.outlet_id", "ms_user_scope.scope")
+      // .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
       .where({
         ...(distributor_id && { "ms_outlet.distributor_id": distributor_id }),
         ...(outlet_id && { "ms_outlet.outlet_id": outlet_id }),
@@ -194,9 +177,43 @@ class Outlet {
         ...(wilayah_id && { "ms_region.head_region_id": wilayah_id }),
         ...(ass_id && { "ms_dist_pic.ass_id": ass_id }),
         ...(asm_id && { "ms_dist_pic.asm_id": asm_id }),
-        ...(salesman_id && { "ms_user.user_id": salesman_id }),
+        // ...(salesman_id && { "ms_user.user_id": salesman_id }),
       });
-    console.log(query.toSQL().sql);
+    // console.log(query.toSQL().sql);
+    return query;
+  }
+  getPointSummary(req: Request): any {
+    const {
+      distributor_id,
+      outlet_id,
+      area_id,
+      region_id,
+      wilayah_id,
+      ass_id,
+      asm_id,
+      salesman_id,
+    } = req.validated;
+    const query = db()
+      .distinct(
+        this.getPoint(req).as("achieve"),
+        this.getPointRedeem(req).as("redeem")
+      )
+      .from("ms_outlet as o")
+      .innerJoin("ms_region as r", "o.region_id", "r.region_id")
+      .innerJoin("ms_dist_pic as pic", "o.distributor_id", "pic.distributor_id")
+      // .innerJoin("ms_user_scope", "ms_outlet.outlet_id", "ms_user_scope.scope")
+      // .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
+      .where({
+        ...(distributor_id && { "ms_outlet.distributor_id": distributor_id }),
+        ...(outlet_id && { "ms_outlet.outlet_id": outlet_id }),
+        ...(area_id && { "ms_outlet.area_id": area_id }),
+        ...(region_id && { "ms_outlet.region_id": region_id }),
+        ...(wilayah_id && { "ms_region.head_region_id": wilayah_id }),
+        ...(ass_id && { "ms_dist_pic.ass_id": ass_id }),
+        ...(asm_id && { "ms_dist_pic.asm_id": asm_id }),
+        // ...(salesman_id && { "ms_user.user_id": salesman_id }),
+      });
+    // console.log(query.toSQL().sql);
     return query;
   }
 }

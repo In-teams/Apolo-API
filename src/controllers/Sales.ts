@@ -13,7 +13,7 @@ class Sales {
         diff: val.aktual - val.target,
         percentage: ((val.aktual / val.target) * 100).toFixed(2) + " %",
       }));
-      sales = NumberFormat(sales, "aktual", "target", "avg", "diff");
+      sales = NumberFormat(sales, true, "aktual", "target", "avg", "diff");
       req.log(req, false, "Success add user target [200]");
       return response(res, true, sales[0], null, 200);
     } catch (error) {
@@ -25,7 +25,7 @@ class Sales {
   async getSummary(req: Request, res: Response): Promise<object | undefined> {
     try {
       let data: any[1] = await Service.getSummaryByHR(req);
-      data = NumberFormat(data, "aktual", "target");
+      data = NumberFormat(data, true, "aktual", "target");
       return response(res, true, data, null, 200);
     } catch (error) {
       req.log(req, true, JSON.stringify(error.message));
