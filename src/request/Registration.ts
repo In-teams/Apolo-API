@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import joi from "joi";
+import GetFileExtention from "../helpers/GetFileExtention";
 import response from "../helpers/Response";
 
 class Auth {
@@ -22,6 +23,22 @@ class Auth {
       return response(res, false, null, error.message, 400);
     }
     req.validated = { ...value, sort: value.sort || "ASC" };
+    next();
+  }
+  post(req: Request, res: Response, next: NextFunction): any {
+    const schema = joi.object({
+      file: joi.string().base64().required(),
+      outlet_id: joi.string().required(),
+      type_file: joi.number().required(),
+    });
+
+    const { value, error } = schema.validate(req.body);
+    if (error) {
+      req.log(req, true, `Validation Error [400] : ${error.message}`);
+      return response(res, false, null, error.message, 400);
+    }
+    console.log(GetFileExtention(value.file));
+    req.validated = value;
     next();
   }
 }

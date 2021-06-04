@@ -15,8 +15,8 @@ class App {
 
   protected secure(): void {
     // database().connect((err) => console.log("database running well"));
-    this.app.use(express.json());
-    this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(express.urlencoded({ limit: "200mb", extended: true }));
+    this.app.use(express.json({ limit: "200mb" }));
     this.app.use(cors());
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       req.log = logging.writeLog;

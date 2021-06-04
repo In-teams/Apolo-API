@@ -3,6 +3,16 @@ import response from "../helpers/Response";
 import Service from "../services/Registration";
 
 class Registration {
+  async post(req: Request, res: Response): Promise<object | undefined> {
+    try {
+      console.log("req.validated")
+      req.log(req, false, "Success get outlet data [200]");
+      return response(res, true, "result", null, 200);
+    } catch (error) {
+      req.log(req, true, JSON.stringify(error.message));
+      return response(res, false, null, JSON.stringify(error.message), 500);
+    }
+  }
   async get(req: Request, res: Response): Promise<object | undefined> {
     try {
       const regist: any[] = await Service.getRegistrationSummary(req);

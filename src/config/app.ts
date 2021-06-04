@@ -1,5 +1,6 @@
 export const pathLogger: string = "./temp/logger";
 export const pathExcel: string = "./temp/excel";
+export const pathRegistration: string = "./temp/file/registration";
 export const deleteLogger: number = 1; // day
 export const jwtKey: string = "inosis111213"; // JWT_KEY
 export const ExpKey = "12h"; // Exp JWT_KEY
