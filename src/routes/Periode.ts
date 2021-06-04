@@ -1,19 +1,22 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
+import PeriodeController from "../controllers/Periode";
+import PeriodeRequest from "../request/Periode";
 import IRouter from "../types/RouterInterface";
-import PeriodeRequest from '../request/Periode'
-import PeriodeController from '../controllers/Periode'
 
 class Periode implements IRouter {
   public router: Router;
 
   constructor() {
     this.router = Router();
-    this.routes()
+    this.routes();
   }
 
   public routes(): void {
     this.router.post("/", PeriodeRequest.create, PeriodeController.create);
+    this.router.get("/", PeriodeController.get);
+    this.router.put("/:id", PeriodeRequest.update, PeriodeController.update);
+    this.router.delete("/:id", PeriodeRequest.delete, PeriodeController.delete);
   }
 }
 
-export default new Periode().router
+export default new Periode().router;
