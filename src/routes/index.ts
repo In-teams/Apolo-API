@@ -12,6 +12,7 @@ import PoinRoute from "./Poin";
 import RegistrationRoute from "./Registration";
 import UserRoute from "./User";
 import ExampleRoute from "./Example";
+import PeriodeRoute from "./Periode";
 
 class Index implements IRouter {
   public router: Router;
@@ -30,6 +31,7 @@ class Index implements IRouter {
     route.use("/outlet", OutletRoute);
     route.use("/poin", PoinRoute);
     route.use("/registration", RegistrationRoute);
+    route.use("/periode", PeriodeRoute);
     route.use("/user", UserRoute);
     route.use("/distributor", DistributorRoute);
     route.use("/example", Token.checkToken, ExampleRoute);
