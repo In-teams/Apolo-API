@@ -1,4 +1,5 @@
 import { Request } from "express";
+import moment from "moment";
 import db from "../config/db";
 
 class Periode {
@@ -6,7 +7,10 @@ class Periode {
     return db().select("pr.*").from("ms_periode_registrasi as pr");
   }
   checkData(req: Request): any {
-    const { tgl_mulai, tgl_selesai } = req.validated;
+    // const { tgl_mulai = moment().format('YYY-MM-DD'), tgl_selesai } = req.validated;
+    const tgl_mulai = req.validated?.tgl_mulai || moment().format("YYYY-MM-DD");
+    const tgl_selesai =
+      req.validated?.tgl_selesai || moment().format("YYYY-MM-DD");
     return this.get(req)
       .whereRaw("? BETWEEN ? AND ?", [
         tgl_mulai,
