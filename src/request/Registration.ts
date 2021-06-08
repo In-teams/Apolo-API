@@ -5,6 +5,8 @@ import FileSystem from "../helpers/FileSystem";
 import GetFileExtention from "../helpers/GetFileExtention";
 import response from "../helpers/Response";
 import PeriodeService from "../services/Periode";
+import OutletService from "../services/Outlet";
+import RegistrationService from "../services/Registration";
 
 class Registration {
   get(req: Request, res: Response, next: NextFunction): any {
@@ -32,7 +34,7 @@ class Registration {
     const schema = joi.object({
       file: joi.string().base64().required(),
       outlet_id: joi.string().required(),
-      type_file: joi.number().required(),
+      type_file: joi.string().required(),
     });
 
     const { value, error } = schema.validate(req.body);
@@ -46,8 +48,37 @@ class Registration {
     if (check.length < 1)
       return response(res, false, null, "bukan periode upload", 400);
     const ext = GetFileExtention(value.file);
-    const filename = 'p-' +check[0].periode.split(' ')[1] + Date.now() + ext
+    let { periode, id: periode_id } = check[0];
+    periode = `p-${periode.split(" ")[1]}`;
+    const filename = `${periode}-${value.type_file}-${Date.now()}-${
+      value.outlet_id
+    }${ext}`;
     const path = pathRegistration + "/" + filename;
+    req.validated = { ...req.validated, filename, periode_id, path };
+    delete req.validated.file;
+    const uploaded = await RegistrationService.getRegistrationForm(req);
+    const isValidated = await OutletService.get(req);
+    const { valid } = isValidated[0];
+    if (uploaded.length > 0) {
+      if (valid === "Yes" || valid === "Yes+") {
+        return response(
+          res,
+          false,
+          null,
+          "Registration form has been validated",
+          400
+        );
+      } else {
+        const { id, filename } = uploaded[0];
+        await FileSystem.DeleteFile(`${pathRegistration}/${filename}`);
+        await FileSystem.WriteFile(path, value.file, true);
+        req.validated.id = id;
+        await RegistrationService.update(req);
+        return response(res, true, "success post registration form", null, 200);
+      }
+    }
+    if (valid === "Yes" || valid === "Yes+")
+      return response(res, false, null, "Registration has been completed", 400);
     await FileSystem.WriteFile(path, value.file, true);
     next();
   }

@@ -1,15 +1,18 @@
 import { Request, Response } from "express";
+import FileSystem from "../helpers/FileSystem";
 import response from "../helpers/Response";
 import Service from "../services/Registration";
 
 class Registration {
   async post(req: Request, res: Response): Promise<object | undefined> {
+    const path = req.validated.path
     try {
-      console.log("req.validated")
+      await Service.post(req);
       req.log(req, false, "Success get outlet data [200]");
-      return response(res, true, "result", null, 200);
+      return response(res, true, "success post registration form", null, 200);
     } catch (error) {
       req.log(req, true, JSON.stringify(error.message));
+      await FileSystem.DeleteFile(path)
       return response(res, false, null, JSON.stringify(error.message), 500);
     }
   }

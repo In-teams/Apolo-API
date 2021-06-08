@@ -5,6 +5,7 @@ class FileExt {
       R0lGODdh: "image/gif",
       R0lGODlh: "image/gif",
       iVBORw0KGgo: "image/png",
+      "/9j/4QAYRXhpZgAASUkqAAgAAAAAAAAAAAAAAP": "image/jpg",
     };
 
     const detectMimeType = (b64: string) => {
@@ -15,13 +16,16 @@ class FileExt {
       }
     };
 
-    let ext: string = "";
+    let ext: string|any = null;
     switch (detectMimeType(base64)) {
       case "application/pdf":
         ext = ".pdf";
         break;
       case "image/png":
         ext = ".png";
+        break;
+      case "image/jpg":
+        ext = ".jpg";
         break;
 
       default:

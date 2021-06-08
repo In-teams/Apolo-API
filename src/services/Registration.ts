@@ -126,6 +126,28 @@ class Outlet {
       .offset(0);
     return query;
   }
+  post(req: Request): any {
+    delete req.validated.path;
+    return db()("trx_file_registrasi").insert(req.validated);
+  }
+  update(req: Request): any {
+    const id: number = req.validated.id;
+    delete req.validated.path;
+    return db()("trx_file_registrasi").where({ id }).update(req.validated);
+  }
+  getRegistrationForm(req: Request): any {
+    const { outlet_id, periode_id, type_file } = req.validated;
+    const query = db()
+      .select("*")
+      .from("trx_file_registrasi")
+      .where({
+        ...(outlet_id && { outlet_id }),
+        ...(periode_id && { periode_id }),
+        ...(type_file && { type_file }),
+      });
+
+    return query;
+  }
 }
 
 export default new Outlet();

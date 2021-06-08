@@ -14,8 +14,8 @@ class Outlet {
       salesman_id,
     } = req.validated;
     const query = db()
-      .select("ms_outlet.outlet_name")
-      .distinct("ms_outlet.outlet_id")
+      .select("")
+      .distinct("ms_outlet.*")
       .from("ms_outlet")
       .innerJoin("ms_region", "ms_outlet.region_id", "ms_region.region_id")
       .innerJoin(
