@@ -126,9 +126,40 @@ class Outlet {
       .offset(0);
     return query;
   }
-  post(req: Request): any {
-    delete req.validated.path;
-    return db()("trx_file_registrasi").insert(req.validated);
+  async post(req: Request): Promise<any> {
+    try {
+      console.log(req.validated)
+      return
+      const {
+        outlet_id,
+        cabang_bank,
+        nomor_rekening,
+        nama_bank,
+        nama_rekening,
+        nama_konsumen,
+        type_file,
+        telepon1,
+        filename,
+        periode_id,
+      } = req.validated;
+      delete req.validated.path;
+      return await db().transaction(async (trx) => {
+        await trx("trx_file_registrasi").insert({
+          outlet_id, filename,
+          type_file, periode_id,
+        });
+        await trx("ms_outlet")
+          .where(outlet_id)
+          .update({
+            cabang_bank, nomor_rekening,
+            nama_rekening, nama_konsumen,
+            nama_bank, telepon1,
+          });
+      });
+      // return db()("trx_file_registrasi").insert(req.validated);
+    } catch (error) {
+      console.log(error);
+    }
   }
   update(req: Request): any {
     const id: number = req.validated.id;

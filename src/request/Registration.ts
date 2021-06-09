@@ -35,6 +35,22 @@ class Registration {
       file: joi.string().base64().required(),
       outlet_id: joi.string().required(),
       type_file: joi.string().required(),
+      ektp: joi.string(),
+      npwp: joi.string(),
+      nama_konsumen: joi.string().required(),
+      telepon1: joi.string().required(),
+      alamat1: joi.string(),
+      rtrw: joi.string(),
+      kodepos: joi.string(),
+      propinsi: joi.string(),
+      kabupaten: joi.string(),
+      kecamatan: joi.string(),
+      kelurahan: joi.string(),
+      nomor_rekening: joi.string().required(),
+      nama_rekening: joi.string().required(),
+      cabang_bank: joi.string().required(),
+      nama_bank: joi.string().required(),
+      kota_bank: joi.string().required(),
     });
 
     const { value, error } = schema.validate(req.body);

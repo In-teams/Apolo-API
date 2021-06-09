@@ -2,6 +2,10 @@ import { Request } from "express";
 import db from "../config/db";
 
 class Outlet {
+  update(req: Request): any {
+    const {outlet_id} = req.validated
+    // return db()("ms_outlet").where({outlet_id}).update()
+  }
   get(req: Request): any {
     const {
       distributor_id,
