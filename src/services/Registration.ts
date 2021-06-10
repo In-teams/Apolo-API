@@ -128,43 +128,78 @@ class Outlet {
   }
   async post(req: Request): Promise<any> {
     try {
-      console.log(req.validated)
-      return
       const {
         outlet_id,
-        cabang_bank,
-        nomor_rekening,
-        nama_bank,
-        nama_rekening,
         nama_konsumen,
-        type_file,
         telepon1,
+        nomor_rekening,
+        nama_rekening,
+        cabang_bank,
+        kota_bank,
+        nama_bank,
+        type_file,
         filename,
         periode_id,
       } = req.validated;
       delete req.validated.path;
       return await db().transaction(async (trx) => {
         await trx("trx_file_registrasi").insert({
-          outlet_id, filename,
-          type_file, periode_id,
+          outlet_id,
+          filename,
+          type_file,
+          periode_id,
         });
-        await trx("ms_outlet")
-          .where(outlet_id)
-          .update({
-            cabang_bank, nomor_rekening,
-            nama_rekening, nama_konsumen,
-            nama_bank, telepon1,
-          });
+        await trx("ms_outlet").where({ outlet_id }).update({
+          cabang_bank,
+          nomor_rekening,
+          nama_rekening,
+          nama_konsumen,
+          nama_bank,
+          telepon1,
+          kota_bank,
+        });
       });
       // return db()("trx_file_registrasi").insert(req.validated);
     } catch (error) {
-      console.log(error);
+      console.log(error, "<<<");
     }
   }
-  update(req: Request): any {
-    const id: number = req.validated.id;
-    delete req.validated.path;
-    return db()("trx_file_registrasi").where({ id }).update(req.validated);
+  async update(req: Request): Promise<any> {
+    try {
+      const {
+        outlet_id,
+        nama_konsumen,
+        telepon1,
+        nomor_rekening,
+        nama_rekening,
+        cabang_bank,
+        kota_bank,
+        nama_bank,
+        type_file,
+        filename,
+        periode_id,
+      } = req.validated;
+      delete req.validated.path;
+      return await db().transaction(async (trx) => {
+        await trx("trx_file_registrasi")
+          .where({ outlet_id, type_file, periode_id })
+          .update({
+            filename,
+          });
+        await trx("ms_outlet").where({ outlet_id }).update({
+          cabang_bank,
+          nomor_rekening,
+          nama_rekening,
+          nama_konsumen,
+          nama_bank,
+          telepon1,
+          kota_bank,
+        });
+      });
+      // return db()("trx_file_registrasi").insert(req.validated);
+    } catch (error) {
+      console.log(error, "<<<");
+    }
   }
   getRegistrationForm(req: Request): any {
     const { outlet_id, periode_id, type_file } = req.validated;
