@@ -157,6 +157,7 @@ class Outlet {
           nama_bank,
           telepon1,
           kota_bank,
+          status_registrasi: 2
         });
       });
       // return db()("trx_file_registrasi").insert(req.validated);

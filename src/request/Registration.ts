@@ -75,9 +75,9 @@ class Registration {
       delete req.validated.file;
       const uploaded = await RegistrationService.getRegistrationForm(req);
       const isValidated = await OutletService.get(req);
-      const { valid } = isValidated[0];
+      const { status_registrasi: status } = isValidated[0];
       if (uploaded.length > 0) {
-        if (valid === "Yes" || valid === "Yes+") {
+        if (status === 7 || status === 8) {
           return response(
             res,
             false,
@@ -100,7 +100,7 @@ class Registration {
           );
         }
       }
-      if (valid === "Yes" || valid === "Yes+")
+      if (status === 7 || status === 8)
         return response(
           res,
           false,
