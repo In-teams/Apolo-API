@@ -1,2 +1,12 @@
-export const pathLogger = './temp/logger'
-export const deleteLogger = 1 // day
+export const pathLogger: string = "./temp/logger";
+export const pathExcel: string = "./temp/excel";
+export const pathRegistration: string = "./temp/file/registration";
+export const deleteLogger: number = 1; // day
+export const jwtKey: string = "inosis111213"; // JWT_KEY
+export const ExpKey = "12h"; // Exp JWT_KEY
+export const ExpRefreshKey: string = "24h"; // Exp JWT_KEY refresh token
+export const dataPerPage: number = 10;
+export const DB_HOST: string = "localhost";
+export const DB_NAME: string = "mondelez.2.0";
+export const DB_USER: string = "root";
+export const DB_PASS: string = "";

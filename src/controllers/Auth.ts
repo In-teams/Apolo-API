@@ -1,17 +1,38 @@
+import { compareSync } from "bcrypt";
 import { Request, Response } from "express";
-import Service from "../services/Example";
+import response from "../helpers/Response";
+import Token from "../helpers/Token";
+import Service from "../services/Auth";
 
-class Example {
-  async post(req: Request, res: Response): Promise<object | undefined> {
+class Auth {
+  async register(req: Request, res: Response): Promise<object | undefined> {
     try {
-      const result = await Service.postData();
-      req.log(false, "Success post data [200]");
-      return res.send(result).status(200);
+      await Service.addUser(req);
+      req.log(req, false, "Success add user data [200]");
+      return response(res, true, "Account has been created", null, 200);
     } catch (error) {
-      req.log(true, JSON.stringify(error));
-      return res.send({msg: "internal server error"}).status(500);
+      req.log(req, true, JSON.stringify(error));
+      return response(res, false, null, JSON.stringify(error), 500);
+    }
+  }
+  async login(req: Request, res: Response): Promise<object | undefined> {
+    try {
+      const data = await Service.getUser(req);
+      if (data.length === 0)
+        return response(res, false, null, "Account Not Found", 404);
+      if (!compareSync(req.validated.password, data[0].password))
+        return response(res, false, null, "Password Not Match", 422);
+      req.log(req, false, "Success login [200]");
+      delete data[0].password;
+
+      data[0].token = Token.createToken(data[0]);
+      data[0].refreshtoken = Token.createToken(data[0], true);
+      return response(res, true, data[0], null, 200);
+    } catch (error) {
+      req.log(req, true, JSON.stringify(error));
+      return response(res, false, null, JSON.stringify(error), 500);
     }
   }
 }
 
-export default new Example();
+export default new Auth();
