@@ -74,15 +74,14 @@ class Registration {
       req.validated = { ...req.validated, filename, periode_id, path };
       delete req.validated.file;
       const uploaded = await RegistrationService.getRegistrationForm(req);
-      const isValidated = await OutletService.get(req);
-      const { status_registrasi: status } = isValidated[0];
       if (uploaded.length > 0) {
+        const { status_registrasi: status } = uploaded[0];
         if (status === 7 || status === 8) {
           return response(
             res,
             false,
             null,
-            "Registration form has been validated",
+            "Registration form was validated",
             400
           );
         } else {
@@ -100,15 +99,37 @@ class Registration {
           );
         }
       }
-      if (status === 7 || status === 8)
-        return response(
-          res,
-          false,
-          null,
-          "Registration has been completed",
-          400
-        );
       await FileSystem.WriteFile(path, value.file, true);
+      next();
+    } catch (error) {
+      console.log(error, "error request");
+    }
+  }
+  async validation(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      const schema = joi.object({
+        status_registrasi: joi.number().required(),
+        periode_id: joi.number().required(),
+        outlet_id: joi.string().required(),
+      });
+
+      const { value, error } = schema.validate(req.body);
+      if (error) {
+        req.log(req, true, `Validation Error [400] : ${error.message}`);
+        return response(res, false, null, error.message, 400);
+      }
+
+      req.validated = value;
+      const isUploaded = await RegistrationService.getRegistrationForm(req);
+      if (isUploaded.length < 1)
+        return response(res, false, null, "registration is not uploaded", 400);
+      const { status_registrasi: status } = isUploaded[0];
+      if (status === 7 || status === 8)
+        return response(res, false, null, "registration was validated", 400);
       next();
     } catch (error) {
       console.log(error, "error request");

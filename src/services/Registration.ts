@@ -157,8 +157,14 @@ class Outlet {
           nama_bank,
           telepon1,
           kota_bank,
-          status_registrasi: 2
         });
+        if (type_file === "0") {
+          await trx("trx_history_registrasi").insert({
+            outlet_id,
+            periode_id,
+            status_registrasi: 2,
+          });
+        }
       });
       // return db()("trx_file_registrasi").insert(req.validated);
     } catch (error) {
@@ -195,6 +201,27 @@ class Outlet {
           nama_bank,
           telepon1,
           kota_bank,
+        });
+      });
+      // return db()("trx_file_registrasi").insert(req.validated);
+    } catch (error) {
+      console.log(error, "<<<");
+    }
+  }
+  async validation(req: Request): Promise<any> {
+    try {
+      const { outlet_id, status_registrasi, periode_id } = req.validated;
+      delete req.validated.path;
+      return await db().transaction(async (trx) => {
+        await trx("trx_file_registrasi")
+          .where({ outlet_id, periode_id })
+          .update({
+            status_registrasi,
+          });
+        await trx("trx_history_registrasi").insert({
+          outlet_id,
+          periode_id,
+          status_registrasi,
         });
       });
       // return db()("trx_file_registrasi").insert(req.validated);
