@@ -8,7 +8,7 @@ import RegionRoute from "./Region";
 import WilayahRoute from "./Wilayah";
 import DistributorRoute from "./Distributor";
 import OutletRoute from "./Outlet";
-import PoinRoute from "./Poin";
+import RedeemRoute from "./Redeem";
 import RegistrationRoute from "./Registration";
 import UserRoute from "./User";
 import ExampleRoute from "./Example";
@@ -29,7 +29,7 @@ class Index implements IRouter {
     route.use("/region", RegionRoute);
     route.use("/wilayah", WilayahRoute);
     route.use("/outlet", OutletRoute);
-    route.use("/poin", PoinRoute);
+    route.use("/redeem", RedeemRoute);
     route.use("/registration", RegistrationRoute);
     route.use("/periode", PeriodeRoute);
     route.use("/user", UserRoute);

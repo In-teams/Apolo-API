@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import joi from "joi";
 import response from "../helpers/Response";
 
-class Auth {
+class Redeem {
   get(req: Request, res: Response, next: NextFunction): any {
     const schema = joi.object({
       region_id: joi.string(),
@@ -26,4 +26,4 @@ class Auth {
   }
 }
 
-export default new Auth();
+export default new Redeem();

@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import NumberFormat from "../helpers/NumberFormat";
 import response from "../helpers/Response";
-import Service from "../services/Poin";
+import Service from "../services/Redeem";
 
-class Poin {
+class Redeem {
   async getPointSummary(
     req: Request,
     res: Response
@@ -39,4 +39,4 @@ class Poin {
   }
 }
 // result redeem tidak sama, karna join ke outlet
-export default new Poin();
+export default new Redeem();

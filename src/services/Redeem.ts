@@ -1,7 +1,7 @@
 import { Request } from "express";
 import db from "../config/db";
 
-class Outlet {
+class Redeem {
   getPoint(req: Request): any {
     const {
       distributor_id,
@@ -157,4 +157,4 @@ class Outlet {
   }
 }
 
-export default new Outlet();
+export default new Redeem();
