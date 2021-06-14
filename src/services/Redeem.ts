@@ -119,7 +119,7 @@ class Redeem {
       ass_id,
       asm_id,
       salesman_id,
-      sort
+      sort,
     } = req.validated;
     const query = db()
       .select(
@@ -151,9 +151,39 @@ class Redeem {
         ...(asm_id && { "ms_dist_pic.asm_id": asm_id }),
         // ...(salesman_id && { "ms_user.user_id": salesman_id }),
       })
-      .groupBy("wilayah").orderBy("achieve", sort);
+      .groupBy("wilayah")
+      .orderBy("achieve", sort);
     // console.log(query.toSQL().sql);
     return query;
+  }
+  async post(req: Request): Promise<any> {
+    try {
+      const {outlet_id, filename} = req.validated
+      return await db().transaction(async (trx) => {
+        await trx("trx_file_penukaran").insert({
+          outlet_id,
+          filename,
+        });
+        await trx("trx_history_penukaran").insert({
+          outlet_id
+        });
+      });
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  update(req: Request): any{
+    const {id} = req.validated
+    delete req.validated.id
+    return db()("trx_file_penukaran").where({id}).update(req.validated)
+  }
+  getRedeemForm(req: Request): any {
+    const {outlet_id} = req.validated
+    return db()
+      .select("*")
+      .from("trx_file_penukaran")
+      .where({outlet_id})
+      .andWhereRaw("MONTH(uploaded_at) = ?", [new Date().getMonth() + 1]);
   }
 }
 

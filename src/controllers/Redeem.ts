@@ -4,6 +4,16 @@ import response from "../helpers/Response";
 import Service from "../services/Redeem";
 
 class Redeem {
+  async post(req: Request, res: Response): Promise<object | undefined> {
+    try {
+      await Service.post(req);
+      req.log(req, false, "Success get Poin data [200]");
+      return response(res, true, "Redeemption form has been uploaded", null, 200);
+    } catch (error) {
+      req.log(req, true, JSON.stringify(error.message));
+      return response(res, false, null, JSON.stringify(error.message), 500);
+    }
+  }
   async getPointSummary(
     req: Request,
     res: Response
@@ -23,12 +33,12 @@ class Redeem {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let point : any[1] = await Service.getPointSummaryByHR(req);
-      point = point.map((val:any) => ({
+      let point: any[1] = await Service.getPointSummaryByHR(req);
+      point = point.map((val: any) => ({
         ...val,
         diff: val.achieve - val.redeem,
-        percentage: ((val.redeem / val.achieve) * 100).toFixed(2) + "%"
-      }))
+        percentage: ((val.redeem / val.achieve) * 100).toFixed(2) + "%",
+      }));
       point = NumberFormat(point, false, "achieve", "redeem", "diff");
       req.log(req, false, "Success get Poin data [200]");
       return response(res, true, point, null, 200);

@@ -5,7 +5,7 @@ class FileExt {
       R0lGODdh: "image/gif",
       R0lGODlh: "image/gif",
       iVBORw0KGgo: "image/png",
-      "/9j/4QAYRXhpZgAASUkqAAgAAAAAAAAAAAAAAP": "image/jpg",
+      "/9j/4": "image/jpg",
     };
 
     const detectMimeType = (b64: string) => {
