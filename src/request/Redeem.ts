@@ -28,6 +28,37 @@ class Redeem {
     req.validated = { ...value, sort: value.sort || "ASC" };
     next();
   }
+  async validation(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      const schema = joi.object({
+        status_penukaran: joi.number().required(),
+        outlet_id: joi.string().required(),
+      });
+
+      const { value, error } = schema.validate(req.body);
+      if (error) {
+        req.log(req, true, `Validation Error [400] : ${error.message}`);
+        return response(res, false, null, error.message, 400);
+      }
+
+      req.validated = value;
+      const isUploaded = await service.getRedeemForm(req);
+      if (isUploaded.length < 1)
+        return response(res, false, null, "reedemption is not uploaded", 400);
+      const { status_penukaran: status } = isUploaded[0];
+      if (status === 7 || status === 8)
+        return response(res, false, null, "reedemption was validated", 400);
+      console.log(isUploaded);
+      return;
+      next();
+    } catch (error) {
+      console.log(error, "error request");
+    }
+  }
   async post(req: Request, res: Response, next: NextFunction): Promise<any> {
     try {
       const schema = joi.object({
