@@ -64,13 +64,13 @@ class Outlet {
       // .innerJoin("ms_user_scope", "ms_outlet.outlet_id", "ms_user_scope.scope")
       // .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
       .where({
-        ...(distributor_id && { "ms_outlet.distributor_id": distributor_id }),
-        ...(outlet_id && { "ms_outlet.outlet_id": outlet_id }),
-        ...(area_id && { "ms_outlet.area_id": area_id }),
-        ...(region_id && { "ms_outlet.region_id": region_id }),
-        ...(wilayah_id && { "ms_region.head_region_id": wilayah_id }),
-        ...(ass_id && { "ms_dist_pic.ass_id": ass_id }),
-        ...(asm_id && { "ms_dist_pic.asm_id": asm_id }),
+        ...(distributor_id && { "o.distributor_id": distributor_id }),
+        ...(outlet_id && { "o.outlet_id": outlet_id }),
+        ...(area_id && { "o.area_id": area_id }),
+        ...(region_id && { "o.region_id": region_id }),
+        ...(wilayah_id && { "o.head_region_id": wilayah_id }),
+        ...(ass_id && { "pic.ass_id": ass_id }),
+        ...(asm_id && { "pic.asm_id": asm_id }),
         // ...(salesman_id && { "ms_user.user_id": salesman_id }),
       });
     return query;
@@ -97,13 +97,13 @@ class Outlet {
       // .innerJoin("ms_user_scope", "ms_outlet.outlet_id", "ms_user_scope.scope")
       // .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
       .where({
-        ...(distributor_id && { "ms_outlet.distributor_id": distributor_id }),
-        ...(outlet_id && { "ms_outlet.outlet_id": outlet_id }),
-        ...(area_id && { "ms_outlet.area_id": area_id }),
-        ...(region_id && { "ms_outlet.region_id": region_id }),
-        ...(wilayah_id && { "ms_region.head_region_id": wilayah_id }),
-        ...(ass_id && { "ms_dist_pic.ass_id": ass_id }),
-        ...(asm_id && { "ms_dist_pic.asm_id": asm_id }),
+        ...(distributor_id && { "o.distributor_id": distributor_id }),
+        ...(outlet_id && { "o.outlet_id": outlet_id }),
+        ...(area_id && { "o.area_id": area_id }),
+        ...(region_id && { "o.region_id": region_id }),
+        ...(wilayah_id && { "r.head_region_id": wilayah_id }),
+        ...(ass_id && { "pic.ass_id": ass_id }),
+        ...(asm_id && { "pic.asm_id": asm_id }),
         // ...(salesman_id && { "ms_user.user_id": salesman_id }),
       });
     // console.log(query.toSQL().sql);

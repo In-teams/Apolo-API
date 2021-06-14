@@ -37,7 +37,7 @@ class Periode {
   async get(req: Request, res: Response): Promise<object | undefined> {
     try {
       let data: any[1] = await Service.get(req);
-      data = DateFormat(data, "tgl_mulai", "tgl_selesai", "created_at");
+      data = DateFormat.index(data, "tgl_mulai", "tgl_selesai", "created_at");
       req.log(req, false, "Success post data [200]");
       return response(res, true, data, null, 200);
     } catch (error) {

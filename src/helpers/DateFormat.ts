@@ -10,6 +10,9 @@ class DateFormat {
       return { ...row, ...res };
     });
   }
+  getToday(formatDate: string){
+    return moment().format(formatDate)
+  }
 }
 
-export default new DateFormat().index;
+export default new DateFormat();

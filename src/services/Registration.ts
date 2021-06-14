@@ -1,5 +1,6 @@
 import { Request } from "express";
 import db from "../config/db";
+import DateFormat from "../helpers/DateFormat";
 import OutletService from "./Outlet";
 
 class Outlet {
@@ -217,6 +218,7 @@ class Outlet {
           .where({ outlet_id, periode_id })
           .update({
             status_registrasi,
+            validated_at: DateFormat.getToday("YYYY-MM-DD HH:mm:ss")
           });
         await trx("trx_history_registrasi").insert({
           outlet_id,
