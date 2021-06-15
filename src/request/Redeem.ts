@@ -49,11 +49,10 @@ class Redeem {
       const isUploaded = await service.getRedeemForm(req);
       if (isUploaded.length < 1)
         return response(res, false, null, "reedemption is not uploaded", 400);
-      const { status_penukaran: status } = isUploaded[0];
+      const { status_penukaran: status, id } = isUploaded[0];
       if (status === 7 || status === 8)
         return response(res, false, null, "reedemption was validated", 400);
-      console.log(isUploaded);
-      return;
+      req.validated.id = id;
       next();
     } catch (error) {
       console.log(error, "error request");

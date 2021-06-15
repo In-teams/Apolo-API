@@ -1,5 +1,6 @@
 import { Request } from "express";
 import db from "../config/db";
+import DateFormat from "../helpers/DateFormat";
 
 class Redeem {
   getPoint(req: Request): any {
@@ -158,31 +159,53 @@ class Redeem {
   }
   async post(req: Request): Promise<any> {
     try {
-      const {outlet_id, filename} = req.validated
+      const { outlet_id, filename } = req.validated;
       return await db().transaction(async (trx) => {
-        await trx("trx_file_penukaran").insert({
+        const insert = await trx("trx_file_penukaran").insert({
           outlet_id,
           filename,
         });
+
         await trx("trx_history_penukaran").insert({
-          outlet_id
+          outlet_id,
+          file_id: insert[0],
         });
       });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
-  update(req: Request): any{
-    const {id} = req.validated
-    delete req.validated.id
-    return db()("trx_file_penukaran").where({id}).update(req.validated)
+  async validation(req: Request): Promise<any> {
+    try {
+      const { status_penukaran, id, outlet_id } = req.validated;
+      return await db().transaction(async (trx) => {
+        await trx("trx_file_penukaran")
+          .where({ id })
+          .update({
+            status_penukaran,
+            validated_at: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),
+          });
+        await trx("trx_history_penukaran").insert({
+          outlet_id,
+          status_penukaran,
+          file_id: id,
+        });
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  update(req: Request): any {
+    const { id } = req.validated;
+    delete req.validated.id;
+    return db()("trx_file_penukaran").where({ id }).update(req.validated);
   }
   getRedeemForm(req: Request): any {
-    const {outlet_id} = req.validated
+    const { outlet_id } = req.validated;
     return db()
       .select("*")
       .from("trx_file_penukaran")
-      .where({outlet_id})
+      .where({ outlet_id })
       .andWhereRaw("MONTH(uploaded_at) = ?", [new Date().getMonth() + 1]);
   }
 }

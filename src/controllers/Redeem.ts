@@ -14,6 +14,16 @@ class Redeem {
       return response(res, false, null, JSON.stringify(error.message), 500);
     }
   }
+  async validation(req: Request, res: Response): Promise<object | undefined> {
+    try {
+      await Service.validation(req);
+      req.log(req, false, "Success get Poin data [200]");
+      return response(res, true, "Redeemption form has been validated", null, 200);
+    } catch (error) {
+      req.log(req, true, JSON.stringify(error.message));
+      return response(res, false, null, JSON.stringify(error.message), 500);
+    }
+  }
   async getPointSummary(
     req: Request,
     res: Response
