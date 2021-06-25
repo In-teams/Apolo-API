@@ -106,7 +106,7 @@ class Redeem {
 
       next();
     } catch (error) {
-      console.log(error);
+      return response(res, false, null, JSON.stringify(error.message), 400);
     }
   }
 }

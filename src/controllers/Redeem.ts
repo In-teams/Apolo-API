@@ -7,20 +7,16 @@ class Redeem {
   async post(req: Request, res: Response): Promise<object | undefined> {
     try {
       await Service.post(req);
-      req.log(req, false, "Success get Poin data [200]");
       return response(res, true, "Redeemption form has been uploaded", null, 200);
     } catch (error) {
-      req.log(req, true, JSON.stringify(error.message));
       return response(res, false, null, JSON.stringify(error.message), 500);
     }
   }
   async validation(req: Request, res: Response): Promise<object | undefined> {
     try {
       await Service.validation(req);
-      req.log(req, false, "Success get Poin data [200]");
       return response(res, true, "Redeemption form has been validated", null, 200);
     } catch (error) {
-      req.log(req, true, JSON.stringify(error.message));
       return response(res, false, null, JSON.stringify(error.message), 500);
     }
   }
@@ -31,10 +27,8 @@ class Redeem {
     try {
       let point = await Service.getPointSummary(req);
       point = NumberFormat(point, false, "achieve", "redeem");
-      req.log(req, false, "Success get Poin data [200]");
       return response(res, true, point[0], null, 200);
     } catch (error) {
-      req.log(req, true, JSON.stringify(error.message));
       return response(res, false, null, JSON.stringify(error.message), 500);
     }
   }
@@ -50,10 +44,8 @@ class Redeem {
         percentage: ((val.redeem / val.achieve) * 100).toFixed(2) + "%",
       }));
       point = NumberFormat(point, false, "achieve", "redeem", "diff");
-      req.log(req, false, "Success get Poin data [200]");
       return response(res, true, point, null, 200);
     } catch (error) {
-      req.log(req, true, JSON.stringify(error.message));
       return response(res, false, null, JSON.stringify(error.message), 500);
     }
   }

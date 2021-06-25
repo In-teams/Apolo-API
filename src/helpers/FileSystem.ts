@@ -42,7 +42,9 @@ class FileSystem {
       data.shift()
 
       return data;
-    } catch (error) {}
+    } catch (error) {
+      return error
+    }
   }
 }
 
