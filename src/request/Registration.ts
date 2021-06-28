@@ -24,7 +24,6 @@ class Registration {
 
     const { value, error } = schema.validate(req.query);
     if (error) {
-      req.log(req, true, `Validation Error [400] : ${error.message}`);
       return response(res, false, null, error.message, 400);
     }
     req.validated = { ...value, sort: value.sort || "ASC" };
@@ -56,7 +55,6 @@ class Registration {
 
       const { value, error } = schema.validate(req.body);
       if (error) {
-        req.log(req, true, `Validation Error [400] : ${error.message}`);
         return response(res, false, null, error.message, 400);
       }
 
@@ -119,7 +117,6 @@ class Registration {
 
       const { value, error } = schema.validate(req.body);
       if (error) {
-        req.log(req, true, `Validation Error [400] : ${error.message}`);
         return response(res, false, null, error.message, 400);
       }
 

@@ -11,10 +11,8 @@ class User {
       if (level === "ass") data = await Service.getAss(req);
       if (level === "salesman") data = await Service.getSalesman(req);
 
-      req.log(req, false, "Success get User data [200]");
       return response(res, true, data, null, 200);
     } catch (error) {
-      req.log(req, true, JSON.stringify(error.message));
       return response(res, false, null, JSON.stringify(error.message), 500);
     }
   }

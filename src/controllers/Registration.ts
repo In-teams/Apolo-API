@@ -8,10 +8,8 @@ class Registration {
     const path = req.validated.path
     try {
       await Service.post(req);
-      req.log(req, false, "Success get outlet data [200]");
       return response(res, true, "success post registration form", null, 200);
     } catch (error) {
-      req.log(req, true, JSON.stringify(error.message));
       await FileSystem.DeleteFile(path)
       return response(res, false, null, JSON.stringify(error.message), 500);
     }
@@ -20,10 +18,8 @@ class Registration {
     const path = req.validated.path
     try {
       await Service.validation(req);
-      req.log(req, false, "Success get outlet data [200]");
       return response(res, true, "success post registration form", null, 200);
     } catch (error) {
-      req.log(req, true, JSON.stringify(error.message));
       await FileSystem.DeleteFile(path)
       return response(res, false, null, JSON.stringify(error.message), 500);
     }
@@ -38,10 +34,8 @@ class Registration {
         notregist: total_outlet - total,
         totalOutlet: total_outlet,
       };
-      req.log(req, false, "Success get outlet data [200]");
       return response(res, true, result, null, 200);
     } catch (error) {
-      req.log(req, true, JSON.stringify(error.message));
       return response(res, false, null, JSON.stringify(error.message), 500);
     }
   }
@@ -51,10 +45,8 @@ class Registration {
   ): Promise<object | undefined> {
     try {
       const regist: any[] = await Service.getLastRegistration(req);
-      req.log(req, false, "Success get outlet data [200]");
       return response(res, true, regist, null, 200);
     } catch (error) {
-      req.log(req, true, JSON.stringify(error.message));
       return response(res, false, null, JSON.stringify(error.message), 500);
     }
   }
@@ -71,10 +63,8 @@ class Registration {
           ((val.regist / (val.regist + val.notregist)) * 100).toFixed(2) + "%",
       }));
 
-      req.log(req, false, "Success get outlet data [200]");
       return response(res, true, regist, null, 200);
     } catch (error) {
-      req.log(req, true, JSON.stringify(error.message));
       return response(res, false, null, JSON.stringify(error.message), 500);
     }
   }

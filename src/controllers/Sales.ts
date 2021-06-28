@@ -14,10 +14,8 @@ class Sales {
         percentage: ((val.aktual / val.target) * 100).toFixed(2) + " %",
       }));
       sales = NumberFormat(sales, true, "aktual", "target", "avg", "diff");
-      req.log(req, false, "Success add user target [200]");
       return response(res, true, sales[0], null, 200);
     } catch (error) {
-      req.log(req, true, JSON.stringify(error.message));
       return response(res, false, null, JSON.stringify(error.message), 500);
     }
   }
@@ -28,7 +26,6 @@ class Sales {
       data = NumberFormat(data, true, "aktual", "target");
       return response(res, true, data, null, 200);
     } catch (error) {
-      req.log(req, true, JSON.stringify(error.message));
       return response(res, false, null, JSON.stringify(error.message), 500);
     }
   }

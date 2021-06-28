@@ -15,11 +15,6 @@ class Periode {
 
       const { value, error } = schema.validate(req.body);
       if (error) {
-        req.log(
-          req,
-          true,
-          `Post Data Validation Error [400] : ${error.message}`
-        );
         return response(res, false, null, error.message, 400);
       }
 
@@ -53,11 +48,6 @@ class Periode {
 
       const { value, error } = schema.validate({ ...req.body, ...req.params });
       if (error) {
-        req.log(
-          req,
-          true,
-          `Post Data Validation Error [400] : ${error.message}`
-        );
         return response(res, false, null, error.message, 400);
       }
 
@@ -89,11 +79,6 @@ class Periode {
 
       const { value, error } = schema.validate(req.params);
       if (error) {
-        req.log(
-          req,
-          true,
-          `Post Data Validation Error [400] : ${error.message}`
-        );
         return response(res, false, null, error.message, 400);
       }
 

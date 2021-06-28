@@ -18,7 +18,6 @@ class Auth {
 
     const { value, error } = schema.validate(req.query);
     if (error) {
-      req.log(req, true, `Validation Error [400] : ${error.message}`);
       return response(res, false, null, error.message, 400);
     }
     req.validated = { ...value, sort: value.sort || "ASC" };

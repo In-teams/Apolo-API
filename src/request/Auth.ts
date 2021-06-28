@@ -14,7 +14,6 @@ class Auth {
 
     const { value, error } = schema.validate(req.body);
     if (error) {
-      req.log(true, `Login Validation Error [400] : ${error.message}`);
       return response(res, false, null, error.message, 400);
     }
 
@@ -34,11 +33,6 @@ class Auth {
 
       const { value, error } = schema.validate(req.body);
       if (error) {
-        req.log(
-          req,
-          true,
-          `Register By Import Excel Validation Error [400] : ${error.message}`
-        );
         return response(res, false, null, error.message, 400);
       }
 
@@ -58,14 +52,12 @@ class Auth {
 
       await fs.DeleteFile(path);
       if (isError) {
-        req.log(req, true, "Structure file is not allowed [400]");
         return response(res, false, null, "Structure file is not allowed", 400);
       }
 
       req.validated = resp;
       next();
     } catch (error) {
-      req.log(req, true, JSON.stringify(error.message));
       console.log(error);
     }
   }
