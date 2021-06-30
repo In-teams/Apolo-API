@@ -10,6 +10,7 @@ class Redeem {
 	getProduct(req: Request, res: Response, next: NextFunction): any {
 		const schema = joi.object({
 			outlet_id: joi.string().required(),
+			category: joi.string(),
 		});
 
 		const { value, error } = schema.validate(req.query);
@@ -38,6 +39,45 @@ class Redeem {
 		}
 		req.validated = { ...value, sort: value.sort || 'ASC' };
 		next();
+	}
+	async checkout(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<any> {
+		try {
+			const schema = joi.object({
+				product: joi
+					.array()
+					.items(
+						joi.object({
+							product_id: joi.string().required(),
+							qty: joi.number().required(),
+						})
+					)
+					.required(),
+				outlet_id: joi.string().required(),
+			});
+
+			const { value, error } = schema.validate(req.body);
+			if (error) {
+				return response(res, false, null, error.message, 400);
+			}
+
+			if(value.product.length < 1) return response(res, false, null, "must be value at least 1", 400);
+
+			req.validated = value;
+			const isUploaded = await service.getRedeemForm(req);
+			if (isUploaded.length < 1)
+				return response(res, false, null, 'reedemption is not uploaded', 400);
+			const { status_penukaran: status, id } = isUploaded[0];
+			if (status !== 7 && status !== 8)
+				return response(res, false, null, 'reedemption is not validated', 400);
+			req.validated.id = id;
+			next();
+		} catch (error) {
+			console.log(error, 'error request');
+		}
 	}
 	async validation(
 		req: Request,

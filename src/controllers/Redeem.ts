@@ -7,7 +7,8 @@ class Redeem {
 	async getproduct(req: Request, res: Response): Promise<object | undefined> {
 		try {
 			const point: any[] = await Service.getPoint(req);
-			const data: any[] = await Service.getProduct(point[0].perolehan);
+			req.validated.point = point[0].perolehan;
+			const data: any[] = await Service.getProduct(req);
 			return response(res, true, data, null, 200);
 		} catch (error) {
 			return response(res, false, null, JSON.stringify(error.message), 500);
@@ -16,13 +17,38 @@ class Redeem {
 	async post(req: Request, res: Response): Promise<object | undefined> {
 		try {
 			await Service.post(req);
-			return response(
-				res,
-				true,
-				'Redeemption form has been uploaded',
-				null,
-				200
+			return response(res, true, 'Redeemption has been uploaded', null, 200);
+		} catch (error) {
+			return response(res, false, null, JSON.stringify(error.message), 500);
+		}
+	}
+	async checkout(req: Request, res: Response): Promise<object | undefined> {
+		try {
+			req.validated.product_id = req.validated.product.map(
+				(e: any) => e.product_id
 			);
+			const products = await Service.getProduct(req);
+			const result = req.validated.product.map((e: any) => ({
+				...e,
+				category: products.find((x: any) => x.product_id === e.product_id)
+					.category,
+			}));
+			const temp: any[] = [];
+			const valid: [] = result
+				.filter((e: any) => e.category !== 'PULSA' && e.category !== 'EWALLET')
+				.map((e: any) => ({ product_id: e.product_id, qty: e.qty }));
+			const splitted = result
+				.filter(
+					(e: any) =>
+						(e.category === 'PULSA' || e.category === 'EWALLET') && e.qty > 1
+				)
+				.map((e: any) => {
+					for (let i = 0; i < e.qty; i++) {
+						temp.push({ product_id: e.product_id, qty: 1 });
+					}
+				});
+			// await Service.validation(req);
+			return response(res, true, [...temp, ...valid], null, 200);
 		} catch (error) {
 			return response(res, false, null, JSON.stringify(error.message), 500);
 		}

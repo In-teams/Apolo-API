@@ -208,11 +208,19 @@ class Redeem {
 			.where({ outlet_id })
 			.andWhereRaw('MONTH(uploaded_at) = ?', [new Date().getMonth() + 1]);
 	}
-	getProduct(point: number): any {
-		return db()
-			.select('mp.product_id', 'mp.product_name', 'mpb.point')
+	getProduct(req: Request): any {
+		const { point, product_id, category } = req.validated;
+		const query = db()
+			.select('mp.product_id', 'mp.product_name', 'mpb.point', 'mp.category')
 			.from('ms_product as mp')
-			.innerJoin('ms_program_barang as mpb', 'mp.product_id', 'mpb.product_id').whereRaw("point <= ?", [point]);
+			.innerJoin('ms_program_barang as mpb', 'mp.product_id', 'mpb.product_id')
+			.where({
+				...(category && { category }),
+			});
+		if (point) query.whereRaw('point <= ?', [point]);
+		if (product_id) query.whereIn('mp.product_id', product_id);
+
+		return query;
 	}
 }
 
