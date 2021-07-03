@@ -208,6 +208,9 @@ class Redeem {
 			.where({ outlet_id })
 			.andWhereRaw('MONTH(uploaded_at) = ?', [new Date().getMonth() + 1]);
 	}
+	getLastTrCode(): any {
+		return db()("trx_transaksi_redeem").max('kd_transaksi as kd_transaksi')
+	}
 	getProduct(req: Request): any {
 		const { point, product_id, category } = req.validated;
 		const query = db()
@@ -222,6 +225,17 @@ class Redeem {
 
 		return query;
 	}
+	async checkout(req: Request): Promise<any> {
+		try {
+		  return await db().transaction(async (trx) => {
+			await trx("trx_transaksi_redeem").insert(req.validated.data)
+			await trx("trx_transaksi_redeem_barang").insert(req.validated.detail)
+		  });
+		  // return db()("trx_file_registrasi").insert(req.validated);
+		} catch (error) {
+		  console.log(error, "<<<");
+		}
+	  }
 }
 
 export default new Redeem();

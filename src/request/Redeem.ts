@@ -52,7 +52,7 @@ class Redeem {
 					.items(
 						joi.object({
 							product_id: joi.string().required(),
-							qty: joi.number().required(),
+							quantity: joi.number().required(),
 						})
 					)
 					.required(),
