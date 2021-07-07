@@ -28,6 +28,7 @@ class App {
   protected routes(): void {
     const route = this.app;
     route.use("/api/v1", Route);
+    route.get('/', (req: Request, res: Response) => res.send("Server running"))
     route.get("*", (req: Request, res: Response) => {
       res.status(404).send("not found");
     });

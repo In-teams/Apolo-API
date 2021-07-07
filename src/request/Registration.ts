@@ -100,7 +100,7 @@ class Registration {
       await FileSystem.WriteFile(path, value.file, true);
       next();
     } catch (error) {
-      console.log(error, "error request");
+      return response(res, false, null, JSON.stringify(error), 400)
     }
   }
   async validation(
@@ -129,7 +129,7 @@ class Registration {
         return response(res, false, null, "registration was validated", 400);
       next();
     } catch (error) {
-      console.log(error, "error request");
+      return response(res, false, null, JSON.stringify(error), 400)
     }
   }
 }
