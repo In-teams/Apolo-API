@@ -10,7 +10,7 @@ class Sales {
       sales = sales.map((val: any) => ({
         ...val,
         avg: val.aktual / val.total_outlet,
-        diff: val.aktual - val.target,
+        diff:  val.target - val.aktual,
         percentage: ((val.aktual / val.target) * 100).toFixed(2) + " %",
       }));
       sales = NumberFormat(sales, true, "aktual", "target", "avg", "diff");
