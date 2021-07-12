@@ -13,6 +13,7 @@ class db {
         password: DB_PASS,
         database: DB_NAME,
       },
+      pool: { min: 0, max: 7 }
     });
     return config;
   }
