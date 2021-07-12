@@ -85,7 +85,7 @@ class Sales {
         // ...(salesman_id && { "ms_user.user_id": salesman_id }),
       });
     if (month)
-      query.andWhereRaw("MONTHNAME(trx_transaksi.tgl_transaksi) = ?", [month]);
+      query.andWhereRaw("MONTHNAME(tr.tgl_transaksi) = ?", [month]);
     // console.log(query.toSQL().toNative().sql);
     return query;
   }
@@ -135,7 +135,6 @@ class Sales {
     if (month)
       query.andWhereRaw("MONTHNAME(trx_transaksi.tgl_transaksi) = ?", [month]);
     query.groupBy("wilayah").orderBy("aktual", sort);
-    console.log(query.toSQL().toNative().sql);
     return query;
   }
   getSummary(req: Request): any {
@@ -176,8 +175,8 @@ class Sales {
         ...(asm_id && { "pic.asm_id": asm_id }),
         // ...(salesman_id && { "ms_user.user_id": salesman_id }),
       });
-    if (month)
-      query.andWhereRaw("MONTHNAME(trx_transaksi.tgl_transaksi) = ?", [month]);
+    // if (month)
+    //   query.andWhereRaw("MONTHNAME(trx_transaksi.tgl_transaksi) = ?", [month]);
     // console.log(query.toSQL().toNative().sql);
     return query;
   }

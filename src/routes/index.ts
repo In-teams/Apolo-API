@@ -13,6 +13,7 @@ import RegistrationRoute from "./Registration";
 import UserRoute from "./User";
 import ExampleRoute from "./Example";
 import PeriodeRoute from "./Periode";
+import AppRoute from "./App";
 
 class Index implements IRouter {
   public router: Router;
@@ -32,6 +33,7 @@ class Index implements IRouter {
     route.use("/redeem", RedeemRoute);
     route.use("/registration", RegistrationRoute);
     route.use("/periode", PeriodeRoute);
+    route.use("/app", AppRoute);
     route.use("/user", UserRoute);
     route.use("/distributor", DistributorRoute);
     route.use("/example", Token.checkToken, ExampleRoute);
