@@ -6,7 +6,15 @@ import Service from "../services/Sales";
 class Sales {
   async get(req: Request, res: Response): Promise<object | undefined> {
     try {
-      let sales: any[1] = await Service.getSummary(req);
+      interface result {
+				aktual: number;
+				target: number;
+				total_outlet: number;
+				avg: number;
+				diff: number;
+				percentage: string;
+			}
+      let sales: result[] = await Service.getSummary(req);
       sales = sales.map((val: any) => ({
         ...val,
         avg: val.aktual / val.total_outlet,
@@ -20,9 +28,22 @@ class Sales {
     }
   }
 
-  async getSummary(req: Request, res: Response): Promise<object | undefined> {
+  async getSummaryByHR(req: Request, res: Response): Promise<object | undefined> {
     try {
-      let data: any[1] = await Service.getSummaryByHR(req);
+      interface result {
+				aktual: number;
+				target: number;
+			}
+      let data: result[] = await Service.getSummaryByHR(req);
+      data = NumberFormat(data, true, "aktual", "target");
+      return response(res, true, data, null, 200);
+    } catch (error) {
+      return response(res, false, null, JSON.stringify(error.message), 500);
+    }
+  }
+  async getSummaryByAchieve(req: Request, res: Response): Promise<object | undefined> {
+    try {
+      let data: any[1] = await Service.getSummaryByAchieve(req);
       data = NumberFormat(data, true, "aktual", "target");
       return response(res, true, data, null, 200);
     } catch (error) {

@@ -256,6 +256,67 @@
 			]
 		},
 		{
+			"name": "User",
+			"item": [
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/user?level=ass",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user"
+							],
+							"query": [
+								{
+									"key": "area_id",
+									"value": "2000",
+									"description": "area_id",
+									"disabled": true
+								},
+								{
+									"key": "region_id",
+									"value": "R2",
+									"description": "region_id",
+									"disabled": true
+								},
+								{
+									"key": "distributor_id",
+									"value": "100000",
+									"description": "distributor_id",
+									"disabled": true
+								},
+								{
+									"key": "wilayah_id",
+									"value": "NI",
+									"description": "wilayah_id",
+									"disabled": true
+								},
+								{
+									"key": "level",
+									"value": "ass",
+									"description": "ass, asm, salesman (required)"
+								},
+								{
+									"key": "ass_id",
+									"value": "MdlzCJ0101",
+									"description": "get asm by ass",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Sales",
 			"item": [
 				{
@@ -296,6 +357,12 @@
 									"key": "wilayah_id",
 									"value": "NI",
 									"description": "wilayah_id",
+									"disabled": true
+								},
+								{
+									"key": "month",
+									"value": "JANUARY",
+									"description": "get all month if empty",
 									"disabled": true
 								}
 							]
@@ -373,6 +440,71 @@
 								"v1",
 								"registration",
 								"summary"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "App",
+			"item": [
+				{
+					"name": "get month",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/app/month",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"app",
+								"month"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get quarter",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/app/quarter",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"app",
+								"quarter"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get year",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/app/year",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"app",
+								"year"
 							]
 						}
 					},
