@@ -153,9 +153,8 @@ class Sales {
 			.select(
 				'mst.target_annual',
 				'o.outlet_id',
-        'mst.month_target',
 				db().raw(
-					"SUM(trb.sales) as sales, CASE WHEN ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) >= 25 and ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) < 50 then '25% - 50%' WHEN ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) >= 50 and ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) < 75 THEN '50% - 75%' WHEN ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) >= 75 AND ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) < 95 THEN '75% - 95%' WHEN ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) >= 95 AND ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) < 100 THEN '95% - 100%' else '>= 100%' end as cluster"
+					"SUM(trb.sales) as sales, CASE when round((sum(trb.sales)/mst.target_annual) * 100, 5) < 25 or trb.sales is null then '0% - 25%' WHEN ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) >= 25 and ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) < 50 then '25% - 50%' WHEN ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) >= 50 and ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) < 75 THEN '50% - 75%' WHEN ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) >= 75 AND ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) < 95 THEN '75% - 95%' WHEN ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) >= 95 AND ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) < 100 THEN '95% - 100%' else '>= 100%' end as cluster"
 				)
 			)
 			.from('ms_outlet as o')
@@ -167,20 +166,33 @@ class Sales {
 				'r.head_region_id',
 				'hr.head_region_id'
 			)
-			.leftJoin(
+			.innerJoin(
 				'trx_transaksi_barang as trb',
 				'trb.kd_transaksi',
 				'tr.kd_transaksi'
 			)
-			.leftJoin(
-				db().raw(
-					'(select outlet_id, sum(target_sales) as target_annual from ms_sales_target group by outlet_id) as mst'
-				),
+			.innerJoin(
+				db()
+					.select('mst.outlet_id')
+					.sum('mst.target_sales as target_annual')
+					.from('ms_sales_target as mst')
+					.innerJoin('ms_outlet as o', 'o.outlet_id', 'mst.outlet_id')
+					.where({
+						...(month && { month_target: month }),
+						...(outlet_id && { 'o.outlet_id': outlet_id }),
+						...(area_id && { 'o.area_id': area_id }),
+						...(region_id && { 'o.region_id': region_id }),
+						...(distributor_id && { 'o.distributor_id': distributor_id }),
+						...(wilayah_id && { 'r.head_region_id': wilayah_id }),
+						...(ass_id && { 'pic.ass_id': ass_id }),
+						...(asm_id && { 'pic.asm_id': asm_id }),
+					})
+					.groupBy('outlet_id')
+					.as('mst'),
 				'mst.outlet_id',
 				'o.outlet_id'
 			)
 			.where({
-        ...(month && { 'mst.month_target': month }),
 				...(outlet_id && { 'o.outlet_id': outlet_id }),
 				...(area_id && { 'o.area_id': area_id }),
 				...(region_id && { 'o.region_id': region_id }),
@@ -188,9 +200,10 @@ class Sales {
 				...(wilayah_id && { 'r.head_region_id': wilayah_id }),
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
-			})
-			.groupBy('outlet_id')
-			.as('custom');
+			});
+			month && query.whereRaw('MONTHNAME(tr.tgl_transaksi) = ?', [month])
+			query.groupBy('outlet_id')
+			query.as('custom');
 		return query;
 	}
 	getSummaryByAchieve(req: Request): any {
