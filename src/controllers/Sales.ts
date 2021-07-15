@@ -44,6 +44,22 @@ class Sales {
 			return response(res, false, null, JSON.stringify(error.message), 500);
 		}
 	}
+	async getSummaryByASM(
+		req: Request,
+		res: Response
+	): Promise<object | undefined> {
+		try {
+			interface result {
+				aktual: number;
+				target: number;
+			}
+			let data: result[] = await Service.getSummaryByASM(req);
+			data = NumberFormat(data, true, 'aktual', 'target');
+			return response(res, true, data, null, 200);
+		} catch (error) {
+			return response(res, false, null, JSON.stringify(error.message), 500);
+		}
+	}
 	async getSummaryByAchieve(
 		req: Request,
 		res: Response

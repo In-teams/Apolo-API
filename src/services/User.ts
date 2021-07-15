@@ -12,8 +12,8 @@ class Region {
       ass_id, salesman_id
     } = req.validated;
     const query = db()
-      .select("ms_dist_pic.asm_id", "ms_pic.nama_pic")
-      .distinct("ms_dist_pic.distributor_id")
+      .select("ms_pic.nama_pic")
+      .distinct("ms_dist_pic.asm_id")
       .from("ms_dist_pic")
       .innerJoin(
         "ms_outlet",
