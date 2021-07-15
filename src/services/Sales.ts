@@ -183,7 +183,6 @@ class Sales {
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
 		query.groupBy('nama_pic').orderBy('aktual', sort).limit(5);
-		console.log(query.toSQL().sql)
 		return query;
 	}
 	getSummaryByCluster(req: Request): any {
