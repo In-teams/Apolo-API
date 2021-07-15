@@ -6,6 +6,7 @@ class Auth {
   get(req: Request, res: Response, next: NextFunction): any {
     const schema = joi.object({
       wilayah_id: joi.string(),
+      area_id: joi.string(),
       region_id: joi.string(),
       distributor_id: joi.string(),
       outlet_id: joi.string(),

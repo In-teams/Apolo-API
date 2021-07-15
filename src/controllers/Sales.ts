@@ -62,7 +62,7 @@ class Sales {
 			data = data.map((e: any) => ({
 				...e,
 				bobot: ((e.aktual / target) * 100).toFixed(2) + '%',
-        progress: ((e.outlet / outlet) * 100).toFixed(2) + '%',
+				progress: ((e.outlet / outlet) * 100).toFixed(2) + '%',
 			}));
 			data = [
 				...data,
@@ -72,7 +72,7 @@ class Sales {
 					target,
 					outlet,
 					bobot: ((aktual / target) * 100).toFixed(2) + '%',
-          progress: '100%'
+					progress: '100%',
 				},
 			];
 			data = NumberFormat(data, true, 'aktual', 'target');
