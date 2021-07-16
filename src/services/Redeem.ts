@@ -69,7 +69,7 @@ class Redeem {
 				...(outlet_id && { 'o.outlet_id': outlet_id }),
 				...(area_id && { 'o.area_id': area_id }),
 				...(region_id && { 'o.region_id': region_id }),
-				...(wilayah_id && { 'o.head_region_id': wilayah_id }),
+				...(wilayah_id && { 'r.head_region_id': wilayah_id }),
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),

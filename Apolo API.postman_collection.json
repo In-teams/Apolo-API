@@ -202,6 +202,52 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "get outlet active",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/outlet/active",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"outlet",
+								"active"
+							],
+							"query": [
+								{
+									"key": "area_id",
+									"value": "2000",
+									"description": "area_id",
+									"disabled": true
+								},
+								{
+									"key": "region_id",
+									"value": "R2",
+									"description": "region_id",
+									"disabled": true
+								},
+								{
+									"key": "distributor_id",
+									"value": "100000",
+									"description": "distributor_id",
+									"disabled": true
+								},
+								{
+									"key": "wilayah_id",
+									"value": "NI",
+									"description": "wilayah_id",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -560,6 +606,71 @@
 								"v1",
 								"registration",
 								"summary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/registration/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"registration",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Redeem",
+			"item": [
+				{
+					"name": "get summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/redeem/summary",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"redeem",
+								"summary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/redeem/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"redeem",
+								""
 							]
 						}
 					},
