@@ -121,6 +121,44 @@ class Sales {
 			return response(res, false, null, JSON.stringify(error.message), 500);
 		}
 	}
+	async getSummaryPerQuarter(
+		req: Request,
+		res: Response
+	): Promise<object | undefined> {
+		try {
+			let data: any[1] = await Service.getSummaryPerQuarter(req);
+			let aktual: number = 0,
+				poin: number =0,
+				target: number = 0;
+			data.map((e: any) => {
+				aktual += e.aktual;
+				target += e.target;
+				poin += e.poin;
+			});
+
+			data = data.map((e: any) => ({
+				...e,
+				bobot: ((e.aktual / target) * 100).toFixed(2) + '%',
+				// progress: ((e.outlet / outlet) * 100).toFixed(2) + '%',
+			}));
+			data = [
+				...data,
+				{
+					bulan: `Kuartal ${req.validated.quarter}`,
+					aktual,
+					target,
+					poin,
+					// outlet,
+					bobot: ((aktual / target) * 100).toFixed(2) + '%',
+				},
+			];
+			data = NumberFormat(data, true, 'aktual', 'target');
+			data = NumberFormat(data, false, 'poin');
+			return response(res, true, data, null, 200);
+		} catch (error) {
+			return response(res, false, null, JSON.stringify(error.message), 500);
+		}
+	}
 }
 
 export default new Sales();
