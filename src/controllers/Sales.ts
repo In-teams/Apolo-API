@@ -163,6 +163,10 @@ class Sales {
 	): Promise<object | undefined> {
 		try {
 			let data: any[1] = await Service.getSummaryPerSemester(req);
+			data = data.map((e:any) => ({
+				...e,
+				bobot: ((e.aktual / e.target) * 100).toFixed(2) + '%',
+			}))
 			data = NumberFormat(data, true, 'aktual', 'target');
 			data = NumberFormat(data, false, 'poin');
 			return response(res, true, data, null, 200);
