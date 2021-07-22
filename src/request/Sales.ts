@@ -19,7 +19,8 @@ class Auth {
 			salesman_id: joi.string(),
 			distributor_id: joi.string(),
 			outlet_id: joi.string(),
-			quarter_id: joi.number().valid(1,2,3,4),
+			quarter_id: joi.number().valid(1, 2, 3, 4),
+			sem: joi.number().valid(1, 2, 3, 4),
 		});
 
 		const { value, error } = schema.validate(req.query);
@@ -36,6 +37,17 @@ class Auth {
 				400
 			);
 		let quarter: number[] = [];
+		let semester: number[] = [];
+		if (value.sem) {
+			switch (value.sem) {
+				case 1:
+					semester = [1, 2, 3, 4, 5, 6];
+					break;
+				case 2:
+					semester = [7, 8, 9, 10, 11, 12];
+					break;
+			}
+		}
 		if (value.quarter_id) {
 			switch (value.quarter_id) {
 				case 1:
@@ -57,7 +69,8 @@ class Auth {
 			...value,
 			page,
 			sort,
-      quarter: value.quarter_id,
+			quarter: value.quarter_id,
+			...(value.sem && { semester_id: semester }),
 			...(value.quarter_id && { quarter_id: quarter }),
 		};
 		next();
