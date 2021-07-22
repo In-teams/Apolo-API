@@ -703,6 +703,63 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "get summary per year (2 semester)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/sales/summary/year",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sales",
+								"summary",
+								"year"
+							],
+							"query": [
+								{
+									"key": "area_id",
+									"value": "1000",
+									"description": "area_id",
+									"disabled": true
+								},
+								{
+									"key": "region_id",
+									"value": "R2",
+									"description": "region_id",
+									"disabled": true
+								},
+								{
+									"key": "distributor_id",
+									"value": "100000",
+									"description": "distributor_id",
+									"disabled": true
+								},
+								{
+									"key": "wilayah_id",
+									"value": "NI",
+									"description": "wilayah_id",
+									"disabled": true
+								},
+								{
+									"key": "outlet_id",
+									"value": "100000-BRY004",
+									"disabled": true
+								},
+								{
+									"key": "month",
+									"value": "JANUARY",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

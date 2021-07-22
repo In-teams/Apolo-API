@@ -162,9 +162,29 @@ class Sales {
 		res: Response
 	): Promise<object | undefined> {
 		try {
+			if(!req.validated.semester_id) return response(res, false, null, 'sem is required', 400);
 			let data: any[1] = await Service.getSummaryPerSemester(req);
 			data = data.map((e:any) => ({
 				...e,
+				kuartal: `Kuartal ${e.kuartal}`,
+				bobot: ((e.aktual / e.target) * 100).toFixed(2) + '%',
+			}))
+			data = NumberFormat(data, true, 'aktual', 'target');
+			data = NumberFormat(data, false, 'poin');
+			return response(res, true, data, null, 200);
+		} catch (error) {
+			return response(res, false, null, JSON.stringify(error.message), 500);
+		}
+	}
+	async getSummaryPerYear(
+		req: Request,
+		res: Response
+	): Promise<object | undefined> {
+		try {
+			let data: any[1] = await Service.getSummaryPerYear(req);
+			data = data.map((e:any) => ({
+				...e,
+				kuartal: `Semester ${e.kuartal}`,
 				bobot: ((e.aktual / e.target) * 100).toFixed(2) + '%',
 			}))
 			data = NumberFormat(data, true, 'aktual', 'target');
