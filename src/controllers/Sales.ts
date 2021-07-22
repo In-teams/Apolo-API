@@ -194,6 +194,24 @@ class Sales {
 			return response(res, false, null, JSON.stringify(error.message), 500);
 		}
 	}
+	async getSummaryPerYears(
+		req: Request,
+		res: Response
+	): Promise<object | undefined> {
+		try {
+			let data: any[1] = await Service.getSummaryByYear(req);
+			data = data.map((e:any) => ({
+				...e,
+				kuartal: 'Tahunan',
+				bobot: ((e.aktual / e.target) * 100).toFixed(2) + '%',
+			}))
+			data = NumberFormat(data, true, 'aktual', 'target');
+			data = NumberFormat(data, false, 'poin');
+			return response(res, true, data, null, 200);
+		} catch (error) {
+			return response(res, false, null, JSON.stringify(error.message), 500);
+		}
+	}
 }
 
 export default new Sales();

@@ -606,6 +606,100 @@ class Sales {
 
 		return query;
 	}
+	getSummaryByYear(req: Request) {
+		const {
+			outlet_id,
+			area_id,
+			wilayah_id,
+			distributor_id,
+			region_id,
+			month,
+			ass_id,
+			asm_id,
+			salesman_id,
+		} = req.validated;
+		const query = db()
+			.select()
+			.sum('target as target')
+			.sum('aktual as aktual')
+			.sum('poin as poin')
+			.from('ms_bulan as b')
+			.leftJoin(
+				db()
+					.select('bulan_id', 'target', 'aktual', 'poin')
+					.from('ms_outlet as o')
+					.innerJoin(
+						db()
+							.select('st.outlet_id', 'month_target')
+							.sum('target_sales as target')
+							.from('ms_sales_target as st')
+							.innerJoin('ms_outlet as o', 'o.outlet_id', 'st.outlet_id')
+							.innerJoin('ms_region as r', 'o.region_id', 'r.region_id')
+
+							.innerJoin(
+								'ms_dist_pic as pic',
+								'o.distributor_id',
+								'pic.distributor_id'
+							)
+							.where({
+								...(outlet_id && { 'o.outlet_id': outlet_id }),
+								...(area_id && { 'o.area_id': area_id }),
+								...(region_id && { 'o.region_id': region_id }),
+								...(distributor_id && { 'o.distributor_id': distributor_id }),
+								...(wilayah_id && { 'r.head_region_id': wilayah_id }),
+								...(ass_id && { 'pic.ass_id': ass_id }),
+								...(asm_id && { 'pic.asm_id': asm_id }),
+								// ...(salesman_id && { "ms_user.user_id": salesman_id }),
+							})
+							.groupBy('month_target')
+							.as('mst'),
+						'mst.outlet_id',
+						'o.outlet_id'
+					)
+					.innerJoin(
+						db()
+							.select(
+								db().raw('MONTHNAME(tr.tgl_transaksi) as bulan'),
+								db().raw('MONTH(tr.tgl_transaksi) as bulan_id')
+							)
+							.sum('sales as aktual')
+							.sum('point_satuan as poin')
+							.from('trx_transaksi_barang as trb')
+							.innerJoin(
+								'trx_transaksi as tr',
+								'tr.kd_transaksi',
+								'trb.kd_transaksi'
+							)
+							.innerJoin('ms_outlet as o', 'o.outlet_id', 'tr.no_id')
+							.innerJoin('ms_region as r', 'o.region_id', 'r.region_id')
+
+							.innerJoin(
+								'ms_dist_pic as pic',
+								'o.distributor_id',
+								'pic.distributor_id'
+							)
+							.where({
+								...(outlet_id && { 'o.outlet_id': outlet_id }),
+								...(area_id && { 'o.area_id': area_id }),
+								...(region_id && { 'o.region_id': region_id }),
+								...(distributor_id && { 'o.distributor_id': distributor_id }),
+								...(wilayah_id && { 'r.head_region_id': wilayah_id }),
+								...(ass_id && { 'pic.ass_id': ass_id }),
+								...(asm_id && { 'pic.asm_id': asm_id }),
+								// ...(salesman_id && { "ms_user.user_id": salesman_id }),
+							})
+							.groupBy('bulan')
+							.as('trb'),
+						'trb.bulan',
+						'month_target'
+					)
+					.as('sub'),
+				'sub.bulan_id',
+				'b.id'
+			);
+
+		return query;
+	}
 }
 
 export default new Sales();
