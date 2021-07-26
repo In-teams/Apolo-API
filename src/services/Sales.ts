@@ -226,6 +226,17 @@ class Sales {
 					.sum('mst.target_sales as target_annual')
 					.from('ms_sales_target as mst')
 					.innerJoin('ms_outlet as o', 'o.outlet_id', 'mst.outlet_id')
+					.innerJoin(
+						'ms_dist_pic as pic',
+						'o.distributor_id',
+						'pic.distributor_id'
+					)
+					.innerJoin('ms_region as r', 'o.region_id', 'r.region_id')
+					.innerJoin(
+						'ms_head_region as hr',
+						'r.head_region_id',
+						'hr.head_region_id'
+					)
 					.where({
 						...(month && { month_target: month }),
 						...(outlet_id && { 'o.outlet_id': outlet_id }),
