@@ -21,7 +21,7 @@ class Region {
         "ms_outlet.distributor_id"
       )
       .innerJoin("ms_user_scope", "ms_outlet.outlet_id", "ms_user_scope.scope")
-      .innerJoin("ms_pic", "ms_dist_pic.ass_id", "ms_pic.kode_pic")
+      .innerJoin("ms_pic", "ms_dist_pic.asm_id", "ms_pic.kode_pic")
       .innerJoin("ms_region", "ms_outlet.region_id", "ms_region.region_id")
       .where({
         ...(ass_id && { "ms_dist_pic.ass_id": ass_id }),
@@ -33,7 +33,6 @@ class Region {
         ...(wilayah_id && { "ms_region.head_region_id": wilayah_id }),
       })
       .orderBy("ms_dist_pic.asm_id");
-    // console.log(query.toSQL().toNative());
     return query;
   }
   getAss(req: Request): any {
