@@ -13,32 +13,31 @@ class Distributor {
       salesman_id,
     } = req.validated;
     const query = db()
-      .select("ms_distributor.distributor_name")
-      .distinct("ms_distributor.distributor_id")
-      .from("ms_distributor")
+      .select("d.distributor_name")
+      .distinct("d.distributor_id")
+      .from("mstr_distributor as d")
       .innerJoin(
-        "ms_outlet",
-        "ms_distributor.distributor_id",
-        "ms_outlet.distributor_id"
+        "mstr_outlet as o",
+        "d.distributor_id",
+        "o.distributor_id"
       )
-      .innerJoin("ms_region", "ms_outlet.region_id", "ms_region.region_id")
-      .innerJoin("ms_user_scope", "ms_outlet.outlet_id", "ms_user_scope.scope")
+      .innerJoin("ms_pulau_alias as r", "o.region_id", "r.pulau_id_alias")
+      .innerJoin("ms_user_scope as us", "o.outlet_id", "us.scope")
       .innerJoin(
-        "ms_dist_pic",
-        "ms_outlet.distributor_id",
-        "ms_dist_pic.distributor_id"
+        "ms_dist_pic as pic",
+        "o.distributor_id",
+        "pic.distributor_id"
       )
       .where({
-        ...(outlet_id && { "ms_outlet.outlet_id": outlet_id }),
-        ...(area_id && { "ms_outlet.area_id": area_id }),
-        ...(region_id && { "ms_outlet.region_id": region_id }),
-        ...(wilayah_id && { "ms_region.head_region_id": wilayah_id }),
-        ...(ass_id && { "ms_dist_pic.ass_id": ass_id }),
-        ...(asm_id && { "ms_dist_pic.asm_id": asm_id }),
-        ...(salesman_id && { "ms_user_scope.user_id": salesman_id }),
+        ...(outlet_id && { "o.outlet_id": outlet_id }),
+        ...(area_id && { "o.city_id_alias": area_id }),
+        ...(region_id && { "o.region_id": region_id }),
+        ...(wilayah_id && { "r.head_region_id": wilayah_id }),
+        ...(ass_id && { "pic.ass_id": ass_id }),
+        ...(asm_id && { "pic.asm_id": asm_id }),
+        ...(salesman_id && { "us.user_id": salesman_id }),
       })
-      .orderBy("ms_distributor.distributor_id");
-    // console.log(query.toSQL().toNative());
+      .orderBy("distributor_id");
     return query;
   }
 }
