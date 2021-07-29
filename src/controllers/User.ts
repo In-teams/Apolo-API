@@ -22,11 +22,11 @@ class User {
 					ass_id: null,
 				};
 			} else if (level === 'salesman') {
-        data = await Service.getSalesman(req);
-				add = {
-					nama_pic: 'ALL',
-					ass_id: null,
-				};
+				// data = await Service.getSalesman(req);
+				// add = {
+				// 	nama_pic: 'ALL',
+				// 	ass_id: null,
+				// };
 			}
 
 			return response(res, true, [add, ...data], null, 200);
