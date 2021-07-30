@@ -18,21 +18,29 @@ class Sales {
 		const query = db()
 			.select()
 			.sum('st.target_sales as total')
-			.from('ms_sales_target as st')
-			.innerJoin('ms_outlet as o', 'st.outlet_id', 'o.outlet_id')
+			.from(
+				db()
+					.select('*')
+					.from('mstr_sales_target')
+					.union([db().select('*').from('mstr_sales_target2')])
+					.union([db().select('*').from('mstr_sales_target3')])
+					.union([db().select('*').from('mstr_sales_target4')])
+					.as('st')
+			)
+			.innerJoin('mstr_outlet as o', 'st.outlet_id', 'o.outlet_id')
 			.innerJoin('ms_dist_pic as pic', 'o.distributor_id', 'pic.distributor_id')
-			.innerJoin('ms_region as r', 'o.region_id', 'r.region_id')
+			.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
 			.innerJoin(
 				'ms_head_region as hr',
 				'r.head_region_id',
 				'hr.head_region_id'
 			)
-			// .innerJoin("ms_user_scope", "ms_outlet.outlet_id", "ms_user_scope.scope")
+			// .innerJoin("ms_user_scope", "mstr_outlet.outlet_id", "ms_user_scope.scope")
 			// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
 			.where({
 				...(month && { month_target: month }),
 				...(outlet_id && { 'o.outlet_id': outlet_id }),
-				...(area_id && { 'o.area_id': area_id }),
+				...(area_id && { 'o.city_id_alias': area_id }),
 				...(region_id && { 'o.region_id': region_id }),
 				...(distributor_id && { 'o.distributor_id': distributor_id }),
 				...(wilayah_id && { 'r.head_region_id': wilayah_id }),
@@ -64,19 +72,19 @@ class Sales {
 				'tr.kd_transaksi',
 				'trb.kd_transaksi'
 			)
-			.innerJoin('ms_outlet as o', 'tr.no_id', 'o.outlet_id')
+			.innerJoin('mstr_outlet as o', 'tr.no_id', 'o.outlet_id')
 			.innerJoin('ms_dist_pic as pic', 'o.distributor_id', 'pic.distributor_id')
-			.innerJoin('ms_region as r', 'o.region_id', 'r.region_id')
+			.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
 			.innerJoin(
 				'ms_head_region as hr',
 				'r.head_region_id',
 				'hr.head_region_id'
 			)
-			// .innerJoin("ms_user_scope", "ms_outlet.outlet_id", "ms_user_scope.scope")
+			// .innerJoin("ms_user_scope", "mstr_outlet.outlet_id", "ms_user_scope.scope")
 			// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
 			.where({
 				...(outlet_id && { 'o.outlet_id': outlet_id }),
-				...(area_id && { 'o.area_id': area_id }),
+				...(area_id && { 'o.city_id_alias': area_id }),
 				...(region_id && { 'o.region_id': region_id }),
 				...(distributor_id && { 'o.distributor_id': distributor_id }),
 				...(wilayah_id && { 'r.head_region_id': wilayah_id }),
@@ -111,8 +119,8 @@ class Sales {
 					.where('r.head_region_id', '=', db().raw('mhr.head_region_id'))
 					.as('target')
 			)
-			.from('ms_outlet as o')
-			.innerJoin('ms_region as r', 'o.region_id', 'r.region_id')
+			.from('mstr_outlet as o')
+			.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
 			.innerJoin(
 				'ms_head_region as mhr',
 				'r.head_region_id',
@@ -123,7 +131,7 @@ class Sales {
 			// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
 			.where({
 				...(outlet_id && { 'o.outlet_id': outlet_id }),
-				...(area_id && { 'o.area_id': area_id }),
+				...(area_id && { 'o.city_id_alias': area_id }),
 				...(region_id && { 'o.region_id': region_id }),
 				...(distributor_id && { 'o.distributor_id': distributor_id }),
 				...(wilayah_id && { 'r.head_region_id': wilayah_id }),
@@ -159,8 +167,8 @@ class Sales {
 					.where('pic.asm_id', '=', db().raw('mp.kode_pic'))
 					.as('target')
 			)
-			.from('ms_outlet as o')
-			.innerJoin('ms_region as r', 'o.region_id', 'r.region_id')
+			.from('mstr_outlet as o')
+			.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
 			.innerJoin(
 				'ms_head_region as mhr',
 				'r.head_region_id',
@@ -172,7 +180,7 @@ class Sales {
 			// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
 			.where({
 				...(outlet_id && { 'o.outlet_id': outlet_id }),
-				...(area_id && { 'o.area_id': area_id }),
+				...(area_id && { 'o.city_id_alias': area_id }),
 				...(region_id && { 'o.region_id': region_id }),
 				...(distributor_id && { 'o.distributor_id': distributor_id }),
 				...(wilayah_id && { 'r.head_region_id': wilayah_id }),
@@ -206,10 +214,10 @@ class Sales {
 					"SUM(trb.sales) as sales, CASE when round((sum(trb.sales)/mst.target_annual) * 100, 5) < 25 or trb.sales is null then '0% - 25%' WHEN ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) >= 25 and ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) < 50 then '25% - 50%' WHEN ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) >= 50 and ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) < 75 THEN '50% - 75%' WHEN ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) >= 75 AND ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) < 95 THEN '75% - 95%' WHEN ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) >= 95 AND ROUND((SUM(trb.sales)/mst.target_annual) * 100, 5) < 100 THEN '95% - 100%' else '>= 100%' end as cluster"
 				)
 			)
-			.from('ms_outlet as o')
+			.from('mstr_outlet as o')
 			.leftJoin('trx_transaksi as tr', 'tr.no_id', 'o.outlet_id')
 			.innerJoin('ms_dist_pic as pic', 'o.distributor_id', 'pic.distributor_id')
-			.innerJoin('ms_region as r', 'o.region_id', 'r.region_id')
+			.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
 			.innerJoin(
 				'ms_head_region as hr',
 				'r.head_region_id',
@@ -224,14 +232,14 @@ class Sales {
 				db()
 					.select('mst.outlet_id')
 					.sum('mst.target_sales as target_annual')
-					.from('ms_sales_target as mst')
-					.innerJoin('ms_outlet as o', 'o.outlet_id', 'mst.outlet_id')
+					.from('mstr_sales_target as mst')
+					.innerJoin('mstr_outlet as o', 'o.outlet_id', 'mst.outlet_id')
 					.innerJoin(
 						'ms_dist_pic as pic',
 						'o.distributor_id',
 						'pic.distributor_id'
 					)
-					.innerJoin('ms_region as r', 'o.region_id', 'r.region_id')
+					.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
 					.innerJoin(
 						'ms_head_region as hr',
 						'r.head_region_id',
@@ -240,7 +248,7 @@ class Sales {
 					.where({
 						...(month && { month_target: month }),
 						...(outlet_id && { 'o.outlet_id': outlet_id }),
-						...(area_id && { 'o.area_id': area_id }),
+						...(area_id && { 'o.city_id_alias': area_id }),
 						...(region_id && { 'o.region_id': region_id }),
 						...(distributor_id && { 'o.distributor_id': distributor_id }),
 						...(wilayah_id && { 'r.head_region_id': wilayah_id }),
@@ -254,7 +262,7 @@ class Sales {
 			)
 			.where({
 				...(outlet_id && { 'o.outlet_id': outlet_id }),
-				...(area_id && { 'o.area_id': area_id }),
+				...(area_id && { 'o.city_id_alias': area_id }),
 				...(region_id && { 'o.region_id': region_id }),
 				...(distributor_id && { 'o.distributor_id': distributor_id }),
 				...(wilayah_id && { 'r.head_region_id': wilayah_id }),
@@ -294,8 +302,8 @@ class Sales {
 				this.getTarget(req).as('target'),
 				OutletService.getOutletCount(req).as('total_outlet')
 			)
-			.from('ms_outlet as o')
-			.innerJoin('ms_region as r', 'o.region_id', 'r.region_id')
+			.from('mstr_outlet as o')
+			.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
 			.innerJoin(
 				'ms_head_region as mhr',
 				'r.head_region_id',
@@ -306,7 +314,7 @@ class Sales {
 			// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
 			.where({
 				...(outlet_id && { 'o.outlet_id': outlet_id }),
-				...(area_id && { 'o.area_id': area_id }),
+				...(area_id && { 'o.city_id_alias': area_id }),
 				...(region_id && { 'o.region_id': region_id }),
 				...(distributor_id && { 'o.distributor_id': distributor_id }),
 				...(wilayah_id && { 'r.head_region_id': wilayah_id }),
@@ -317,7 +325,7 @@ class Sales {
 		// if (month)
 		//   query.andWhereRaw("MONTHNAME(trx_transaksi.tgl_transaksi) = ?", [month]);
 		// console.log(query.toSQL().toNative().sql);
-		// console.log(query.toSQL().toNative().sql);
+		// console.log(query.toSQL().toNative());
 		return query;
 	}
 	getSummaryPerQuarter(req: Request) {
@@ -345,14 +353,18 @@ class Sales {
 			.leftJoin(
 				db()
 					.select('bulan_id', 'target', 'aktual', 'poin')
-					.from('ms_outlet as o')
+					.from('mstr_outlet as o')
 					.innerJoin(
 						db()
 							.select('st.outlet_id', 'month_target')
 							.sum('target_sales as target')
-							.from('ms_sales_target as st')
-							.innerJoin('ms_outlet as o', 'o.outlet_id', 'st.outlet_id')
-							.innerJoin('ms_region as r', 'o.region_id', 'r.region_id')
+							.from('mstr_sales_target as st')
+							.innerJoin('mstr_outlet as o', 'o.outlet_id', 'st.outlet_id')
+							.innerJoin(
+								'ms_pulau_alias as r',
+								'o.region_id',
+								'r.pulau_id_alias'
+							)
 
 							.innerJoin(
 								'ms_dist_pic as pic',
@@ -361,7 +373,7 @@ class Sales {
 							)
 							.where({
 								...(outlet_id && { 'o.outlet_id': outlet_id }),
-								...(area_id && { 'o.area_id': area_id }),
+								...(area_id && { 'o.city_id_alias': area_id }),
 								...(region_id && { 'o.region_id': region_id }),
 								...(distributor_id && { 'o.distributor_id': distributor_id }),
 								...(wilayah_id && { 'r.head_region_id': wilayah_id }),
@@ -388,8 +400,12 @@ class Sales {
 								'tr.kd_transaksi',
 								'trb.kd_transaksi'
 							)
-							.innerJoin('ms_outlet as o', 'o.outlet_id', 'tr.no_id')
-							.innerJoin('ms_region as r', 'o.region_id', 'r.region_id')
+							.innerJoin('mstr_outlet as o', 'o.outlet_id', 'tr.no_id')
+							.innerJoin(
+								'ms_pulau_alias as r',
+								'o.region_id',
+								'r.pulau_id_alias'
+							)
 
 							.innerJoin(
 								'ms_dist_pic as pic',
@@ -398,7 +414,7 @@ class Sales {
 							)
 							.where({
 								...(outlet_id && { 'o.outlet_id': outlet_id }),
-								...(area_id && { 'o.area_id': area_id }),
+								...(area_id && { 'o.city_id_alias': area_id }),
 								...(region_id && { 'o.region_id': region_id }),
 								...(distributor_id && { 'o.distributor_id': distributor_id }),
 								...(wilayah_id && { 'r.head_region_id': wilayah_id }),
@@ -445,14 +461,18 @@ class Sales {
 			.leftJoin(
 				db()
 					.select('bulan_id', 'target', 'aktual', 'poin')
-					.from('ms_outlet as o')
+					.from('mstr_outlet as o')
 					.innerJoin(
 						db()
 							.select('st.outlet_id', 'month_target')
 							.sum('target_sales as target')
-							.from('ms_sales_target as st')
-							.innerJoin('ms_outlet as o', 'o.outlet_id', 'st.outlet_id')
-							.innerJoin('ms_region as r', 'o.region_id', 'r.region_id')
+							.from('mstr_sales_target as st')
+							.innerJoin('mstr_outlet as o', 'o.outlet_id', 'st.outlet_id')
+							.innerJoin(
+								'ms_pulau_alias as r',
+								'o.region_id',
+								'r.pulau_id_alias'
+							)
 
 							.innerJoin(
 								'ms_dist_pic as pic',
@@ -461,7 +481,7 @@ class Sales {
 							)
 							.where({
 								...(outlet_id && { 'o.outlet_id': outlet_id }),
-								...(area_id && { 'o.area_id': area_id }),
+								...(area_id && { 'o.city_id_alias': area_id }),
 								...(region_id && { 'o.region_id': region_id }),
 								...(distributor_id && { 'o.distributor_id': distributor_id }),
 								...(wilayah_id && { 'r.head_region_id': wilayah_id }),
@@ -488,8 +508,12 @@ class Sales {
 								'tr.kd_transaksi',
 								'trb.kd_transaksi'
 							)
-							.innerJoin('ms_outlet as o', 'o.outlet_id', 'tr.no_id')
-							.innerJoin('ms_region as r', 'o.region_id', 'r.region_id')
+							.innerJoin('mstr_outlet as o', 'o.outlet_id', 'tr.no_id')
+							.innerJoin(
+								'ms_pulau_alias as r',
+								'o.region_id',
+								'r.pulau_id_alias'
+							)
 
 							.innerJoin(
 								'ms_dist_pic as pic',
@@ -498,7 +522,7 @@ class Sales {
 							)
 							.where({
 								...(outlet_id && { 'o.outlet_id': outlet_id }),
-								...(area_id && { 'o.area_id': area_id }),
+								...(area_id && { 'o.city_id_alias': area_id }),
 								...(region_id && { 'o.region_id': region_id }),
 								...(distributor_id && { 'o.distributor_id': distributor_id }),
 								...(wilayah_id && { 'r.head_region_id': wilayah_id }),
@@ -543,14 +567,18 @@ class Sales {
 			.leftJoin(
 				db()
 					.select('bulan_id', 'target', 'aktual', 'poin')
-					.from('ms_outlet as o')
+					.from('mstr_outlet as o')
 					.innerJoin(
 						db()
 							.select('st.outlet_id', 'month_target')
 							.sum('target_sales as target')
-							.from('ms_sales_target as st')
-							.innerJoin('ms_outlet as o', 'o.outlet_id', 'st.outlet_id')
-							.innerJoin('ms_region as r', 'o.region_id', 'r.region_id')
+							.from('mstr_sales_target as st')
+							.innerJoin('mstr_outlet as o', 'o.outlet_id', 'st.outlet_id')
+							.innerJoin(
+								'ms_pulau_alias as r',
+								'o.region_id',
+								'r.pulau_id_alias'
+							)
 
 							.innerJoin(
 								'ms_dist_pic as pic',
@@ -559,7 +587,7 @@ class Sales {
 							)
 							.where({
 								...(outlet_id && { 'o.outlet_id': outlet_id }),
-								...(area_id && { 'o.area_id': area_id }),
+								...(area_id && { 'o.city_id_alias': area_id }),
 								...(region_id && { 'o.region_id': region_id }),
 								...(distributor_id && { 'o.distributor_id': distributor_id }),
 								...(wilayah_id && { 'r.head_region_id': wilayah_id }),
@@ -586,8 +614,12 @@ class Sales {
 								'tr.kd_transaksi',
 								'trb.kd_transaksi'
 							)
-							.innerJoin('ms_outlet as o', 'o.outlet_id', 'tr.no_id')
-							.innerJoin('ms_region as r', 'o.region_id', 'r.region_id')
+							.innerJoin('mstr_outlet as o', 'o.outlet_id', 'tr.no_id')
+							.innerJoin(
+								'ms_pulau_alias as r',
+								'o.region_id',
+								'r.pulau_id_alias'
+							)
 
 							.innerJoin(
 								'ms_dist_pic as pic',
@@ -596,7 +628,7 @@ class Sales {
 							)
 							.where({
 								...(outlet_id && { 'o.outlet_id': outlet_id }),
-								...(area_id && { 'o.area_id': area_id }),
+								...(area_id && { 'o.city_id_alias': area_id }),
 								...(region_id && { 'o.region_id': region_id }),
 								...(distributor_id && { 'o.distributor_id': distributor_id }),
 								...(wilayah_id && { 'r.head_region_id': wilayah_id }),
@@ -638,14 +670,18 @@ class Sales {
 			.leftJoin(
 				db()
 					.select('bulan_id', 'target', 'aktual', 'poin')
-					.from('ms_outlet as o')
+					.from('mstr_outlet as o')
 					.innerJoin(
 						db()
 							.select('st.outlet_id', 'month_target')
 							.sum('target_sales as target')
-							.from('ms_sales_target as st')
-							.innerJoin('ms_outlet as o', 'o.outlet_id', 'st.outlet_id')
-							.innerJoin('ms_region as r', 'o.region_id', 'r.region_id')
+							.from('mstr_sales_target as st')
+							.innerJoin('mstr_outlet as o', 'o.outlet_id', 'st.outlet_id')
+							.innerJoin(
+								'ms_pulau_alias as r',
+								'o.region_id',
+								'r.pulau_id_alias'
+							)
 
 							.innerJoin(
 								'ms_dist_pic as pic',
@@ -654,7 +690,7 @@ class Sales {
 							)
 							.where({
 								...(outlet_id && { 'o.outlet_id': outlet_id }),
-								...(area_id && { 'o.area_id': area_id }),
+								...(area_id && { 'o.city_id_alias': area_id }),
 								...(region_id && { 'o.region_id': region_id }),
 								...(distributor_id && { 'o.distributor_id': distributor_id }),
 								...(wilayah_id && { 'r.head_region_id': wilayah_id }),
@@ -681,8 +717,12 @@ class Sales {
 								'tr.kd_transaksi',
 								'trb.kd_transaksi'
 							)
-							.innerJoin('ms_outlet as o', 'o.outlet_id', 'tr.no_id')
-							.innerJoin('ms_region as r', 'o.region_id', 'r.region_id')
+							.innerJoin('mstr_outlet as o', 'o.outlet_id', 'tr.no_id')
+							.innerJoin(
+								'ms_pulau_alias as r',
+								'o.region_id',
+								'r.pulau_id_alias'
+							)
 
 							.innerJoin(
 								'ms_dist_pic as pic',
@@ -691,7 +731,7 @@ class Sales {
 							)
 							.where({
 								...(outlet_id && { 'o.outlet_id': outlet_id }),
-								...(area_id && { 'o.area_id': area_id }),
+								...(area_id && { 'o.city_id_alias': area_id }),
 								...(region_id && { 'o.region_id': region_id }),
 								...(distributor_id && { 'o.distributor_id': distributor_id }),
 								...(wilayah_id && { 'r.head_region_id': wilayah_id }),

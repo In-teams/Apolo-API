@@ -32,7 +32,7 @@ class Outlet {
       .where({
         ...(distributor_id && { "o.distributor_id": distributor_id }),
         ...(outlet_id && { "o.outlet_id": outlet_id }),
-        ...(area_id && { "o.area_id": area_id }),
+        ...(area_id && { "o.city_id_alias": area_id }),
         ...(region_id && { "o.region_id": region_id }),
         ...(wilayah_id && { "r.head_region_id": wilayah_id }),
         ...(ass_id && { "pic.ass_id": ass_id }),
@@ -76,7 +76,7 @@ class Outlet {
       .where({
         ...(distributor_id && { "o.distributor_id": distributor_id }),
         ...(outlet_id && { "o.outlet_id": outlet_id }),
-        ...(area_id && { "o.area_id": area_id }),
+        ...(area_id && { "o.city_id_alias": area_id }),
         ...(region_id && { "o.region_id": region_id }),
         ...(wilayah_id && { "r.head_region_id": wilayah_id }),
         ...(ass_id && { "pic.ass_id": ass_id }),
@@ -112,7 +112,7 @@ class Outlet {
       .where({
         ...(distributor_id && { "o.distributor_id": distributor_id }),
         ...(outlet_id && { "o.outlet_id": outlet_id }),
-        ...(area_id && { "o.area_id": area_id }),
+        ...(area_id && { "o.city_id_alias": area_id }),
         ...(region_id && { "o.region_id": region_id }),
         ...(wilayah_id && { "r.head_region_id": wilayah_id }),
         ...(ass_id && { "pic.ass_id": ass_id }),
