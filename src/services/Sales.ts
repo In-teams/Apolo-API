@@ -3,6 +3,33 @@ import db from '../config/db';
 import OutletService from './Outlet';
 
 class Sales {
+	filterQuarter(req: Request): any {
+		const { quarter } = req.validated;
+		let query = db().select('*');
+		switch (quarter) {
+			case 1:
+				query.from('mstr_sales_target');
+				break;
+			case 2:
+				query.from('mstr_sales_target2');
+				break;
+			case 3:
+				query.from('mstr_sales_target3');
+				break;
+			case 4:
+				query.from('mstr_sales_target4');
+				break;
+
+			default:
+				query
+					.from('mstr_sales_target2')
+					.union([db().select('*').from('mstr_sales_target2')])
+					.union([db().select('*').from('mstr_sales_target3')])
+					.union([db().select('*').from('mstr_sales_target4')]);
+				break;
+		}
+		return query;
+	}
 	getTarget(req: Request): any {
 		const {
 			outlet_id,
@@ -18,15 +45,7 @@ class Sales {
 		const query = db()
 			.select()
 			.sum('st.target_sales as total')
-			.from(
-				db()
-					.select('*')
-					.from('mstr_sales_target')
-					.union([db().select('*').from('mstr_sales_target2')])
-					.union([db().select('*').from('mstr_sales_target3')])
-					.union([db().select('*').from('mstr_sales_target4')])
-					.as('st')
-			)
+			.from(this.filterQuarter(req).as('st'))
 			.innerJoin('mstr_outlet as o', 'st.outlet_id', 'o.outlet_id')
 			.innerJoin('ms_dist_pic as pic', 'o.distributor_id', 'pic.distributor_id')
 			.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
@@ -38,7 +57,7 @@ class Sales {
 			// .innerJoin("ms_user_scope", "mstr_outlet.outlet_id", "ms_user_scope.scope")
 			// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
 			.where({
-				...(month && { month_target: month }),
+				// ...(month && { month_target: month }),
 				...(outlet_id && { 'o.outlet_id': outlet_id }),
 				...(area_id && { 'o.city_id_alias': area_id }),
 				...(region_id && { 'o.region_id': region_id }),
@@ -48,6 +67,7 @@ class Sales {
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
 			});
+		// .whereIn('month_target', ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL']);
 		// console.log(query.toSQL().toNative());
 		return query;
 	}
@@ -62,6 +82,7 @@ class Sales {
 			ass_id,
 			asm_id,
 			salesman_id,
+			quarter_id
 		} = req.validated;
 		const query = db()
 			.select()
@@ -93,6 +114,7 @@ class Sales {
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
 			});
 		if (month) query.andWhereRaw('MONTHNAME(tr.tgl_transaksi) = ?', [month]);
+		if (quarter_id) query.andWhereRaw('MONTH(tr.tgl_transaksi) IN(?)', [quarter_id]);
 
 		return query;
 	}
