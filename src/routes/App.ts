@@ -1,5 +1,6 @@
 import { Router } from "express";
 import AppController from "../controllers/App";
+import AppRequest from "../request/App";
 import IRouter from "../types/RouterInterface";
 
 class App implements IRouter {
@@ -11,8 +12,8 @@ class App implements IRouter {
   }
 
   public routes(): void {
-    this.router.get("/month", AppController.getMonth);
-    this.router.get("/quarter", AppController.getQuarter);
+    this.router.get("/month", AppRequest.get, AppController.getMonth);
+    this.router.get("/quarter", AppRequest.get, AppController.getQuarter);
     this.router.get("/year", AppController.getYear);
   }
 }
