@@ -22,7 +22,7 @@ class Sales {
 
 			default:
 				query
-					.from('mstr_sales_target2')
+					.from('mstr_sales_target')
 					.union([db().select('*').from('mstr_sales_target2')])
 					.union([db().select('*').from('mstr_sales_target3')])
 					.union([db().select('*').from('mstr_sales_target4')]);
@@ -57,7 +57,7 @@ class Sales {
 			// .innerJoin("ms_user_scope", "mstr_outlet.outlet_id", "ms_user_scope.scope")
 			// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
 			.where({
-				// ...(month && { month_target: month }),
+				...(month && { month_target: month }),
 				...(outlet_id && { 'o.outlet_id': outlet_id }),
 				...(area_id && { 'o.city_id_alias': area_id }),
 				...(region_id && { 'o.region_id': region_id }),
