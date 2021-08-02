@@ -41,11 +41,20 @@ class Sales {
 			ass_id,
 			asm_id,
 			salesman_id,
+			quarter_id
 		} = req.validated;
 		const query = db()
 			.select()
 			.sum('st.target_sales as total')
-			.from(this.filterQuarter(req).as('st'))
+			.from(
+				db()
+					.select()
+					.from('mstr_sales_target')
+					.union([db().select('*').from('mstr_sales_target2')])
+					.union([db().select('*').from('mstr_sales_target3')])
+					.union([db().select('*').from('mstr_sales_target4')])
+					.as('st')
+			)
 			.innerJoin('mstr_outlet as o', 'st.outlet_id', 'o.outlet_id')
 			.innerJoin('ms_dist_pic as pic', 'o.distributor_id', 'pic.distributor_id')
 			.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
@@ -53,7 +62,7 @@ class Sales {
 				'ms_head_region as hr',
 				'r.head_region_id',
 				'hr.head_region_id'
-			)
+			).innerJoin('ms_bulan as b', 'month_target', 'b.bulan')
 			// .innerJoin("ms_user_scope", "mstr_outlet.outlet_id", "ms_user_scope.scope")
 			// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
 			.where({
@@ -67,7 +76,7 @@ class Sales {
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
 			});
-		// .whereIn('month_target', ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL']);
+		if(quarter_id) query.whereIn('b.id', quarter_id)
 		// console.log(query.toSQL().toNative());
 		return query;
 	}
@@ -82,7 +91,7 @@ class Sales {
 			ass_id,
 			asm_id,
 			salesman_id,
-			quarter_id
+			quarter_id,
 		} = req.validated;
 		const query = db()
 			.select()
@@ -114,7 +123,8 @@ class Sales {
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
 			});
 		if (month) query.andWhereRaw('MONTHNAME(tr.tgl_transaksi) = ?', [month]);
-		if (quarter_id) query.andWhereRaw('MONTH(tr.tgl_transaksi) IN(?)', [quarter_id]);
+		if (quarter_id)
+			query.andWhereRaw('MONTH(tr.tgl_transaksi) IN(?)', [quarter_id]);
 
 		return query;
 	}

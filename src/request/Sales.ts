@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import joi from 'joi';
 import response from '../helpers/Response';
+import appHelper from '../helpers/app';
 
 class Auth {
 	get(req: Request, res: Response, next: NextFunction): any {
@@ -36,40 +37,20 @@ class Auth {
 				'month just allowed string (monthname)',
 				400
 			);
-		let quarter: number[] = [];
-		let semester: number[] = [];
-		if (value.sem) {
-			switch (value.sem) {
-				case 1:
-					semester = [1, 2, 3, 4, 5, 6];
-					break;
-				case 2:
-					semester = [7, 8, 9, 10, 11, 12];
-					break;
-			}
-		}
-		if (value.quarter_id) {
-			switch (value.quarter_id) {
-				case 1:
-					quarter = [1, 2, 3];
-					break;
-				case 2:
-					quarter = [4, 5, 6];
-					break;
-				case 3:
-					quarter = [7, 8, 9];
-					break;
-				case 4:
-					quarter = [10, 11, 12];
-					break;
-			}
-		}
+		let quarter: string[] | undefined = value.quarter_id
+			? appHelper.getMonthIdByQuarter(value.quarter_id)
+			: undefined;
+		let semester: number[] | undefined = value.sem
+			? appHelper.getMonthIdBySemester(value.sem)
+			: undefined;
 		const { page = 1, sort = 'ASC' } = value;
 		req.validated = {
 			...value,
 			page,
 			sort,
 			quarter: value.quarter_id,
+			month: appHelper.getMonthName(value.month),
+			month_id: value.month,
 			...(value.sem && { semester_id: semester }),
 			...(value.quarter_id && { quarter_id: quarter }),
 		};
