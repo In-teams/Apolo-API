@@ -20,7 +20,7 @@ class Auth {
 			distributor_id: joi.string(),
 			outlet_id: joi.string(),
 			quarter_id: joi.number().valid(1, 2, 3, 4),
-			sem: joi.number().valid(1, 2, 3, 4),
+			sem: joi.number().valid(1, 2),
 		});
 
 		const { value, error } = schema.validate(req.query);

@@ -13,6 +13,8 @@ class Redeem {
 			ass_id,
 			asm_id,
 			salesman_id,
+			quarter_id,
+			month_id
 		} = req.validated;
 		const query = db()
 			.select('')
@@ -38,6 +40,8 @@ class Redeem {
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
 			});
+			if(quarter_id) query.whereRaw('MONTH(tr.tgl_transaksi) IN(?)', [quarter_id])
+			if(month_id) query.whereRaw('MONTH(tr.tgl_transaksi) = ?', [month_id])
 		return query;
 	}
 	getPointRedeem(req: Request): any {
@@ -50,6 +54,8 @@ class Redeem {
 			ass_id,
 			asm_id,
 			salesman_id,
+			quarter_id,
+			month_id
 		} = req.validated;
 		const query = db()
 			.select(db().raw('SUM(trrb.point_satuan * trrb.quantity) as redeem'))
@@ -74,6 +80,8 @@ class Redeem {
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
 			});
+			if(quarter_id) query.whereRaw('MONTH(trr.tgl_transaksi) IN(?)', [quarter_id])
+			if(month_id) query.whereRaw('MONTH(trr.tgl_transaksi) = ?', [month_id])
 		return query;
 	}
 	getPointSummary(req: Request): any {

@@ -5,6 +5,7 @@ import FileSystem from '../helpers/FileSystem';
 import GetFileExtention from '../helpers/GetFileExtention';
 import response from '../helpers/Response';
 import service from '../services/Redeem';
+import appHelper from '../helpers/app';
 
 class Redeem {
 	getProduct(req: Request, res: Response, next: NextFunction): any {
@@ -31,13 +32,27 @@ class Redeem {
 			asm_id: joi.string(),
 			salesman_id: joi.string(),
 			sort: joi.string(),
+			quarter_id: joi.number().valid(1, 2, 3, 4),
+			sem: joi.number().valid(1, 2),
+			month: joi.number().valid(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
 		});
 
 		const { value, error } = schema.validate(req.query);
 		if (error) {
 			return response(res, false, null, error.message, 400);
 		}
-		req.validated = { ...value, sort: value.sort || 'ASC' };
+
+		let quarter: number[] | undefined = value.quarter_id ? appHelper.getMonthIdByQuarter(value.quarter_id) : undefined;
+		let semester: number[] | undefined = value.sem ? appHelper.getMonthIdBySemester(value.sem): undefined;
+		req.validated = {
+			...value,
+			sort: value.sort || 'ASC',
+			quarter: value.quarter_id,
+			month: appHelper.getMonthName(value.month),
+			month_id: value.month,
+			...(value.sem && { semester_id: semester }),
+			...(value.quarter_id && { quarter_id: quarter }),
+		};
 		next();
 	}
 	async checkout(
@@ -64,7 +79,8 @@ class Redeem {
 				return response(res, false, null, error.message, 400);
 			}
 
-			if(value.product.length < 1) return response(res, false, null, "must be value at least 1", 400);
+			if (value.product.length < 1)
+				return response(res, false, null, 'must be value at least 1', 400);
 
 			req.validated = value;
 			const isUploaded = await service.getRedeemForm(req);
