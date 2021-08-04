@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import response from '../helpers/Response';
-import appHelper from '../helpers/app';
+import appHelper from '../helpers/App';
 
 class App {
 	async getMonth(req: Request, res: Response): Promise<object | undefined> {

@@ -3,31 +3,56 @@ import db from '../config/db';
 import OutletService from './Outlet';
 
 class Sales {
-	filterQuarter(req: Request): any {
-		const { quarter } = req.validated;
-		let query = db().select('*');
-		switch (quarter) {
-			case 1:
-				query.from('mstr_sales_target');
-				break;
-			case 2:
-				query.from('mstr_sales_target2');
-				break;
-			case 3:
-				query.from('mstr_sales_target3');
-				break;
-			case 4:
-				query.from('mstr_sales_target4');
-				break;
-
-			default:
-				query
+	getTargetByAchieve(req: Request): any {
+		const {
+			outlet_id,
+			area_id,
+			wilayah_id,
+			distributor_id,
+			region_id,
+			month_id,
+			ass_id,
+			asm_id,
+			salesman_id,
+			quarter_id,
+		} = req.validated;
+		const query = db()
+			.select('st.outlet_id', 'b.id as bulan')
+			.sum('st.target_sales as target_annual')
+			.from(
+				db()
+					.select()
 					.from('mstr_sales_target')
 					.union([db().select('*').from('mstr_sales_target2')])
 					.union([db().select('*').from('mstr_sales_target3')])
-					.union([db().select('*').from('mstr_sales_target4')]);
-				break;
-		}
+					.union([db().select('*').from('mstr_sales_target4')])
+					.as('st')
+			)
+			.innerJoin('mstr_outlet as o', 'st.outlet_id', 'o.outlet_id')
+			.innerJoin('ms_dist_pic as pic', 'o.distributor_id', 'pic.distributor_id')
+			.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
+			.innerJoin(
+				'ms_head_region as hr',
+				'r.head_region_id',
+				'hr.head_region_id'
+			)
+			.innerJoin('ms_bulan as b', 'month_target', 'b.bulan')
+			// .innerJoin("ms_user_scope", "mstr_outlet.outlet_id", "ms_user_scope.scope")
+			// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
+			.where({
+				...(month_id && { 'b.id': month_id }),
+				...(outlet_id && { 'o.outlet_id': outlet_id }),
+				...(area_id && { 'o.city_id_alias': area_id }),
+				...(region_id && { 'o.region_id': region_id }),
+				...(distributor_id && { 'o.distributor_id': distributor_id }),
+				...(wilayah_id && { 'r.head_region_id': wilayah_id }),
+				...(ass_id && { 'pic.ass_id': ass_id }),
+				...(asm_id && { 'pic.asm_id': asm_id }),
+				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
+			});
+		if (quarter_id) query.whereIn('b.id', quarter_id);
+		// query.groupBy('outlet_id');
+		// console.log(query.toSQL().toNative());
 		return query;
 	}
 	getTarget(req: Request): any {
@@ -37,11 +62,11 @@ class Sales {
 			wilayah_id,
 			distributor_id,
 			region_id,
-			month,
+			month_id,
 			ass_id,
 			asm_id,
 			salesman_id,
-			quarter_id
+			quarter_id,
 		} = req.validated;
 		const query = db()
 			.select()
@@ -62,11 +87,12 @@ class Sales {
 				'ms_head_region as hr',
 				'r.head_region_id',
 				'hr.head_region_id'
-			).innerJoin('ms_bulan as b', 'month_target', 'b.bulan')
+			)
+			.innerJoin('ms_bulan as b', 'month_target', 'b.bulan')
 			// .innerJoin("ms_user_scope", "mstr_outlet.outlet_id", "ms_user_scope.scope")
 			// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
 			.where({
-				...(month && { month_target: month }),
+				...(month_id && { 'b.id': month_id }),
 				...(outlet_id && { 'o.outlet_id': outlet_id }),
 				...(area_id && { 'o.city_id_alias': area_id }),
 				...(region_id && { 'o.region_id': region_id }),
@@ -76,8 +102,57 @@ class Sales {
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
 			});
-		if(quarter_id) query.whereIn('b.id', quarter_id)
+		if (quarter_id) query.whereIn('b.id', quarter_id);
 		// console.log(query.toSQL().toNative());
+		return query;
+	}
+	getAktualAndPoin(req: Request): any {
+		const {
+			outlet_id,
+			area_id,
+			wilayah_id,
+			distributor_id,
+			region_id,
+			month_id,
+			ass_id,
+			asm_id,
+			salesman_id,
+			quarter_id,
+		} = req.validated;
+		const query = db()
+			.select('o.outlet_id', db().raw('MONTH(tr.tgl_transaksi) as bulan'))
+			.sum('sales as aktual')
+			.sum('point_satuan as poin')
+			.from('trx_transaksi as tr')
+			.innerJoin(
+				'trx_transaksi_barang as trb',
+				'tr.kd_transaksi',
+				'trb.kd_transaksi'
+			)
+			.innerJoin('mstr_outlet as o', 'tr.no_id', 'o.outlet_id')
+			.innerJoin('ms_dist_pic as pic', 'o.distributor_id', 'pic.distributor_id')
+			.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
+			.innerJoin(
+				'ms_head_region as hr',
+				'r.head_region_id',
+				'hr.head_region_id'
+			)
+			.where({
+				...(outlet_id && { 'o.outlet_id': outlet_id }),
+				...(area_id && { 'o.city_id_alias': area_id }),
+				...(region_id && { 'o.region_id': region_id }),
+				...(distributor_id && { 'o.distributor_id': distributor_id }),
+				...(wilayah_id && { 'r.head_region_id': wilayah_id }),
+				...(ass_id && { 'pic.ass_id': ass_id }),
+				...(asm_id && { 'pic.asm_id': asm_id }),
+				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
+			});
+		if (month_id) query.andWhereRaw('MONTH(tr.tgl_transaksi) = ?', [month_id]);
+		if (quarter_id)
+			query.andWhereRaw('MONTH(tr.tgl_transaksi) IN(?)', [quarter_id]);
+
+		query.groupBy('bulan');
+
 		return query;
 	}
 	getAktual(req: Request): any {
@@ -87,7 +162,7 @@ class Sales {
 			wilayah_id,
 			distributor_id,
 			region_id,
-			month,
+			month_id,
 			ass_id,
 			asm_id,
 			salesman_id,
@@ -122,7 +197,7 @@ class Sales {
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
 			});
-		if (month) query.andWhereRaw('MONTHNAME(tr.tgl_transaksi) = ?', [month]);
+		if (month_id) query.andWhereRaw('MONTH(tr.tgl_transaksi) = ?', [month_id]);
 		if (quarter_id)
 			query.andWhereRaw('MONTH(tr.tgl_transaksi) IN(?)', [quarter_id]);
 
@@ -232,11 +307,12 @@ class Sales {
 			wilayah_id,
 			distributor_id,
 			region_id,
-			month,
+			month_id,
 			ass_id,
 			asm_id,
 			salesman_id,
 			sort,
+			quarter_id,
 		} = req.validated;
 		const query = db()
 			.select(
@@ -255,40 +331,13 @@ class Sales {
 				'r.head_region_id',
 				'hr.head_region_id'
 			)
-			.innerJoin(
+			.leftJoin(
 				'trx_transaksi_barang as trb',
 				'trb.kd_transaksi',
 				'tr.kd_transaksi'
 			)
 			.innerJoin(
-				db()
-					.select('mst.outlet_id')
-					.sum('mst.target_sales as target_annual')
-					.from('mstr_sales_target as mst')
-					.innerJoin('mstr_outlet as o', 'o.outlet_id', 'mst.outlet_id')
-					.innerJoin(
-						'ms_dist_pic as pic',
-						'o.distributor_id',
-						'pic.distributor_id'
-					)
-					.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
-					.innerJoin(
-						'ms_head_region as hr',
-						'r.head_region_id',
-						'hr.head_region_id'
-					)
-					.where({
-						...(month && { month_target: month }),
-						...(outlet_id && { 'o.outlet_id': outlet_id }),
-						...(area_id && { 'o.city_id_alias': area_id }),
-						...(region_id && { 'o.region_id': region_id }),
-						...(distributor_id && { 'o.distributor_id': distributor_id }),
-						...(wilayah_id && { 'r.head_region_id': wilayah_id }),
-						...(ass_id && { 'pic.ass_id': ass_id }),
-						...(asm_id && { 'pic.asm_id': asm_id }),
-					})
-					.groupBy('outlet_id')
-					.as('mst'),
+				this.getTargetByAchieve(req).groupBy('outlet_id').as('mst'),
 				'mst.outlet_id',
 				'o.outlet_id'
 			)
@@ -301,9 +350,11 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 			});
-		month && query.whereRaw('MONTHNAME(tr.tgl_transaksi) = ?', [month]);
+		month_id && query.whereRaw('MONTH(tr.tgl_transaksi) = ?', [month_id]);
+		quarter_id && query.whereRaw('MONTH(tr.tgl_transaksi) IN(?)', [quarter_id]);
 		query.groupBy('outlet_id');
 		query.as('custom');
+
 		return query;
 	}
 	getSummaryByAchieve(req: Request): any {
@@ -354,117 +405,22 @@ class Sales {
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
 			});
-		// if (month)
-		//   query.andWhereRaw("MONTHNAME(trx_transaksi.tgl_transaksi) = ?", [month]);
-		// console.log(query.toSQL().toNative().sql);
-		// console.log(query.toSQL().toNative());
 		return query;
 	}
 	getSummaryPerQuarter(req: Request) {
-		const {
-			outlet_id,
-			area_id,
-			wilayah_id,
-			distributor_id,
-			region_id,
-			month,
-			ass_id,
-			asm_id,
-			salesman_id,
-			quarter_id,
-		} = req.validated;
 		const query = db()
-			.select(
-				'b.id as bulan_id',
-				'b.bulan as bulan',
-				'target',
-				'aktual',
-				'poin'
-			)
-			.from('ms_bulan as b')
+			.select('b.bulan', 'aktual', 'poin')
+			.sum('target_annual as target')
+			.from('mstr_outlet as o')
 			.leftJoin(
-				db()
-					.select('bulan_id', 'target', 'aktual', 'poin')
-					.from('mstr_outlet as o')
-					.innerJoin(
-						db()
-							.select('st.outlet_id', 'month_target')
-							.sum('target_sales as target')
-							.from('mstr_sales_target as st')
-							.innerJoin('mstr_outlet as o', 'o.outlet_id', 'st.outlet_id')
-							.innerJoin(
-								'ms_pulau_alias as r',
-								'o.region_id',
-								'r.pulau_id_alias'
-							)
-
-							.innerJoin(
-								'ms_dist_pic as pic',
-								'o.distributor_id',
-								'pic.distributor_id'
-							)
-							.where({
-								...(outlet_id && { 'o.outlet_id': outlet_id }),
-								...(area_id && { 'o.city_id_alias': area_id }),
-								...(region_id && { 'o.region_id': region_id }),
-								...(distributor_id && { 'o.distributor_id': distributor_id }),
-								...(wilayah_id && { 'r.head_region_id': wilayah_id }),
-								...(ass_id && { 'pic.ass_id': ass_id }),
-								...(asm_id && { 'pic.asm_id': asm_id }),
-								// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-							})
-							.groupBy('month_target')
-							.as('mst'),
-						'mst.outlet_id',
-						'o.outlet_id'
-					)
-					.innerJoin(
-						db()
-							.select(
-								db().raw('MONTHNAME(tr.tgl_transaksi) as bulan'),
-								db().raw('MONTH(tr.tgl_transaksi) as bulan_id')
-							)
-							.sum('sales as aktual')
-							.sum('point_satuan as poin')
-							.from('trx_transaksi_barang as trb')
-							.innerJoin(
-								'trx_transaksi as tr',
-								'tr.kd_transaksi',
-								'trb.kd_transaksi'
-							)
-							.innerJoin('mstr_outlet as o', 'o.outlet_id', 'tr.no_id')
-							.innerJoin(
-								'ms_pulau_alias as r',
-								'o.region_id',
-								'r.pulau_id_alias'
-							)
-
-							.innerJoin(
-								'ms_dist_pic as pic',
-								'o.distributor_id',
-								'pic.distributor_id'
-							)
-							.where({
-								...(outlet_id && { 'o.outlet_id': outlet_id }),
-								...(area_id && { 'o.city_id_alias': area_id }),
-								...(region_id && { 'o.region_id': region_id }),
-								...(distributor_id && { 'o.distributor_id': distributor_id }),
-								...(wilayah_id && { 'r.head_region_id': wilayah_id }),
-								...(ass_id && { 'pic.ass_id': ass_id }),
-								...(asm_id && { 'pic.asm_id': asm_id }),
-								// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-							})
-							.groupBy('bulan')
-							.as('trb'),
-						'trb.bulan',
-						'month_target'
-					)
-					.as('sub'),
-				'sub.bulan_id',
-				'b.id'
-			);
-		quarter_id && query.whereIn('b.id', quarter_id);
-		query.orderBy('b.id', 'asc');
+				this.getTargetByAchieve(req).groupBy('b.id').as('mst'),
+				'o.outlet_id',
+				'mst.outlet_id'
+			)
+			.leftJoin(this.getAktualAndPoin(req).as('trb'), 'trb.bulan', 'mst.bulan')
+			.innerJoin('ms_bulan as b', 'mst.bulan', 'b.id')
+			.groupBy('b.id')
+			.orderBy('b.id', 'asc');
 
 		return query;
 	}

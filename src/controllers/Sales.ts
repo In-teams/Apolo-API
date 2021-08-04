@@ -128,10 +128,12 @@ class Sales {
 		try {
 			let data: any[1] = await Service.getSummaryPerQuarter(req);
 			let aktual: number = 0,
-				target: number = 0;
+				target: number = 0,
+				poin: number = 0;
 			data.map((e: any) => {
 				aktual += e.aktual;
 				target += e.target;
+				poin += e.poin;
 			});
 
 			data = data.map((e: any) => ({
@@ -145,7 +147,8 @@ class Sales {
 					bulan: `Kuartal ${req.validated.quarter}`,
 					aktual,
 					target,
-					poin: aktual / 100000,
+					poin,
+					// poin: aktual / 100000,
 					// outlet,
 					bobot: ((aktual / target) * 100).toFixed(2) + '%',
 				},

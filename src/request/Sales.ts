@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import joi from 'joi';
 import response from '../helpers/Response';
-import appHelper from '../helpers/app';
+import appHelper from '../helpers/App';
 
 class Auth {
 	get(req: Request, res: Response, next: NextFunction): any {
@@ -28,15 +28,6 @@ class Auth {
 		if (error) {
 			return response(res, false, null, error.message, 400);
 		}
-
-		if (!isNaN(value.month))
-			return response(
-				res,
-				false,
-				null,
-				'month just allowed string (monthname)',
-				400
-			);
 		let quarter: string[] | undefined = value.quarter_id
 			? appHelper.getMonthIdByQuarter(value.quarter_id)
 			: undefined;

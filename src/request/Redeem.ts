@@ -5,7 +5,7 @@ import FileSystem from '../helpers/FileSystem';
 import GetFileExtention from '../helpers/GetFileExtention';
 import response from '../helpers/Response';
 import service from '../services/Redeem';
-import appHelper from '../helpers/app';
+import appHelper from '../helpers/App';
 
 class Redeem {
 	getProduct(req: Request, res: Response, next: NextFunction): any {
