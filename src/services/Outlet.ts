@@ -102,7 +102,7 @@ class Outlet {
       .countDistinct("o.outlet_id as total")
       .from("mstr_outlet as o")
       .innerJoin("ms_pulau_alias as r", "o.region_id", "r.pulau_id_alias")
-      .innerJoin("ms_user_scope as us", "o.outlet_id", "us.scope")
+      // .innerJoin("ms_user_scope as us", "o.outlet_id", "us.scope")
       .innerJoin(
         "ms_dist_pic as pic",
         "o.distributor_id",
