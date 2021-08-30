@@ -15,6 +15,7 @@ class Sales implements IRouter {
     this.router.get("/", SalesRequest.get, SalesController.get); // summary (all)
     this.router.get("/summary/hr", SalesRequest.get, SalesController.getSummaryByHR); // summary by head region (wilayah)
     this.router.get("/summary/asm", SalesRequest.get, SalesController.getSummaryByASM); // summary by ASM
+    this.router.get("/summary/ass", SalesRequest.get, SalesController.getSummaryByASS); // summary by ASS
     this.router.get("/summary/achieve", SalesRequest.get, SalesController.getSummaryByAchieve); // summary by Achievement
     this.router.get("/summary/quarter", SalesRequest.get, SalesController.getSummaryPerQuarter); // summary per quarter (3 month)
     this.router.get("/summary/sem", SalesRequest.get, SalesController.getSummaryPerSemester); // summary by per semester (2 quarter)

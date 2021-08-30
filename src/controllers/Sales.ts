@@ -84,6 +84,46 @@ class Sales {
 			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
+	async getSummaryByASS(
+		req: Request,
+		res: Response
+	): Promise<object | undefined> {
+		try {
+			interface result {
+				nama_pic: string;
+				aktual: number;
+				target: number;
+				bobot: string;
+			}
+			let data: result[] = await Service.getSummaryByASS(req);
+			let aktual: number = 0,
+				target: number = 0;
+			data.map((e: any) => {
+				aktual += e.aktual;
+				target += e.target;
+			});
+
+			// console.log(aktual, target)
+
+			data = data.map((e: any) => ({
+				...e,
+				bobot: ((e.aktual / target) * 100).toFixed(2) + '%',
+			}));
+			data = [
+				...data,
+				{
+					nama_pic: 'Total Pencapaian',
+					aktual,
+					target,
+					bobot: ((aktual / target) * 100).toFixed(2) + '%',
+				},
+			];
+			data = NumberFormat(data, true, 'aktual', 'target');
+			return response(res, true, data, null, 200);
+		} catch (error) {
+			return response(res, false, null, JSON.stringify(error), 500);
+		}
+	}
 	async getSummaryByAchieve(
 		req: Request,
 		res: Response

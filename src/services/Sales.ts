@@ -300,6 +300,55 @@ class Sales {
 		query.groupBy('nama_pic').orderBy('aktual', sort).limit(5);
 		return query;
 	}
+	getSummaryByASS(req: Request): any {
+		const {
+			outlet_id,
+			area_id,
+			wilayah_id,
+			distributor_id,
+			region_id,
+			month,
+			ass_id,
+			asm_id,
+			salesman_id,
+			sort,
+		} = req.validated;
+		const query = db()
+			.select(
+				'mp.nama_pic as nama_pic',
+				this.getAktual(req)
+					.where('pic.ass_id', '=', db().raw('mp.kode_pic'))
+					.as('aktual'),
+				this.getTarget(req)
+					.where('pic.ass_id', '=', db().raw('mp.kode_pic'))
+					.as('target')
+			)
+			.from('mstr_outlet as o')
+			.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
+			.innerJoin(
+				'ms_head_region as mhr',
+				'r.head_region_id',
+				'mhr.head_region_id'
+			)
+			.innerJoin('ms_dist_pic as pic', 'o.distributor_id', 'pic.distributor_id')
+			.innerJoin('ms_pic as mp', 'pic.ass_id', 'mp.kode_pic')
+			// .innerJoin("ms_user_scope", "o.outlet_id", "ms_user_scope.scope")
+			// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
+			.where({
+				...(outlet_id && { 'o.outlet_id': outlet_id }),
+				...(area_id && { 'o.city_id_alias': area_id }),
+				...(region_id && { 'o.region_id': region_id }),
+				...(distributor_id && { 'o.distributor_id': distributor_id }),
+				...(wilayah_id && { 'r.head_region_id': wilayah_id }),
+				...(ass_id && { 'pic.ass_id': ass_id }),
+				...(asm_id && { 'pic.asm_id': asm_id }),
+				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
+			});
+		if (month)
+			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
+		query.groupBy('nama_pic').orderBy('aktual', sort).limit(5);
+		return query;
+	}
 	getSummaryByCluster(req: Request): any {
 		const {
 			outlet_id,
