@@ -15,7 +15,7 @@ class App {
 
 			return response(res, true, data, null, 200);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error.message), 500);
+			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
 	async getQuarter(req: Request, res: Response): Promise<object | undefined> {
@@ -31,7 +31,7 @@ class App {
 
 			return response(res, true, data, null, 200);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error.message), 500);
+			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
 	async getYear(req: Request, res: Response): Promise<object | undefined> {
@@ -43,7 +43,7 @@ class App {
 			];
 			return response(res, true, data, null, 200);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error.message), 500);
+			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
 }

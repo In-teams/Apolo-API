@@ -14,7 +14,7 @@ class Token {
       const check = verify(token, jwtKey);
       console.log(check);
       next();
-    } catch (error) {
+    } catch (error: any) {
       if (error.name == "TokenExpiredError") {
         return response(res, false, null, "Token Expired", 401);
       }

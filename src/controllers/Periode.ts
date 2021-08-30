@@ -9,7 +9,7 @@ class Periode {
       await Service.create(req);
       return response(res, true, "Success Create New Periode", null, 200);
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error.message), 500);
+      return response(res, false, null, JSON.stringify(error), 500);
     }
   }
   async update(req: Request, res: Response): Promise<object | undefined> {
@@ -17,7 +17,7 @@ class Periode {
       await Service.update(req);
       return response(res, true, "Success Update Periode", null, 200);
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error.message), 500);
+      return response(res, false, null, JSON.stringify(error), 500);
     }
   }
   async delete(req: Request, res: Response): Promise<object | undefined> {
@@ -25,7 +25,7 @@ class Periode {
       await Service.delete(req);
       return response(res, true, "Success Delete Periode", null, 200);
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error.message), 500);
+      return response(res, false, null, JSON.stringify(error), 500);
     }
   }
   async get(req: Request, res: Response): Promise<object | undefined> {
@@ -34,7 +34,7 @@ class Periode {
       data = DateFormat.index(data, "tgl_mulai", "tgl_selesai", "created_at");
       return response(res, true, data, null, 200);
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error.message), 500);
+      return response(res, false, null, JSON.stringify(error), 500);
     }
   }
 }

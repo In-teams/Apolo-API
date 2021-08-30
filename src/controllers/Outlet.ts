@@ -14,7 +14,7 @@ class Outlet {
 			];
 			return response(res, true, data, null, 200);
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error.message), 500);
+      return response(res, false, null, JSON.stringify(error), 500);
     }
   }
   async getOutletActive(
@@ -25,7 +25,7 @@ class Outlet {
       const active: any[] = await Service.getOutletActive(req);
       return response(res, true, active[0], null, 200);
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error.message), 500);
+      return response(res, false, null, JSON.stringify(error), 500);
     }
   }
 }

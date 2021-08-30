@@ -171,7 +171,7 @@ class Redeem {
 
 			next();
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error.message), 400);
+			return response(res, false, null, JSON.stringify(error), 400);
 		}
 	}
 }

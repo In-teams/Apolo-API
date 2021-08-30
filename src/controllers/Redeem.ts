@@ -13,7 +13,7 @@ class Redeem {
 			const data: any[] = await Service.getProduct(req);
 			return response(res, true, data, null, 200);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error.message), 500);
+			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
 	async post(req: Request, res: Response): Promise<object | undefined> {
@@ -21,7 +21,7 @@ class Redeem {
 			await Service.post(req);
 			return response(res, true, 'Redeemption has been uploaded', null, 200);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error.message), 500);
+			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
 	async checkout(req: Request, res: Response): Promise<object | undefined> {
@@ -94,7 +94,7 @@ class Redeem {
 			await Service.checkout(req);
 			return response(res, true, 'Checkout berhasil', null, 200);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error.message), 500);
+			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
 	async validation(req: Request, res: Response): Promise<object | undefined> {
@@ -108,7 +108,7 @@ class Redeem {
 				200
 			);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error.message), 500);
+			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
 	async getPointSummary(
@@ -120,7 +120,7 @@ class Redeem {
 			point = NumberFormat(point, false, 'achieve', 'redeem');
 			return response(res, true, point[0], null, 200);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error.message), 500);
+			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
 	async getPointSummaryByHR(
@@ -137,7 +137,7 @@ class Redeem {
 			point = NumberFormat(point, false, 'achieve', 'redeem', 'diff');
 			return response(res, true, point, null, 200);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error.message), 500);
+			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
 }

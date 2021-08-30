@@ -11,7 +11,7 @@ class Registration {
       return response(res, true, "success post registration form", null, 200);
     } catch (error) {
       await FileSystem.DeleteFile(path)
-      return response(res, false, null, JSON.stringify(error.message), 500);
+      return response(res, false, null, JSON.stringify(error), 500);
     }
   }
   async validation(req: Request, res: Response): Promise<object | undefined> {
@@ -21,7 +21,7 @@ class Registration {
       return response(res, true, "success post registration form", null, 200);
     } catch (error) {
       await FileSystem.DeleteFile(path)
-      return response(res, false, null, JSON.stringify(error.message), 500);
+      return response(res, false, null, JSON.stringify(error), 500);
     }
   }
   async get(req: Request, res: Response): Promise<object | undefined> {
@@ -36,7 +36,7 @@ class Registration {
       };
       return response(res, true, result, null, 200);
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error.message), 500);
+      return response(res, false, null, JSON.stringify(error), 500);
     }
   }
   async getLastRegistration(
@@ -47,7 +47,7 @@ class Registration {
       const regist: any[] = await Service.getLastRegistration(req);
       return response(res, true, regist, null, 200);
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error.message), 500);
+      return response(res, false, null, JSON.stringify(error), 500);
     }
   }
   async getRegistrationSummary(
@@ -65,7 +65,7 @@ class Registration {
 
       return response(res, true, regist, null, 200);
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error.message), 500);
+      return response(res, false, null, JSON.stringify(error), 500);
     }
   }
 }

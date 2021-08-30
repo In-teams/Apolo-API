@@ -24,7 +24,7 @@ class Sales {
 			sales = NumberFormat(sales, true, 'aktual', 'target', 'avg', 'diff');
 			return response(res, true, sales[0], null, 200);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error.message), 500);
+			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
 
@@ -41,7 +41,7 @@ class Sales {
 			data = NumberFormat(data, true, 'aktual', 'target');
 			return response(res, true, data, null, 200);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error.message), 500);
+			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
 	async getSummaryByASM(
@@ -81,7 +81,7 @@ class Sales {
 			data = NumberFormat(data, true, 'aktual', 'target');
 			return response(res, true, data, null, 200);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error.message), 500);
+			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
 	async getSummaryByAchieve(
@@ -118,7 +118,7 @@ class Sales {
 			data = NumberFormat(data, true, 'aktual', 'target');
 			return response(res, true, data, null, 200);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error.message), 500);
+			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
 	async getSummaryPerQuarter(
@@ -157,7 +157,7 @@ class Sales {
 			data = NumberFormat(data, false, 'poin');
 			return response(res, true, data, null, 200);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error.message), 500);
+			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
 	async getSummaryPerSemester(
@@ -176,7 +176,7 @@ class Sales {
 			data = NumberFormat(data, false, 'poin');
 			return response(res, true, data, null, 200);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error.message), 500);
+			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
 	async getSummaryPerYear(
@@ -194,7 +194,7 @@ class Sales {
 			data = NumberFormat(data, false, 'poin');
 			return response(res, true, data, null, 200);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error.message), 500);
+			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
 	async getSummaryPerYears(
@@ -212,7 +212,7 @@ class Sales {
 			data = NumberFormat(data, false, 'poin');
 			return response(res, true, data, null, 200);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error.message), 500);
+			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
 }
