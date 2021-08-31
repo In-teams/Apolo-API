@@ -42,12 +42,12 @@ class Logging {
         row.join("\n")
       );
     } catch (error) {
-      if (error.type === "GET_FILE")
-        return await fs.WriteFile(
-          `${pathLogger}/${this.getToday()}.txt`,
-          row.join("\n")
-        );
-      console.log(error, "<<<<");
+      // if (error.type === "GET_FILE")
+      //   return await fs.WriteFile(
+      //     `${pathLogger}/${this.getToday()}.txt`,
+      //     row.join("\n")
+      //   );
+      // console.log(error, "<<<<");
     }
   };
 }
