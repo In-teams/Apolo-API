@@ -83,7 +83,7 @@ class Sales {
 				aktual: number;
 				outlet: number;
 				target: number;
-				region: string;
+				distributor: string;
 				pencapaian: string;
 				kontribusi: string;
 			}
@@ -109,7 +109,53 @@ class Sales {
 					aktual,
 					target,
 					outlet,
-					region: 'Total Pencapaian',
+					distributor: 'Total Pencapaian',
+					pencapaian: ((aktual / total) * 100).toFixed(2) + '%',
+					kontribusi: ((outlet / outlet) * 100).toFixed(2) + '%',
+				},
+			];
+			data = NumberFormat(data, true, 'aktual', 'target');
+			return response(res, true, data, null, 200);
+		} catch (error) {
+			return response(res, false, null, JSON.stringify(error), 500);
+		}
+	}
+	async getSummaryByArea(
+		req: Request,
+		res: Response
+	): Promise<object | undefined> {
+		try {
+			interface result {
+				aktual: number;
+				outlet: number;
+				target: number;
+				area: string;
+				pencapaian: string;
+				kontribusi: string;
+			}
+			let aktual: number = 0,
+				outlet: number = 0,
+				target: number = 0;
+			let total = await Service.getTarget(req);
+			total = total[0].total || 0;
+			let data: result[] = await Service.getSummaryByArea(req);
+			data.map((e: any) => {
+				aktual += e.aktual;
+				target += e.target;
+				outlet += e.outlet;
+			});
+			data = data.map((e: any) => ({
+				...e,
+				pencapaian: ((e.aktual / total) * 100).toFixed(2) + '%',
+				kontribusi: ((e.outlet / outlet) * 100).toFixed(2) + '%',
+			}));
+			data = [
+				...data,
+				{
+					aktual,
+					target,
+					outlet,
+					area: 'Total Pencapaian',
 					pencapaian: ((aktual / total) * 100).toFixed(2) + '%',
 					kontribusi: ((outlet / outlet) * 100).toFixed(2) + '%',
 				},

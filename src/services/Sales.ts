@@ -81,6 +81,7 @@ class Sales {
 					.as('st')
 			)
 			.innerJoin('mstr_outlet as o', 'st.outlet_id', 'o.outlet_id')
+			.innerJoin('ms_city_alias as c', 'o.city_id_alias', 'c.city_id_alias')
 			.innerJoin('mstr_distributor as d', 'o.distributor_id', 'd.distributor_id')
 			.innerJoin('ms_dist_pic as pic', 'o.distributor_id', 'pic.distributor_id')
 			.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
@@ -179,6 +180,7 @@ class Sales {
 				'trb.kd_transaksi'
 			)
 			.innerJoin('mstr_outlet as o', 'tr.no_id', 'o.outlet_id')
+			.innerJoin('ms_city_alias as c', 'o.city_id_alias', 'c.city_id_alias')
 			.innerJoin('mstr_distributor as d', 'o.distributor_id', 'd.distributor_id')
 			.innerJoin('ms_dist_pic as pic', 'o.distributor_id', 'pic.distributor_id')
 			.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
@@ -348,6 +350,57 @@ class Sales {
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
 		query.groupBy('distributor').orderBy('aktual', sort);
+		return query;
+	}
+	getSummaryByArea(req: Request): any {
+		const {
+			outlet_id,
+			area_id,
+			wilayah_id,
+			distributor_id,
+			region_id,
+			month,
+			ass_id,
+			asm_id,
+			salesman_id,
+			sort,
+		} = req.validated;
+		const query = db()
+			.select(
+				'ci.city_name_alias as city',
+				this.getAktual(req)
+					.where('c.city_id_alias', '=', db().raw('ci.city_id_alias'))
+					.as('aktual'),
+				this.getTarget(req)
+					.where('c.city_id_alias', '=', db().raw('ci.city_id_alias'))
+					.as('target')
+			).count('out.outlet_id as outlet')
+			.from('mstr_outlet as out')
+			.innerJoin('mstr_distributor as dist', 'out.distributor_id', 'dist.distributor_id')
+			.innerJoin('ms_city_alias as ci', 'out.city_id_alias', 'ci.city_id_alias')
+			.innerJoin('ms_pulau_alias as reg', 'out.region_id', 'reg.pulau_id_alias')
+			.innerJoin(
+				'ms_head_region as mhr',
+				'reg.head_region_id',
+				'mhr.head_region_id'
+			)
+			.innerJoin('ms_dist_pic as pic', 'out.distributor_id', 'pic.distributor_id')
+			// .innerJoin("ms_user_scope", "out.outlet_id", "ms_user_scope.scope")
+			// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
+			.where({
+				...(outlet_id && { 'out.outlet_id': outlet_id }),
+				...(area_id && { 'out.city_id_alias': area_id }),
+				...(region_id && { 'out.region_id': region_id }),
+				...(distributor_id && { 'out.distributor_id': distributor_id }),
+				...(wilayah_id && { 'reg.head_region_id': wilayah_id }),
+				...(ass_id && { 'pic.ass_id': ass_id }),
+				...(asm_id && { 'pic.asm_id': asm_id }),
+				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
+			});
+		if (month)
+			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
+		query.groupBy('city').orderBy('aktual', sort);
+		console.log(query.toSQL().sql)
 		return query;
 	}
 	getSummaryByASM(req: Request): any {
