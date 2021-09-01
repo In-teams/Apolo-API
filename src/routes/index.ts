@@ -25,7 +25,7 @@ class Index implements IRouter {
 
   public routes(): void {
     const route = this.router
-    route.use("/sales", SalesRoute);
+    route.use("/sales", Token.checkToken, SalesRoute);
     route.use("/area", AreaRoute);
     route.use("/region", RegionRoute);
     route.use("/wilayah", WilayahRoute);

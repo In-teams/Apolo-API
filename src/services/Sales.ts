@@ -349,7 +349,7 @@ class Sales {
 			});
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
-		query.groupBy('distributor').orderBy('aktual', sort);
+		query.groupBy('distributor').orderBy('aktual', sort).limit(5);
 		return query;
 	}
 	getSummaryByArea(req: Request): any {
@@ -399,7 +399,7 @@ class Sales {
 			});
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
-		query.groupBy('city').orderBy('aktual', sort);
+		query.groupBy('city').orderBy('aktual', sort).limit(5);
 		console.log(query.toSQL().sql)
 		return query;
 	}
