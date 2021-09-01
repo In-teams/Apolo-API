@@ -1,7 +1,8 @@
-import e, { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import NumberFormat from '../helpers/NumberFormat';
 import response from '../helpers/Response';
 import Service from '../services/Sales';
+import OService from '../services/Outlet';
 import salesByHirarki from '../types/SalesInterface';
 
 class Sales {
@@ -40,6 +41,8 @@ class Sales {
 				target: number = 0;
 			let total = await Service.getTarget(req);
 			total = total[0].total || 0;
+			let outlets = await OService.getOutletCount(req);
+			outlets = outlets[0].total || 0;
 			let data: salesByHirarki[] = await Service.getSummaryByRegion(req);
 			data.map((e: any) => {
 				aktual += e.aktual;
@@ -49,7 +52,7 @@ class Sales {
 			data = data.map((e: any) => ({
 				...e,
 				pencapaian: ((e.aktual / total) * 100).toFixed(2) + '%',
-				kontribusi: ((e.outlet / outlet) * 100).toFixed(2) + '%',
+				kontribusi: ((e.outlet / outlets) * 100).toFixed(2) + '%',
 			}));
 			data = [
 				...data,
@@ -59,7 +62,7 @@ class Sales {
 					outlet,
 					region: 'Total Pencapaian',
 					pencapaian: ((aktual / total) * 100).toFixed(2) + '%',
-					kontribusi: ((outlet / outlet) * 100).toFixed(2) + '%',
+					kontribusi: ((outlet / outlets) * 100).toFixed(2) + '%',
 				},
 			];
 			data = NumberFormat(data, true, 'aktual', 'target');
@@ -78,6 +81,8 @@ class Sales {
 				target: number = 0;
 			let total = await Service.getTarget(req);
 			total = total[0].total || 0;
+			let outlets = await OService.getOutletCount(req);
+			outlets = outlets[0].total || 0;
 			let data: salesByHirarki[] = await Service.getSummaryByDistributor(req);
 			data.map((e: any) => {
 				aktual += e.aktual;
@@ -87,7 +92,7 @@ class Sales {
 			data = data.map((e: any) => ({
 				...e,
 				pencapaian: ((e.aktual / total) * 100).toFixed(2) + '%',
-				kontribusi: ((e.outlet / outlet) * 100).toFixed(2) + '%',
+				kontribusi: ((e.outlet / outlets) * 100).toFixed(2) + '%',
 			}));
 			data = [
 				...data,
@@ -97,7 +102,47 @@ class Sales {
 					outlet,
 					distributor: 'Total Pencapaian',
 					pencapaian: ((aktual / total) * 100).toFixed(2) + '%',
-					kontribusi: ((outlet / outlet) * 100).toFixed(2) + '%',
+					kontribusi: ((outlet / outlets) * 100).toFixed(2) + '%',
+				},
+			];
+			data = NumberFormat(data, true, 'aktual', 'target');
+			return response(res, true, data, null, 200);
+		} catch (error) {
+			return response(res, false, null, JSON.stringify(error), 500);
+		}
+	}
+	async getSummaryByOutlet(
+		req: Request,
+		res: Response
+	): Promise<object | undefined> {
+		try {
+			let aktual: number = 0,
+				outlet: number = 0,
+				target: number = 0;
+			let total = await Service.getTarget(req);
+			total = total[0].total || 0;
+			let outlets = await OService.getOutletCount(req);
+			outlets = outlets[0].total || 0;
+			let data: salesByHirarki[] = await Service.getSummaryByOutlet(req);
+			data.map((e: any) => {
+				aktual += e.aktual;
+				target += e.target;
+				outlet += e.outlet;
+			});
+			data = data.map((e: any) => ({
+				...e,
+				pencapaian: ((e.aktual / total) * 100).toFixed(2) + '%',
+				kontribusi: ((e.outlet / outlets) * 100).toFixed(2) + '%',
+			}));
+			data = [
+				...data,
+				{
+					aktual,
+					target,
+					outlet,
+					outlet_name: 'Total Pencapaian',
+					pencapaian: ((aktual / total) * 100).toFixed(2) + '%',
+					kontribusi: ((outlet / outlets) * 100).toFixed(2) + '%',
 				},
 			];
 			data = NumberFormat(data, true, 'aktual', 'target');
@@ -117,6 +162,8 @@ class Sales {
 				target: number = 0;
 			let total = await Service.getTarget(req);
 			total = total[0].total || 0;
+			let outlets = await OService.getOutletCount(req);
+			outlets = outlets[0].total || 0;
 			let data: salesByHirarki[] = await Service.getSummaryByArea(req);
 			data.map((e: any) => {
 				aktual += e.aktual;
@@ -126,7 +173,7 @@ class Sales {
 			data = data.map((e: any) => ({
 				...e,
 				pencapaian: ((e.aktual / total) * 100).toFixed(2) + '%',
-				kontribusi: ((e.outlet / outlet) * 100).toFixed(2) + '%',
+				kontribusi: ((e.outlet / outlets) * 100).toFixed(2) + '%',
 			}));
 			data = [
 				...data,
@@ -136,7 +183,7 @@ class Sales {
 					outlet,
 					area: 'Total Pencapaian',
 					pencapaian: ((aktual / total) * 100).toFixed(2) + '%',
-					kontribusi: ((outlet / outlet) * 100).toFixed(2) + '%',
+					kontribusi: ((outlet / outlets) * 100).toFixed(2) + '%',
 				},
 			];
 			data = NumberFormat(data, true, 'aktual', 'target');
@@ -166,17 +213,11 @@ class Sales {
 		res: Response
 	): Promise<object | undefined> {
 		try {
-			interface result {
-				nama_pic: string;
-				aktual: number;
-				outlet: number;
-				target: number;
-				pencapaian: string;
-				kontribusi: string;
-			}
 			let total = await Service.getTarget(req);
 			total = total[0].total || 0;
-			let data: result[] = await Service.getSummaryByASM(req);
+			let outlets = await OService.getOutletCount(req);
+			outlets = outlets[0].total || 0;
+			let data: salesByHirarki[] = await Service.getSummaryByASM(req);
 			let aktual: number = 0,
 				outlet: number = 0,
 				target: number = 0;
@@ -191,7 +232,7 @@ class Sales {
 			data = data.map((e: any) => ({
 				...e,
 				pencapaian: ((e.aktual / total) * 100).toFixed(2) + '%',
-				kontribusi: ((e.outlet / outlet) * 100).toFixed(2) + '%',
+				kontribusi: ((e.outlet / outlets) * 100).toFixed(2) + '%',
 			}));
 			data = [
 				...data,
@@ -200,7 +241,7 @@ class Sales {
 					aktual,
 					outlet,
 					target,
-					kontribusi: ((outlet / outlet) * 100).toFixed(2) + '%',
+					kontribusi: ((outlet / outlets) * 100).toFixed(2) + '%',
 					pencapaian: ((aktual / total) * 100).toFixed(2) + '%',
 				},
 			];
@@ -215,17 +256,11 @@ class Sales {
 		res: Response
 	): Promise<object | undefined> {
 		try {
-			interface result {
-				nama_pic: string;
-				aktual: number;
-				outlet: number;
-				target: number;
-				pencapaian: string;
-				kontribusi: string;
-			}
 			let total = await Service.getTarget(req);
 			total = total[0].total || 0;
-			let data: result[] = await Service.getSummaryByASS(req);
+			let outlets = await OService.getOutletCount(req);
+			outlets = outlets[0].total || 0;
+			let data: salesByHirarki[] = await Service.getSummaryByASS(req);
 			let aktual: number = 0,
 				outlet: number = 0,
 				target: number = 0;
@@ -240,7 +275,7 @@ class Sales {
 			data = data.map((e: any) => ({
 				...e,
 				pencapaian: ((e.aktual / total) * 100).toFixed(2) + '%',
-				kontribusi: ((e.outlet / outlet) * 100).toFixed(2) + '%',
+				kontribusi: ((e.outlet / outlets) * 100).toFixed(2) + '%',
 			}));
 			data = [
 				...data,
@@ -249,7 +284,7 @@ class Sales {
 					aktual,
 					outlet,
 					target,
-					kontribusi: ((outlet / outlet) * 100).toFixed(2) + '%',
+					kontribusi: ((outlet / outlets) * 100).toFixed(2) + '%',
 					pencapaian: ((aktual / total) * 100).toFixed(2) + '%',
 				},
 			];
