@@ -16,6 +16,12 @@ class Sales {
 			salesman_id,
 			quarter_id,
 		} = req.validated;
+		const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "distributor_manager") addWhere = 'o.distributor_id'
+		if(level === "region_manager") addWhere = 'o.region_id'
+		if(level === "area_manager") addWhere = 'o.city_id_alias'
+		if(level === "outlet_manager") addWhere = 'o.outlet_id'
 		const query = db()
 			.select('st.outlet_id', 'b.id as bulan')
 			.sum('st.target_sales as target_annual')
@@ -49,7 +55,7 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			});
+			}).whereIn(addWhere, scope.split(','));
 		if (quarter_id) query.whereIn('b.id', quarter_id);
 		// query.groupBy('outlet_id');
 		// console.log(query.toSQL().toNative());
@@ -68,6 +74,12 @@ class Sales {
 			salesman_id,
 			quarter_id,
 		} = req.validated;
+		const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "distributor_manager") addWhere = 'o.distributor_id'
+		if(level === "region_manager") addWhere = 'o.region_id'
+		if(level === "area_manager") addWhere = 'o.city_id_alias'
+		if(level === "outlet_manager") addWhere = 'o.outlet_id'
 		const query = db()
 			.select()
 			.sum('st.target_sales as total')
@@ -103,7 +115,7 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			});
+			}).whereIn(addWhere, scope.split(','));
 		if (quarter_id) query.whereIn('b.id', quarter_id);
 		// console.log(query.toSQL().toNative());
 		return query;
@@ -121,6 +133,12 @@ class Sales {
 			salesman_id,
 			quarter_id,
 		} = req.validated;
+		const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "distributor_manager") addWhere = 'o.distributor_id'
+		if(level === "region_manager") addWhere = 'o.region_id'
+		if(level === "area_manager") addWhere = 'o.city_id_alias'
+		if(level === "outlet_manager") addWhere = 'o.outlet_id'
 		const query = db()
 			.select('o.outlet_id', db().raw('MONTH(tr.tgl_transaksi) as bulan'))
 			.sum('sales as aktual')
@@ -148,7 +166,7 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			});
+			}).whereIn(addWhere, scope.split(","));
 		if (month_id) query.andWhereRaw('MONTH(tr.tgl_transaksi) = ?', [month_id]);
 		if (quarter_id)
 			query.andWhereRaw('MONTH(tr.tgl_transaksi) IN(?)', [quarter_id]);
@@ -170,6 +188,12 @@ class Sales {
 			salesman_id,
 			quarter_id,
 		} = req.validated;
+		const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "distributor_manager") addWhere = 'o.distributor_id'
+		if(level === "region_manager") addWhere = 'o.region_id'
+		if(level === "area_manager") addWhere = 'o.city_id_alias'
+		if(level === "outlet_manager") addWhere = 'o.outlet_id'
 		const query = db()
 			.select()
 			.sum('trb.sales as total')
@@ -200,7 +224,7 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			});
+			}).whereIn(addWhere, scope.split(','));
 		if (month_id) query.andWhereRaw('MONTH(tr.tgl_transaksi) = ?', [month_id]);
 		if (quarter_id)
 			query.andWhereRaw('MONTH(tr.tgl_transaksi) IN(?)', [quarter_id]);
@@ -220,6 +244,12 @@ class Sales {
 			salesman_id,
 			sort,
 		} = req.validated;
+		const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "distributor_manager") addWhere = 'o.distributor_id'
+		if(level === "region_manager") addWhere = 'o.region_id'
+		if(level === "area_manager") addWhere = 'o.city_id_alias'
+		if(level === "outlet_manager") addWhere = 'o.outlet_id'
 		const query = db()
 			.select(
 				'mhr.head_region_name as wilayah',
@@ -249,7 +279,7 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			});
+			}).whereIn(addWhere, scope.split(","));
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
 		query.groupBy('wilayah').orderBy('aktual', sort);
@@ -268,6 +298,12 @@ class Sales {
 			salesman_id,
 			sort,
 		} = req.validated;
+		const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "distributor_manager") addWhere = 'o.distributor_id'
+		if(level === "region_manager") addWhere = 'o.region_id'
+		if(level === "area_manager") addWhere = 'o.city_id_alias'
+		if(level === "outlet_manager") addWhere = 'o.outlet_id'
 		const query = db()
 			.select(
 				'reg.nama_pulau_alias as region',
@@ -297,7 +333,7 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			});
+			}).whereIn(addWhere, scope.split(","));
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
 		query.groupBy('region').orderBy('aktual', sort);
@@ -316,6 +352,13 @@ class Sales {
 			salesman_id,
 			sort,
 		} = req.validated;
+		const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "distributor_manager") addWhere = 'o.distributor_id'
+		if(level === "region_manager") addWhere = 'o.region_id'
+		if(level === "area_manager") addWhere = 'o.city_id_alias'
+		if(level === "outlet_manager") addWhere = 'o.outlet_id'
+
 		const query = db()
 			.select(
 				'dist.distributor_name as distributor',
@@ -346,7 +389,7 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			});
+			}).whereIn(addWhere, scope.split(','));
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
 		query.groupBy('distributor').orderBy('aktual', sort).limit(5);
@@ -365,6 +408,12 @@ class Sales {
 			salesman_id,
 			sort,
 		} = req.validated;
+		const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "distributor_manager") addWhere = 'out.distributor_id'
+		if(level === "region_manager") addWhere = 'out.region_id'
+		if(level === "area_manager") addWhere = 'out.city_id_alias'
+		if(level === "outlet_manager") addWhere = 'out.outlet_id'
 		const query = db()
 			.select(
 				'ci.city_name_alias as city',
@@ -396,7 +445,7 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			});
+			}).whereIn(addWhere, scope.split(","));
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
 		query.groupBy('city').orderBy('aktual', sort).limit(5);
@@ -415,6 +464,12 @@ class Sales {
 			salesman_id,
 			sort,
 		} = req.validated;
+		const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "distributor_manager") addWhere = 'out.distributor_id'
+		if(level === "region_manager") addWhere = 'out.region_id'
+		if(level === "area_manager") addWhere = 'out.city_id_alias'
+		if(level === "outlet_manager") addWhere = 'out.outlet_id'
 		const query = db()
 			.select(
 				'out.outlet_name as outlet_name',
@@ -446,7 +501,7 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			});
+			}).whereIn(addWhere, scope.split(","));
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
 		query.groupBy('outlet_name').orderBy('aktual', sort).limit(5);
@@ -465,6 +520,12 @@ class Sales {
 			salesman_id,
 			sort,
 		} = req.validated;
+		const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "distributor_manager") addWhere = 'o.distributor_id'
+		if(level === "region_manager") addWhere = 'o.region_id'
+		if(level === "area_manager") addWhere = 'o.city_id_alias'
+		if(level === "outlet_manager") addWhere = 'o.outlet_id'
 		const query = db()
 			.select(
 				'mp.nama_pic as nama_pic',
@@ -495,7 +556,7 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			});
+			}).whereIn(addWhere, scope.split(","));
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
 		query.groupBy('nama_pic').orderBy('aktual', sort).limit(5);
@@ -514,6 +575,12 @@ class Sales {
 			salesman_id,
 			sort,
 		} = req.validated;
+		const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "distributor_manager") addWhere = 'o.distributor_id'
+		if(level === "region_manager") addWhere = 'o.region_id'
+		if(level === "area_manager") addWhere = 'o.city_id_alias'
+		if(level === "outlet_manager") addWhere = 'o.outlet_id'
 		const query = db()
 			.select(
 				'mp.nama_pic as nama_pic',
@@ -544,7 +611,7 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			});
+			}).whereIn(addWhere, scope.split(","));
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
 		query.groupBy('nama_pic').orderBy('aktual', sort).limit(5);
@@ -564,6 +631,12 @@ class Sales {
 			sort,
 			quarter_id,
 		} = req.validated;
+		const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "distributor_manager") addWhere = 'o.distributor_id'
+		if(level === "region_manager") addWhere = 'o.region_id'
+		if(level === "area_manager") addWhere = 'o.city_id_alias'
+		if(level === "outlet_manager") addWhere = 'o.outlet_id'
 		const query = db()
 			.select(
 				'mst.target_annual',
@@ -599,7 +672,7 @@ class Sales {
 				...(wilayah_id && { 'r.head_region_id': wilayah_id }),
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
-			});
+			}).whereIn(addWhere, scope.split(","));
 		month_id && query.whereRaw('MONTH(tr.tgl_transaksi) = ?', [month_id]);
 		quarter_id && query.whereRaw('MONTH(tr.tgl_transaksi) IN(?)', [quarter_id]);
 		query.groupBy('outlet_id');
@@ -629,6 +702,12 @@ class Sales {
 			asm_id,
 			salesman_id,
 		} = req.validated;
+		const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "distributor_manager") addWhere = 'o.distributor_id'
+		if(level === "region_manager") addWhere = 'o.region_id'
+		if(level === "area_manager") addWhere = 'o.city_id_alias'
+		if(level === "outlet_manager") addWhere = 'o.outlet_id'
 		const query = db()
 			.distinct(
 				this.getAktual(req).as('aktual'),
@@ -654,7 +733,7 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			});
+			}).whereIn(addWhere, scope.split(","));
 		return query;
 	}
 	getSummaryPerQuarter(req: Request) {
