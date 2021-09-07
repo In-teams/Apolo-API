@@ -9,6 +9,8 @@ interface salesByHirarki {
     region?: string;
     pencapaian: string;
     kontribusi: string;
+    bobot_target?: string;
+    bobot_outlet?: string;
 }
 
 export default salesByHirarki
