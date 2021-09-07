@@ -380,13 +380,13 @@ class Sales {
 
 			data = data.map((e: any) => ({
 				...e,
-				bobot: ((e.aktual / target) * 100).toFixed(2) + '%',
+				bobot: ((e.aktual / e.target) * 100).toFixed(2) + '%',
 				// progress: ((e.outlet / outlet) * 100).toFixed(2) + '%',
 			}));
 			data = [
 				...data,
 				{
-					bulan: `Kuartal ${req.validated.quarter}`,
+					bulan: `Kuartal ${req.validated.quarter || ''}`,
 					aktual,
 					target,
 					poin,
