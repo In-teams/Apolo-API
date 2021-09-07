@@ -12,6 +12,12 @@ class Area {
       asm_id,
       salesman_id,
     } = req.validated;
+    const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "distributor_manager") addWhere = 'o.distributor_id'
+		if(level === "region_manager") addWhere = 'o.region_id'
+		if(level === "area_manager") addWhere = 'o.city_id_alias'
+		if(level === "outlet_manager") addWhere = 'o.outlet_id'
     const query = db()
       .select("c.city_name_alias as area_name")
       .distinct("c.city_id_alias as area_id")
@@ -32,7 +38,7 @@ class Area {
         ...(ass_id && { "pic.ass_id": ass_id }),
         ...(asm_id && { "pic.asm_id": asm_id }),
         ...(salesman_id && { "us.user_id": salesman_id }),
-      })
+      }).whereIn(addWhere, scope.split(','))
       .orderBy("area_id");
     // console.log(query.toSQL().toNative());
     return query;

@@ -11,6 +11,12 @@ class Region {
       region_id,
       ass_id, salesman_id
     } = req.validated;
+    const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "distributor_manager") addWhere = 'o.distributor_id'
+		if(level === "region_manager") addWhere = 'o.region_id'
+		if(level === "area_manager") addWhere = 'o.city_id_alias'
+		if(level === "outlet_manager") addWhere = 'o.outlet_id'
     const query = db()
       .select("pic.nama_pic")
       .distinct("dp.asm_id")
@@ -31,7 +37,7 @@ class Region {
         ...(region_id && { "o.region_id": region_id }),
         ...(distributor_id && { "o.distributor_id": distributor_id }),
         ...(wilayah_id && { "r.head_region_id": wilayah_id }),
-      })
+      }).whereIn(addWhere, scope.split(','))
       .orderBy("dp.asm_id");
     return query;
   }
@@ -44,6 +50,12 @@ class Region {
       region_id,
       asm_id, salesman_id
     } = req.validated;
+    const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "distributor_manager") addWhere = 'o.distributor_id'
+		if(level === "region_manager") addWhere = 'o.region_id'
+		if(level === "area_manager") addWhere = 'o.city_id_alias'
+		if(level === "outlet_manager") addWhere = 'o.outlet_id'
     const query = db()
       .select("pic.nama_pic")
       .distinct("dp.ass_id")
@@ -64,7 +76,7 @@ class Region {
         ...(region_id && { "o.region_id": region_id }),
         ...(distributor_id && { "o.distributor_id": distributor_id }),
         ...(wilayah_id && { "r.head_region_id": wilayah_id }),
-      })
+      }).whereIn(addWhere, scope.split(','))
       .orderBy("dp.ass_id");
     return query;
   }
