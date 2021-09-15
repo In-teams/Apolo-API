@@ -12,7 +12,7 @@ class User implements IRouter {
   }
 
   public routes(): void {
-    // this.router.get("/", UserRequest.get, UserController.get);
+    this.router.get("/", UserRequest.get, UserController.get);
   }
 }
 
