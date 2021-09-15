@@ -11,6 +11,7 @@ class Area {
         distributor_id,
         region_id,
         ass_id,
+        asm_id,
         salesman_id,
     } = req.validated;
     const { scope, level } = req.body.decoded;
@@ -22,7 +23,7 @@ class Area {
     if (level === '5') addWhere = 'o.outlet_id';
 
     let query =
-        'select distinct pic.nama_pic, dp.asm_id from ms_dist_pic as dp inner join mstr_outlet as o on dp.distributor_id = o.distributor_id inner join ms_user_scope as us on o.outlet_id = us.scope inner join ms_pic as pic on dp.asm_id = pic.kode_pic inner join ms_pulau_alias as r on o.region_id = r.pulau_id_alias WHERE dp.distributor_id IS NOT NULL';
+        'select distinct c.city_name_alias as area_name, c.city_id_alias as area_id from ms_city_alias as c inner join mstr_outlet as o on c.city_id_alias = o.city_id_alias inner join ms_pulau_alias as r on o.region_id = r.pulau_id_alias inner join ms_user_scope as us on o.outlet_id = us.scope inner join ms_dist_pic as dp on o.distributor_id = dp.distributor_id WHERE c.city_id_alias IS NOT NULL';
 
     if (addWhere) {
         query += ' AND ' + addWhere + ' IN (?)';
@@ -52,8 +53,12 @@ class Area {
         query += ' AND dp.ass_id = ?';
         params.push(ass_id);
     }
+    if (asm_id) {
+        query += ' AND dp.asm_id = ?';
+        params.push(asm_id);
+    }
 
-    return await db.query(query + ' order by dp.asm_id asc', {
+    return await db.query(query + ' order by area_id asc', {
         raw: true,
         type: QueryTypes.SELECT,
         replacements: params,

@@ -5,9 +5,10 @@ import response from './Response';
 
 class Token {
 	createToken(data: object, refresh?: boolean) {
-		return sign({ data }, config.jwtKey, {
-			expiresIn: refresh ? config.ExpRefreshKey : config.ExpKey,
-		});
+		return sign({ data }, config.jwtKey);
+		// return sign({ data }, config.jwtKey, {
+		// 	expiresIn: refresh ? config.ExpRefreshKey : config.ExpKey,
+		// });
 	}
 
 	checkToken(req: Request, res: Response, next: NextFunction): any {
