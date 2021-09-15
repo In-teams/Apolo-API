@@ -12,7 +12,7 @@ class Area implements IRouter {
   }
 
   public routes(): void {
-    // this.router.get("/", AreaRequest.get, AreaController.get);
+    this.router.get("/", AreaRequest.get, AreaController.get);
   }
 }
 
