@@ -12,7 +12,7 @@ class Wilayah implements IRouter {
   }
 
   public routes(): void {
-    // this.router.get("/", WilayahRequest.get, WilayahController.get);
+    this.router.get("/", WilayahRequest.get, WilayahController.get);
   }
 }
 
