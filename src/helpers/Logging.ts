@@ -2,7 +2,7 @@ import axios from "axios";
 import { Request } from "express";
 import moment from "moment";
 import cron from "node-cron";
-import { deleteLogger, pathLogger } from "../config/app";
+import config from "../config/app";
 import fs from "./FileSystem";
 
 class Logging {
@@ -17,7 +17,7 @@ class Logging {
 
   writeLog = async (req: Request, error: boolean = false, data: string) => {
     let date = new Date(); // Now
-    date.setDate(date.getDate() + deleteLogger); // Set now + deleteLogger days as the new date
+    date.setDate(date.getDate() + config.deleteLogger); // Set now + deleteLogger days as the new date
     let row: string[] = [];
     row.push(
       `${await this.getTimestampAndIp()} [${error ? "ERROR" : "INFO"}] [${req.originalUrl}] ${data}`
@@ -26,19 +26,19 @@ class Logging {
       const deletedFile = cron.schedule(
         `0 0 ${date.getDate()} ${date.getMonth() + 1} *`,
         async () => {
-          await fs.DeleteFile(`${pathLogger}/${this.getToday()}.txt`);
+          await fs.DeleteFile(`${config.pathLogger}/${this.getToday()}.txt`);
         }
       );
       deletedFile.start();
       const get: string[] | undefined = await fs.ReadFile(
-        `${pathLogger}/${this.getToday()}.txt`
+        `${config.pathLogger}/${this.getToday()}.txt`
       );
       if (typeof get === "object") {
         row = [...get, ...row];
       }
 
       await fs.WriteFile(
-        `${pathLogger}/${this.getToday()}.txt`,
+        `${config.pathLogger}/${this.getToday()}.txt`,
         row.join("\n")
       );
     } catch (error) {

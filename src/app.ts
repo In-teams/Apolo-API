@@ -1,8 +1,6 @@
 import express, { Application, NextFunction, Request, Response } from "express";
 import cors from "cors";
 import Route from "./routes";
-import logging from "./helpers/Logging";
-import database from "./config/db";
 
 class App {
   public app: Application;
@@ -19,8 +17,6 @@ class App {
     this.app.use(express.json({ limit: "200mb" }));
     this.app.use(cors());
     this.app.use((req: Request, res: Response, next: NextFunction) => {
-      // req.log = logging.writeLog;
-      req.db = database();
       next();
     });
   }

@@ -12,7 +12,7 @@ class Distributor implements IRouter {
   }
 
   public routes(): void {
-    this.router.get("/", DistributorRequest.get, DistributorController.get);
+    // this.router.get("/", DistributorRequest.get, DistributorController.get);
   }
 }
 

@@ -1,7 +1,7 @@
 import { genSaltSync, hashSync } from "bcrypt";
 import { NextFunction, Request, Response } from "express";
 import joi from "joi";
-import { pathExcel } from "../config/app";
+import config from "../config/app";
 import fs from "../helpers/FileSystem";
 import response from "../helpers/Response";
 
@@ -36,7 +36,7 @@ class Auth {
         return response(res, false, null, error.message, 400);
       }
 
-      const path: string = `${pathExcel}/${Date.now()}.xlsx`;
+      const path: string = `${config.pathExcel}/${Date.now()}.xlsx`;
       await fs.WriteFile(path, req.body.file, true);
       let data = await fs.ReadExcelFile(path);
       let row: any[] = [];

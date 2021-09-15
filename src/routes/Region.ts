@@ -12,7 +12,7 @@ class Region implements IRouter {
   }
 
   public routes(): void {
-    this.router.get("/", RegionRequest.get, RegionController.get);
+    // this.router.get("/", RegionRequest.get, RegionController.get);
   }
 }
 
