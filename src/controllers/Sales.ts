@@ -74,50 +74,51 @@ class Sales {
 	// 		return response(res, false, null, JSON.stringify(error), 500);
 	// 	}
 	// }
-	// async getSummaryByDistributor(
-	// 	req: Request,
-	// 	res: Response
-	// ): Promise<object | undefined> {
-	// 	try {
-	// 		let aktual: number = 0,
-	// 			outlet: number = 0,
-	// 			target: number = 0;
-	// 		let totalTarget = await Service.getTarget(req);
-	// 		totalTarget = totalTarget[0].total || 0;
-	// 		let totalOutlet = await OService.getOutletCount(req);
-	// 		totalOutlet = totalOutlet[0].total || 0;
-	// 		let data: salesByHirarki[] = await Service.getSummaryByDistributor(req);
-	// 		data.map((e: any) => {
-	// 			aktual += e.aktual;
-	// 			target += e.target;
-	// 			outlet += e.outlet;
-	// 		});
-	// 		data = data.map((e: any) => ({
-	// 			...e,
-	// 			pencapaian: ((e.aktual / e.target) * 100).toFixed(2) + '%',
-	// 			kontribusi: ((e.aktual / totalTarget) * 100).toFixed(2) + '%',
-	// 			bobot_target: ((e.target / totalTarget) * 100).toFixed(2) + '%',
-	// 			bobot_outlet: ((e.outlet / totalOutlet) * 100).toFixed(2) + '%',
-	// 		}));
-	// 		data = [
-	// 			...data,
-	// 			{
-	// 				aktual,
-	// 				target,
-	// 				outlet,
-	// 				distributor: 'Total Pencapaian',
-	// 				pencapaian: ((aktual / target) * 100).toFixed(2) + '%',
-	// 				kontribusi: ((aktual / totalTarget) * 100).toFixed(2) + '%',
-	// 				bobot_target: ((target / totalTarget) * 100).toFixed(2) + '%',
-	// 				bobot_outlet: ((outlet / totalOutlet) * 100).toFixed(2) + '%',
-	// 			},
-	// 		];
-	// 		data = NumberFormat(data, true, 'aktual', 'target');
-	// 		return response(res, true, data, null, 200);
-	// 	} catch (error) {
-	// 		return response(res, false, null, JSON.stringify(error), 500);
-	// 	}
-	// }
+	async getSummaryByDistributor(
+		req: Request,
+		res: Response
+	): Promise<object | undefined> {
+		try {
+			const data = await Service.getSalesByDistributor(req)
+			// let aktual: number = 0,
+			// 	outlet: number = 0,
+			// 	target: number = 0;
+			// let totalTarget = await Service.getTarget(req);
+			// totalTarget = totalTarget[0].total || 0;
+			// let totalOutlet = await OService.getOutletCount(req);
+			// totalOutlet = totalOutlet[0].total || 0;
+			// let data: salesByHirarki[] = await Service.getSummaryByDistributor(req);
+			// data.map((e: any) => {
+			// 	aktual += e.aktual;
+			// 	target += e.target;
+			// 	outlet += e.outlet;
+			// });
+			// data = data.map((e: any) => ({
+			// 	...e,
+			// 	pencapaian: ((e.aktual / e.target) * 100).toFixed(2) + '%',
+			// 	kontribusi: ((e.aktual / totalTarget) * 100).toFixed(2) + '%',
+			// 	bobot_target: ((e.target / totalTarget) * 100).toFixed(2) + '%',
+			// 	bobot_outlet: ((e.outlet / totalOutlet) * 100).toFixed(2) + '%',
+			// }));
+			// data = [
+			// 	...data,
+			// 	{
+			// 		aktual,
+			// 		target,
+			// 		outlet,
+			// 		distributor: 'Total Pencapaian',
+			// 		pencapaian: ((aktual / target) * 100).toFixed(2) + '%',
+			// 		kontribusi: ((aktual / totalTarget) * 100).toFixed(2) + '%',
+			// 		bobot_target: ((target / totalTarget) * 100).toFixed(2) + '%',
+			// 		bobot_outlet: ((outlet / totalOutlet) * 100).toFixed(2) + '%',
+			// 	},
+			// ];
+			// data = NumberFormat(data, true, 'aktual', 'target');
+			return response(res, true, data, null, 200);
+		} catch (error) {
+			return response(res, false, null, JSON.stringify(error), 500);
+		}
+	}
 	// async getSummaryByOutlet(
 	// 	req: Request,
 	// 	res: Response
