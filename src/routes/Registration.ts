@@ -1,6 +1,6 @@
 import { Router } from "express";
-import RegistrationController from "../controllers/Registration";
-import RegistrationRequest from "../request/Registration";
+// import RegistrationController from "../controllers/Registration";
+// import RegistrationRequest from "../request/Registration";
 import IRouter from "../types/RouterInterface";
 
 class Registration implements IRouter {

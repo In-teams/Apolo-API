@@ -1,6 +1,6 @@
 import { Router } from "express";
-import RedeemController from "../controllers/Redeem";
-import RedeemRequest from "../request/Redeem";
+// import RedeemController from "../controllers/Redeem";
+// import RedeemRequest from "../request/Redeem";
 import IRouter from "../types/RouterInterface";
 
 class Redeem implements IRouter {

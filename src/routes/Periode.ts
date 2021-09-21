@@ -1,6 +1,6 @@
 import { Router } from "express";
-import PeriodeController from "../controllers/Periode";
-import PeriodeRequest from "../request/Periode";
+// import PeriodeController from "../controllers/Periode";
+// import PeriodeRequest from "../request/Periode";
 import IRouter from "../types/RouterInterface";
 
 class Periode implements IRouter {
