@@ -1,4 +1,3 @@
-import { compareSync } from 'bcrypt';
 import { Request, Response } from 'express';
 import response from '../helpers/Response';
 import Token from '../helpers/Token';

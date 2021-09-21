@@ -14,10 +14,10 @@ class Area {
     } = req.validated;
     const {scope, level} = req.body.decoded
 		let addWhere : string = ''
-		if(level === "distributor_manager") addWhere = 'o.distributor_id'
-		if(level === "region_manager") addWhere = 'o.region_id'
-		if(level === "area_manager") addWhere = 'o.city_id_alias'
-		if(level === "outlet_manager") addWhere = 'o.outlet_id'
+		if(level === "4") addWhere = 'o.distributor_id'
+		if(level === "2") addWhere = 'o.region_id'
+		if(level === "3") addWhere = 'o.city_id_alias'
+		if(level === "5") addWhere = 'o.outlet_id'
     const query = db()
       .select("c.city_name_alias as area_name")
       .distinct("c.city_id_alias as area_id")
