@@ -16,12 +16,12 @@ class Sales {
 			salesman_id,
 			quarter_id,
 		} = req.validated;
-		const {scope, level} = req.body.decoded
-		let addWhere : string = ''
-		if(level === "4") addWhere = 'o.distributor_id'
-		if(level === "2") addWhere = 'o.region_id'
-		if(level === "3") addWhere = 'o.city_id_alias'
-		if(level === "5") addWhere = 'o.outlet_id'
+		// const {scope, level} = req.body.decoded
+		// let addWhere : string = ''
+		// if(level === "4") addWhere = 'o.distributor_id'
+		// if(level === "2") addWhere = 'o.region_id'
+		// if(level === "3") addWhere = 'o.city_id_alias'
+		// if(level === "5") addWhere = 'o.outlet_id'
 		const query = db()
 			.select('st.outlet_id', 'b.id as bulan')
 			.sum('st.target_sales as target_annual')
@@ -35,27 +35,27 @@ class Sales {
 					.as('st')
 			)
 			.innerJoin('mstr_outlet as o', 'st.outlet_id', 'o.outlet_id')
-			.innerJoin('ms_dist_pic as pic', 'o.distributor_id', 'pic.distributor_id')
-			.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
-			.innerJoin(
-				'ms_head_region as hr',
-				'r.head_region_id',
-				'hr.head_region_id'
-			)
-			.innerJoin('ms_bulan as b', 'month_target', 'b.bulan')
-			// .innerJoin("ms_user_scope", "mstr_outlet.outlet_id", "ms_user_scope.scope")
-			// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
-			.where({
-				...(month_id && { 'b.id': month_id }),
-				...(outlet_id && { 'o.outlet_id': outlet_id }),
-				...(area_id && { 'o.city_id_alias': area_id }),
-				...(region_id && { 'o.region_id': region_id }),
-				...(distributor_id && { 'o.distributor_id': distributor_id }),
-				...(wilayah_id && { 'r.head_region_id': wilayah_id }),
-				...(ass_id && { 'pic.ass_id': ass_id }),
-				...(asm_id && { 'pic.asm_id': asm_id }),
-				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			}).whereIn(addWhere, scope.split(','));
+		// .innerJoin('ms_dist_pic as pic', 'o.distributor_id', 'pic.distributor_id')
+		// .innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
+		// .innerJoin(
+		// 	'ms_head_region as hr',
+		// 	'r.head_region_id',
+		// 	'hr.head_region_id'
+		// )
+		.innerJoin('ms_bulan as b', 'month_target', 'b.bulan')
+		// .innerJoin("ms_user_scope", "mstr_outlet.outlet_id", "ms_user_scope.scope")
+		// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
+		// .where({
+		// 	...(month_id && { 'b.id': month_id }),
+		// 	...(outlet_id && { 'o.outlet_id': outlet_id }),
+		// 	...(area_id && { 'o.city_id_alias': area_id }),
+		// 	...(region_id && { 'o.region_id': region_id }),
+		// 	...(distributor_id && { 'o.distributor_id': distributor_id }),
+		// 	...(wilayah_id && { 'r.head_region_id': wilayah_id }),
+		// 	...(ass_id && { 'pic.ass_id': ass_id }),
+		// 	...(asm_id && { 'pic.asm_id': asm_id }),
+		// 	// ...(salesman_id && { "ms_user.user_id": salesman_id }),
+		// }).whereIn(addWhere, scope.split(','));
 		if (quarter_id) query.whereIn('b.id', quarter_id);
 		// query.groupBy('outlet_id');
 		// console.log(query.toSQL().toNative());
@@ -74,12 +74,12 @@ class Sales {
 			salesman_id,
 			quarter_id,
 		} = req.validated;
-		const {scope, level} = req.body.decoded
-		let addWhere : string = ''
-		if(level === "4") addWhere = 'o.distributor_id'
-		if(level === "2") addWhere = 'o.region_id'
-		if(level === "3") addWhere = 'o.city_id_alias'
-		if(level === "5") addWhere = 'o.outlet_id'
+		// const {scope, level} = req.body.decoded
+		// let addWhere : string = ''
+		// if(level === "4") addWhere = 'o.distributor_id'
+		// if(level === "2") addWhere = 'o.region_id'
+		// if(level === "3") addWhere = 'o.city_id_alias'
+		// if(level === "5") addWhere = 'o.outlet_id'
 		const query = db()
 			.select()
 			.sum('st.target_sales as total')
@@ -93,29 +93,30 @@ class Sales {
 					.as('st')
 			)
 			.innerJoin('mstr_outlet as o', 'st.outlet_id', 'o.outlet_id')
-			.innerJoin('ms_city_alias as c', 'o.city_id_alias', 'c.city_id_alias')
+			// .innerJoin('ms_city_alias as c', 'o.city_id_alias', 'c.city_id_alias')
 			.innerJoin('mstr_distributor as d', 'o.distributor_id', 'd.distributor_id')
 			.innerJoin('ms_dist_pic as pic', 'o.distributor_id', 'pic.distributor_id')
 			.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
-			.innerJoin(
-				'ms_head_region as hr',
-				'r.head_region_id',
-				'hr.head_region_id'
-			)
-			.innerJoin('ms_bulan as b', 'month_target', 'b.bulan')
-			// .innerJoin("ms_user_scope", "mstr_outlet.outlet_id", "ms_user_scope.scope")
-			// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
-			.where({
-				...(month_id && { 'b.id': month_id }),
-				...(outlet_id && { 'o.outlet_id': outlet_id }),
-				...(area_id && { 'o.city_id_alias': area_id }),
-				...(region_id && { 'o.region_id': region_id }),
-				...(distributor_id && { 'o.distributor_id': distributor_id }),
-				...(wilayah_id && { 'r.head_region_id': wilayah_id }),
-				...(ass_id && { 'pic.ass_id': ass_id }),
-				...(asm_id && { 'pic.asm_id': asm_id }),
-				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			}).whereIn(addWhere, scope.split(','));
+			// .innerJoin(
+			// 	'ms_head_region as hr',
+			// 	'r.head_region_id',
+			// 	'hr.head_region_id'
+			// )
+			.innerJoin('ms_bulan as b', 'month_target', 'b.bulan');
+		// .innerJoin("ms_user_scope", "mstr_outlet.outlet_id", "ms_user_scope.scope")
+		// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
+		// .where({
+		// 	...(month_id && { 'b.id': month_id }),
+		// 	...(outlet_id && { 'o.outlet_id': outlet_id }),
+		// 	...(area_id && { 'o.city_id_alias': area_id }),
+		// 	...(region_id && { 'o.region_id': region_id }),
+		// 	...(distributor_id && { 'o.distributor_id': distributor_id }),
+		// 	...(wilayah_id && { 'r.head_region_id': wilayah_id }),
+		// 	...(ass_id && { 'pic.ass_id': ass_id }),
+		// 	...(asm_id && { 'pic.asm_id': asm_id }),
+		// 	// ...(salesman_id && { "ms_user.user_id": salesman_id }),
+		// })
+		if (month_id) query.where({ 'b.id': month_id });
 		if (quarter_id) query.whereIn('b.id', quarter_id);
 		// console.log(query.toSQL().toNative());
 		return query;
@@ -133,12 +134,12 @@ class Sales {
 			salesman_id,
 			quarter_id,
 		} = req.validated;
-		const {scope, level} = req.body.decoded
-		let addWhere : string = ''
-		if(level === "4") addWhere = 'o.distributor_id'
-		if(level === "2") addWhere = 'o.region_id'
-		if(level === "3") addWhere = 'o.city_id_alias'
-		if(level === "5") addWhere = 'o.outlet_id'
+		const { scope, level } = req.body.decoded;
+		let addWhere: string = '';
+		if (level === '4') addWhere = 'o.distributor_id';
+		if (level === '2') addWhere = 'o.region_id';
+		if (level === '3') addWhere = 'o.city_id_alias';
+		if (level === '5') addWhere = 'o.outlet_id';
 		const query = db()
 			.select('o.outlet_id', db().raw('MONTH(tr.tgl_transaksi) as bulan'))
 			.sum('sales as aktual')
@@ -166,7 +167,8 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			}).whereIn(addWhere, scope.split(","));
+			})
+			.whereIn(addWhere, scope.split(','));
 		if (month_id) query.andWhereRaw('MONTH(tr.tgl_transaksi) = ?', [month_id]);
 		if (quarter_id)
 			query.andWhereRaw('MONTH(tr.tgl_transaksi) IN(?)', [quarter_id]);
@@ -188,12 +190,12 @@ class Sales {
 			salesman_id,
 			quarter_id,
 		} = req.validated;
-		const {scope, level} = req.body.decoded
-		let addWhere : string = ''
-		if(level === "4") addWhere = 'o.distributor_id'
-		if(level === "2") addWhere = 'o.region_id'
-		if(level === "3") addWhere = 'o.city_id_alias'
-		if(level === "5") addWhere = 'o.outlet_id'
+		const { scope, level } = req.body.decoded;
+		let addWhere: string = '';
+		if (level === '4') addWhere = 'o.distributor_id';
+		if (level === '2') addWhere = 'o.region_id';
+		if (level === '3') addWhere = 'o.city_id_alias';
+		if (level === '5') addWhere = 'o.outlet_id';
 		const query = db()
 			.select()
 			.sum('trb.sales as total')
@@ -204,27 +206,27 @@ class Sales {
 				'trb.kd_transaksi'
 			)
 			.innerJoin('mstr_outlet as o', 'tr.no_id', 'o.outlet_id')
-			.innerJoin('ms_city_alias as c', 'o.city_id_alias', 'c.city_id_alias')
-			.innerJoin('mstr_distributor as d', 'o.distributor_id', 'd.distributor_id')
-			.innerJoin('ms_dist_pic as pic', 'o.distributor_id', 'pic.distributor_id')
-			.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
-			.innerJoin(
-				'ms_head_region as hr',
-				'r.head_region_id',
-				'hr.head_region_id'
-			)
-			// .innerJoin("ms_user_scope", "mstr_outlet.outlet_id", "ms_user_scope.scope")
-			// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
-			.where({
-				...(outlet_id && { 'o.outlet_id': outlet_id }),
-				...(area_id && { 'o.city_id_alias': area_id }),
-				...(region_id && { 'o.region_id': region_id }),
-				...(distributor_id && { 'o.distributor_id': distributor_id }),
-				...(wilayah_id && { 'r.head_region_id': wilayah_id }),
-				...(ass_id && { 'pic.ass_id': ass_id }),
-				...(asm_id && { 'pic.asm_id': asm_id }),
-				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			}).whereIn(addWhere, scope.split(','));
+		// .innerJoin('ms_city_alias as c', 'o.city_id_alias', 'c.city_id_alias')
+		.innerJoin('mstr_distributor as d', 'o.distributor_id', 'd.distributor_id')
+		.innerJoin('ms_dist_pic as pic', 'o.distributor_id', 'pic.distributor_id')
+		.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
+		// .innerJoin(
+		// 	'ms_head_region as hr',
+		// 	'r.head_region_id',
+		// 	'hr.head_region_id'
+		// )
+		// .innerJoin("ms_user_scope", "mstr_outlet.outlet_id", "ms_user_scope.scope")
+		// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
+		// .where({
+		// 	...(outlet_id && { 'o.outlet_id': outlet_id }),
+		// 	...(area_id && { 'o.city_id_alias': area_id }),
+		// 	...(region_id && { 'o.region_id': region_id }),
+		// 	...(distributor_id && { 'o.distributor_id': distributor_id }),
+		// 	...(wilayah_id && { 'r.head_region_id': wilayah_id }),
+		// 	...(ass_id && { 'pic.ass_id': ass_id }),
+		// 	...(asm_id && { 'pic.asm_id': asm_id }),
+		// 	// ...(salesman_id && { "ms_user.user_id": salesman_id }),
+		// }).whereIn(addWhere, scope.split(','));
 		if (month_id) query.andWhereRaw('MONTH(tr.tgl_transaksi) = ?', [month_id]);
 		if (quarter_id)
 			query.andWhereRaw('MONTH(tr.tgl_transaksi) IN(?)', [quarter_id]);
@@ -244,21 +246,24 @@ class Sales {
 			salesman_id,
 			sort,
 		} = req.validated;
-		const {scope, level} = req.body.decoded
-		let addWhere : string = ''
-		if(level === "4") addWhere = 'o.distributor_id'
-		if(level === "2") addWhere = 'o.region_id'
-		if(level === "3") addWhere = 'o.city_id_alias'
-		if(level === "5") addWhere = 'o.outlet_id'
+		const { scope, level } = req.body.decoded;
+		let addWhere: string = '';
+		if (level === '4') addWhere = 'o.distributor_id';
+		if (level === '2') addWhere = 'o.region_id';
+		if (level === '3') addWhere = 'o.city_id_alias';
+		if (level === '5') addWhere = 'o.outlet_id';
+
+		const aktual = this.getAktual(req).where('r.head_region_id', '=', db().raw('mhr.head_region_id'))
+		const target = this.getTarget(req).where('r.head_region_id', '=', db().raw('mhr.head_region_id'))
+
 		const query = db()
 			.select(
 				'mhr.head_region_name as wilayah',
-				this.getAktual(req)
-					.where('r.head_region_id', '=', db().raw('mhr.head_region_id'))
-					.as('aktual'),
-				this.getTarget(req)
-					.where('r.head_region_id', '=', db().raw('mhr.head_region_id'))
-					.as('target')
+				aktual.as('aktual'),
+				target.as('target'),
+				db().raw(
+					`(CONCAT(TRUNCATE(((${aktual})/(${target})* 100), 2 ), '%')) as pencapaian`
+				)
 			)
 			.from('mstr_outlet as o')
 			.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
@@ -279,10 +284,11 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			}).whereIn(addWhere, scope.split(","));
+			})
+			.whereIn(addWhere, scope.split(','));
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
-		query.groupBy('wilayah').orderBy('aktual', sort);
+		query.groupBy('wilayah').orderBy('pencapaian', sort);
 		return query;
 	}
 	getSummaryByRegion(req: Request): any {
@@ -298,22 +304,26 @@ class Sales {
 			salesman_id,
 			sort,
 		} = req.validated;
-		const {scope, level} = req.body.decoded
-		let addWhere : string = ''
-		if(level === "4") addWhere = 'o.distributor_id'
-		if(level === "2") addWhere = 'o.region_id'
-		if(level === "3") addWhere = 'o.city_id_alias'
-		if(level === "5") addWhere = 'o.outlet_id'
+		const { scope, level } = req.body.decoded;
+		let addWhere: string = '';
+		if (level === '4') addWhere = 'o.distributor_id';
+		if (level === '2') addWhere = 'o.region_id';
+		if (level === '3') addWhere = 'o.city_id_alias';
+		if (level === '5') addWhere = 'o.outlet_id';
+
+		const aktual = this.getAktual(req).where('o.region_id', '=', db().raw('reg.pulau_id_alias'))
+		const target = this.getTarget(req).where('o.region_id', '=', db().raw('reg.pulau_id_alias'))
+
 		const query = db()
 			.select(
 				'reg.nama_pulau_alias as region',
-				this.getAktual(req)
-					.where('r.pulau_id_alias', '=', db().raw('reg.pulau_id_alias'))
-					.as('aktual'),
-				this.getTarget(req)
-					.where('r.pulau_id_alias', '=', db().raw('reg.pulau_id_alias'))
-					.as('target')
-			).count('o.outlet_id as outlet')
+				aktual.as('aktual'),
+				target.as('target'),
+				db().raw(
+					`(CONCAT(TRUNCATE(((${aktual})/(${target})* 100), 2 ), '%')) as pencapaian`
+				)
+			)
+			.count('o.outlet_id as outlet')
 			.from('mstr_outlet as o')
 			.innerJoin('ms_pulau_alias as reg', 'o.region_id', 'reg.pulau_id_alias')
 			.innerJoin(
@@ -333,7 +343,8 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			}).whereIn(addWhere, scope.split(","));
+			})
+			.whereIn(addWhere, scope.split(','));
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
 		query.groupBy('region').orderBy('aktual', sort);
@@ -352,25 +363,40 @@ class Sales {
 			salesman_id,
 			sort,
 		} = req.validated;
-		const {scope, level} = req.body.decoded
-		let addWhere : string = ''
-		if(level === "4") addWhere = 'o.distributor_id'
-		if(level === "2") addWhere = 'o.region_id'
-		if(level === "3") addWhere = 'o.city_id_alias'
-		if(level === "5") addWhere = 'o.outlet_id'
+		const { scope, level } = req.body.decoded;
+		let addWhere: string = '';
+		if (level === '4') addWhere = 'o.distributor_id';
+		if (level === '2') addWhere = 'o.region_id';
+		if (level === '3') addWhere = 'o.city_id_alias';
+		if (level === '5') addWhere = 'o.outlet_id';
+
+		const aktual = this.getAktual(req).where(
+			'o.distributor_id',
+			'=',
+			db().raw('dist.distributor_id')
+		);
+		const target = this.getTarget(req).where(
+			'o.distributor_id',
+			'=',
+			db().raw('dist.distributor_id')
+		);
 
 		const query = db()
 			.select(
 				'dist.distributor_name as distributor',
-				this.getAktual(req)
-					.where('d.distributor_id', '=', db().raw('dist.distributor_id'))
-					.as('aktual'),
-				this.getTarget(req)
-					.where('d.distributor_id', '=', db().raw('dist.distributor_id'))
-					.as('target')
-			).count('o.outlet_id as outlet')
+				aktual.as('aktual'),
+				target.as('target'),
+				db().raw(
+					`(CONCAT(TRUNCATE(((${aktual})/(${target})* 100), 2 ), '%')) as pencapaian`
+				)
+			)
+			.count('o.outlet_id as outlet')
 			.from('mstr_outlet as o')
-			.innerJoin('mstr_distributor as dist', 'o.distributor_id', 'dist.distributor_id')
+			.innerJoin(
+				'mstr_distributor as dist',
+				'o.distributor_id',
+				'dist.distributor_id'
+			)
 			.innerJoin('ms_pulau_alias as reg', 'o.region_id', 'reg.pulau_id_alias')
 			.innerJoin(
 				'ms_head_region as mhr',
@@ -389,10 +415,12 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			}).whereIn(addWhere, scope.split(','));
+			})
+			.whereIn(addWhere, scope.split(','));
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
-		query.groupBy('distributor').orderBy('aktual', sort).limit(5);
+		query.groupBy('distributor').orderBy('pencapaian', sort).limit(5);
+		// console.log(query.toSQL())
 		return query;
 	}
 	getSummaryByArea(req: Request): any {
@@ -408,44 +436,64 @@ class Sales {
 			salesman_id,
 			sort,
 		} = req.validated;
-		const {scope, level} = req.body.decoded
-		let addWhere : string = ''
-		if(level === "distributor_manager") addWhere = 'out.distributor_id'
-		if(level === "region_manager") addWhere = 'out.region_id'
-		if(level === "area_manager") addWhere = 'out.city_id_alias'
-		if(level === "outlet_manager") addWhere = 'out.outlet_id'
+		const { scope, level } = req.body.decoded;
+		let addWhere: string = '';
+		if (level === '4') addWhere = 'o.distributor_id';
+		if (level === '2') addWhere = 'o.region_id';
+		if (level === '3') addWhere = 'o.city_id_alias';
+		if (level === '5') addWhere = 'o.outlet_id';
+
+		const aktual = this.getAktual(req).where(
+			'o.city_id_alias',
+			'=',
+			db().raw('ci.city_id_alias')
+		);
+		const target = this.getTarget(req).where(
+			'o.city_id_alias',
+			'=',
+			db().raw('ci.city_id_alias')
+		);
 		const query = db()
 			.select(
 				'ci.city_name_alias as city',
-				this.getAktual(req)
-					.where('c.city_id_alias', '=', db().raw('ci.city_id_alias'))
-					.as('aktual'),
-				this.getTarget(req)
-					.where('c.city_id_alias', '=', db().raw('ci.city_id_alias'))
-					.as('target')
-			).count('out.outlet_id as outlet')
-			.from('mstr_outlet as out')
-			.innerJoin('mstr_distributor as dist', 'out.distributor_id', 'dist.distributor_id')
-			.innerJoin('ms_city_alias as ci', 'out.city_id_alias', 'ci.city_id_alias')
-			.innerJoin('ms_pulau_alias as reg', 'out.region_id', 'reg.pulau_id_alias')
+				aktual.as('aktual'),
+				target.as('target'),
+				db().raw(
+					`(CONCAT(TRUNCATE(((${aktual})/(${target})* 100), 2 ), '%')) as pencapaian`
+				)
+			)
+			.count('o.outlet_id as outlet')
+			.from('mstr_outlet as o')
+			.innerJoin(
+				'mstr_distributor as dist',
+				'o.distributor_id',
+				'dist.distributor_id'
+			)
+			.innerJoin('ms_city_alias as ci', 'o.city_id_alias', 'ci.city_id_alias')
+			.innerJoin('ms_pulau_alias as reg', 'o.region_id', 'reg.pulau_id_alias')
 			.innerJoin(
 				'ms_head_region as mhr',
 				'reg.head_region_id',
 				'mhr.head_region_id'
 			)
-			.innerJoin('ms_dist_pic as pic', 'out.distributor_id', 'pic.distributor_id')
-			// .innerJoin("ms_user_scope", "out.outlet_id", "ms_user_scope.scope")
+			.innerJoin(
+				'ms_dist_pic as pic',
+				'o.distributor_id',
+				'pic.distributor_id'
+			)
+			// .innerJoin("ms_user_scope", "o.outlet_id", "ms_user_scope.scope")
 			// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
 			.where({
-				...(outlet_id && { 'out.outlet_id': outlet_id }),
-				...(area_id && { 'out.city_id_alias': area_id }),
-				...(region_id && { 'out.region_id': region_id }),
-				...(distributor_id && { 'out.distributor_id': distributor_id }),
+				...(outlet_id && { 'o.outlet_id': outlet_id }),
+				...(area_id && { 'o.city_id_alias': area_id }),
+				...(region_id && { 'o.region_id': region_id }),
+				...(distributor_id && { 'o.distributor_id': distributor_id }),
 				...(wilayah_id && { 'reg.head_region_id': wilayah_id }),
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			}).whereIn(addWhere, scope.split(","));
+			})
+			.whereIn(addWhere, scope.split(','));
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
 		query.groupBy('city').orderBy('aktual', sort).limit(5);
@@ -464,44 +512,65 @@ class Sales {
 			salesman_id,
 			sort,
 		} = req.validated;
-		const {scope, level} = req.body.decoded
-		let addWhere : string = ''
-		if(level === "distributor_manager") addWhere = 'out.distributor_id'
-		if(level === "region_manager") addWhere = 'out.region_id'
-		if(level === "area_manager") addWhere = 'out.city_id_alias'
-		if(level === "outlet_manager") addWhere = 'out.outlet_id'
+		const { scope, level } = req.body.decoded;
+		let addWhere: string = '';
+		if (level === '4') addWhere = 'ou.distributor_id';
+		if (level === '2') addWhere = 'ou.region_id';
+		if (level === '3') addWhere = 'ou.city_id_alias';
+		if (level === '5') addWhere = 'ou.outlet_id';
+
+		const aktual = this.getAktual(req).where(
+			'ou.outlet_id',
+			'=',
+			db().raw('o.outlet_id')
+		);
+		const target = this.getTarget(req).where(
+			'ou.outlet_id',
+			'=',
+			db().raw('o.outlet_id')
+		);
+
 		const query = db()
 			.select(
-				'out.outlet_name as outlet_name',
-				this.getAktual(req)
-					.where('o.outlet_id', '=', db().raw('out.outlet_id'))
-					.as('aktual'),
-				this.getTarget(req)
-					.where('o.outlet_id', '=', db().raw('out.outlet_id'))
-					.as('target')
-			).count('out.outlet_id as outlet')
-			.from('mstr_outlet as out')
-			.innerJoin('mstr_distributor as dist', 'out.distributor_id', 'dist.distributor_id')
-			.innerJoin('ms_city_alias as ci', 'out.city_id_alias', 'ci.city_id_alias')
-			.innerJoin('ms_pulau_alias as reg', 'out.region_id', 'reg.pulau_id_alias')
+				'ou.outlet_name as outlet_name',
+				aktual.as('aktual'),
+				target.as('target'),
+				db().raw(
+					`(CONCAT(TRUNCATE(((${aktual})/(${target})* 100), 2 ), '%')) as pencapaian`
+				)
+			)
+			.count('ou.outlet_id as outlet')
+			.from('mstr_outlet as ou')
+			.innerJoin(
+				'mstr_distributor as dist',
+				'ou.distributor_id',
+				'dist.distributor_id'
+			)
+			.innerJoin('ms_city_alias as ci', 'ou.city_id_alias', 'ci.city_id_alias')
+			.innerJoin('ms_pulau_alias as reg', 'ou.region_id', 'reg.pulau_id_alias')
 			.innerJoin(
 				'ms_head_region as mhr',
 				'reg.head_region_id',
 				'mhr.head_region_id'
 			)
-			.innerJoin('ms_dist_pic as pic', 'out.distributor_id', 'pic.distributor_id')
-			// .innerJoin("ms_user_scope", "out.outlet_id", "ms_user_scope.scope")
+			.innerJoin(
+				'ms_dist_pic as pic',
+				'ou.distributor_id',
+				'pic.distributor_id'
+			)
+			// .innerJoin("ms_user_scope", "ou.outlet_id", "ms_user_scope.scope")
 			// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
 			.where({
-				...(outlet_id && { 'out.outlet_id': outlet_id }),
-				...(area_id && { 'out.city_id_alias': area_id }),
-				...(region_id && { 'out.region_id': region_id }),
-				...(distributor_id && { 'out.distributor_id': distributor_id }),
+				...(outlet_id && { 'ou.outlet_id': outlet_id }),
+				...(area_id && { 'ou.city_id_alias': area_id }),
+				...(region_id && { 'ou.region_id': region_id }),
+				...(distributor_id && { 'ou.distributor_id': distributor_id }),
 				...(wilayah_id && { 'reg.head_region_id': wilayah_id }),
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			}).whereIn(addWhere, scope.split(","));
+			})
+			.whereIn(addWhere, scope.split(','));
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
 		query.groupBy('outlet_name').orderBy('aktual', sort).limit(5);
@@ -520,22 +589,26 @@ class Sales {
 			salesman_id,
 			sort,
 		} = req.validated;
-		const {scope, level} = req.body.decoded
-		let addWhere : string = ''
-		if(level === "4") addWhere = 'o.distributor_id'
-		if(level === "2") addWhere = 'o.region_id'
-		if(level === "3") addWhere = 'o.city_id_alias'
-		if(level === "5") addWhere = 'o.outlet_id'
+		const { scope, level } = req.body.decoded;
+		let addWhere: string = '';
+		if (level === '4') addWhere = 'o.distributor_id';
+		if (level === '2') addWhere = 'o.region_id';
+		if (level === '3') addWhere = 'o.city_id_alias';
+		if (level === '5') addWhere = 'o.outlet_id';
+
+		const aktual = this.getAktual(req).where('pic.asm_id', '=', db().raw('mp.kode_pic'))
+		const target = this.getTarget(req).where('pic.asm_id', '=', db().raw('mp.kode_pic'))
+
 		const query = db()
 			.select(
 				'mp.nama_pic as nama_pic',
-				this.getAktual(req)
-					.where('pic.asm_id', '=', db().raw('mp.kode_pic'))
-					.as('aktual'),
-				this.getTarget(req)
-					.where('pic.asm_id', '=', db().raw('mp.kode_pic'))
-					.as('target')
-			).count('o.outlet_id as outlet')
+				aktual.as('aktual'),
+				target.as('target'),
+				db().raw(
+					`(CONCAT(TRUNCATE(((${aktual})/(${target})* 100), 2 ), '%')) as pencapaian`
+				)
+			)
+			.count('o.outlet_id as outlet')
 			.from('mstr_outlet as o')
 			.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
 			.innerJoin(
@@ -556,10 +629,11 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			}).whereIn(addWhere, scope.split(","));
+			})
+			.whereIn(addWhere, scope.split(','));
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
-		query.groupBy('nama_pic').orderBy('aktual', sort).limit(5);
+		query.groupBy('nama_pic').orderBy('pencapaian', sort).limit(5);
 		return query;
 	}
 	getSummaryByASS(req: Request): any {
@@ -575,22 +649,25 @@ class Sales {
 			salesman_id,
 			sort,
 		} = req.validated;
-		const {scope, level} = req.body.decoded
-		let addWhere : string = ''
-		if(level === "4") addWhere = 'o.distributor_id'
-		if(level === "2") addWhere = 'o.region_id'
-		if(level === "3") addWhere = 'o.city_id_alias'
-		if(level === "5") addWhere = 'o.outlet_id'
+		const { scope, level } = req.body.decoded;
+		let addWhere: string = '';
+		if (level === '4') addWhere = 'o.distributor_id';
+		if (level === '2') addWhere = 'o.region_id';
+		if (level === '3') addWhere = 'o.city_id_alias';
+		if (level === '5') addWhere = 'o.outlet_id';
+		const aktual = this.getAktual(req).where('pic.ass_id', '=', db().raw('mp.kode_pic'))
+		const target = this.getTarget(req).where('pic.ass_id', '=', db().raw('mp.kode_pic'))
+
 		const query = db()
 			.select(
 				'mp.nama_pic as nama_pic',
-				this.getAktual(req)
-					.where('pic.ass_id', '=', db().raw('mp.kode_pic'))
-					.as('aktual'),
-				this.getTarget(req)
-					.where('pic.ass_id', '=', db().raw('mp.kode_pic'))
-					.as('target')
-			).count('o.outlet_id as outlet')
+				aktual.as('aktual'),
+				target.as('target'),
+				db().raw(
+					`(CONCAT(TRUNCATE(((${aktual})/(${target})* 100), 2 ), '%')) as pencapaian`
+				)
+			)
+			.count('o.outlet_id as outlet')
 			.from('mstr_outlet as o')
 			.innerJoin('ms_pulau_alias as r', 'o.region_id', 'r.pulau_id_alias')
 			.innerJoin(
@@ -611,10 +688,11 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			}).whereIn(addWhere, scope.split(","));
+			})
+			.whereIn(addWhere, scope.split(','));
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
-		query.groupBy('nama_pic').orderBy('aktual', sort).limit(5);
+		query.groupBy('nama_pic').orderBy('pencapaian', sort).limit(5);
 		return query;
 	}
 	getSummaryByCluster(req: Request): any {
@@ -631,12 +709,12 @@ class Sales {
 			sort,
 			quarter_id,
 		} = req.validated;
-		const {scope, level} = req.body.decoded
-		let addWhere : string = ''
-		if(level === "4") addWhere = 'o.distributor_id'
-		if(level === "2") addWhere = 'o.region_id'
-		if(level === "3") addWhere = 'o.city_id_alias'
-		if(level === "5") addWhere = 'o.outlet_id'
+		const { scope, level } = req.body.decoded;
+		let addWhere: string = '';
+		if (level === '4') addWhere = 'o.distributor_id';
+		if (level === '2') addWhere = 'o.region_id';
+		if (level === '3') addWhere = 'o.city_id_alias';
+		if (level === '5') addWhere = 'o.outlet_id';
 		const query = db()
 			.select(
 				'mst.target_annual',
@@ -672,7 +750,8 @@ class Sales {
 				...(wilayah_id && { 'r.head_region_id': wilayah_id }),
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
-			}).whereIn(addWhere, scope.split(","));
+			})
+			.whereIn(addWhere, scope.split(','));
 		month_id && query.whereRaw('MONTH(tr.tgl_transaksi) = ?', [month_id]);
 		quarter_id && query.whereRaw('MONTH(tr.tgl_transaksi) IN(?)', [quarter_id]);
 		query.groupBy('outlet_id');
@@ -702,12 +781,12 @@ class Sales {
 			asm_id,
 			salesman_id,
 		} = req.validated;
-		const {scope, level} = req.body.decoded
-		let addWhere : string = ''
-		if(level === "4") addWhere = 'o.distributor_id'
-		if(level === "2") addWhere = 'o.region_id'
-		if(level === "3") addWhere = 'o.city_id_alias'
-		if(level === "5") addWhere = 'o.outlet_id'
+		const { scope, level } = req.body.decoded;
+		let addWhere: string = '';
+		if (level === '4') addWhere = 'o.distributor_id';
+		if (level === '2') addWhere = 'o.region_id';
+		if (level === '3') addWhere = 'o.city_id_alias';
+		if (level === '5') addWhere = 'o.outlet_id';
 		const query = db()
 			.distinct(
 				this.getAktual(req).as('aktual'),
@@ -733,7 +812,8 @@ class Sales {
 				...(ass_id && { 'pic.ass_id': ass_id }),
 				...(asm_id && { 'pic.asm_id': asm_id }),
 				// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-			}).whereIn(addWhere, scope.split(","));
+			})
+			.whereIn(addWhere, scope.split(','));
 		return query;
 	}
 	getSummaryPerQuarter(req: Request) {

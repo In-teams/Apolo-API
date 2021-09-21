@@ -1,8 +1,7 @@
-import express, { Application, NextFunction, Request, Response } from "express";
 import cors from "cors";
-import Route from "./routes";
-import logging from "./helpers/Logging";
+import express, { Application, NextFunction, Request, Response } from "express";
 import database from "./config/db";
+import Route from "./routes";
 
 class App {
   public app: Application;
