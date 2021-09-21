@@ -8,6 +8,6 @@ export const ExpKey = "24h"; // Exp JWT_KEY
 export const ExpRefreshKey: string = "24h"; // Exp JWT_KEY refresh token
 export const dataPerPage: number = 10;
 export const DB_HOST: string = "localhost";
-export const DB_NAME: string = "mondelez.2.0";
+export const DB_NAME: string = "apolo.v2";
 export const DB_USER: string = "root";
 export const DB_PASS: string = "";

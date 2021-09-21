@@ -246,7 +246,7 @@ class Sales {
 
 			data = data.map((e: any) => ({
 				...e,
-				pencapaian: ((e.aktual / e.target) * 100).toFixed(2) + '%',
+				// pencapaian: ((e.aktual / e.target) * 100).toFixed(2) + '%',
 				kontribusi: ((e.aktual / totalTarget) * 100).toFixed(2) + '%',
 				bobot_target: ((e.target / totalTarget) * 100).toFixed(2) + '%',
 				bobot_outlet: ((e.outlet / totalOutlet) * 100).toFixed(2) + '%',
@@ -293,7 +293,7 @@ class Sales {
 
 			data = data.map((e: any) => ({
 				...e,
-				pencapaian: ((e.aktual / e.target) * 100).toFixed(2) + '%',
+				// pencapaian: ((e.aktual / e.target) * 100).toFixed(2) + '%',
 				kontribusi: ((e.aktual / totalTarget) * 100).toFixed(2) + '%',
 				bobot_target: ((e.target / totalTarget) * 100).toFixed(2) + '%',
 				bobot_outlet: ((e.outlet / totalOutlet) * 100).toFixed(2) + '%',

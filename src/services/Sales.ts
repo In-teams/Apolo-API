@@ -496,7 +496,7 @@ class Sales {
 			.whereIn(addWhere, scope.split(','));
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
-		query.groupBy('city').orderBy('aktual', sort).limit(5);
+		query.groupBy('city').orderBy('pencapaian', sort).limit(5);
 		return query;
 	}
 	getSummaryByOutlet(req: Request): any {
