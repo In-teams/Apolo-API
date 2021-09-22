@@ -6,10 +6,10 @@ import salesByHirarki from '../types/SalesInterface';
 import OutletService from './Outlet';
 
 const queryTarget: string =
-	'SELECT SUM(st.target_sales) AS target FROM ( SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS st INNER JOIN mstr_outlet AS o ON o.outlet_id = st.outlet_id INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE st.outlet_id IS NOT NULL';
+	'SELECT SUM(st.target_sales) AS target FROM ( SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS st INNER JOIN mstr_outlet AS ou ON ou.outlet_id = st.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON ou.distributor_id = dp.distributor_id WHERE st.outlet_id IS NOT NULL';
 
 const queryAktual: string =
-	'SELECT SUM(trb.sales) AS aktual FROM trx_transaksi tr INNER JOIN trx_transaksi_barang trb ON trb.kd_transaksi = tr.kd_transaksi INNER JOIN mstr_outlet o ON o.outlet_id = tr.no_id INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL';
+	'SELECT SUM(trb.sales) AS aktual FROM trx_transaksi tr INNER JOIN trx_transaksi_barang trb ON trb.kd_transaksi = tr.kd_transaksi INNER JOIN mstr_outlet ou ON ou.outlet_id = tr.no_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON ou.distributor_id = dp.distributor_id WHERE ou.outlet_id IS NOT NULL';
 
 class Sales {
 	async getOutletCount(req: Request): Promise<{ target: number }[]> {
@@ -24,7 +24,8 @@ class Sales {
 		});
 	}
 	async getTarget(req: Request): Promise<{ target: number }[]> {
-		let { query: newQuery, params } = filterParams(req, queryTarget);
+		let query = 'SELECT SUM(st.target_sales) AS target FROM ( SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS st INNER JOIN mstr_outlet AS o ON o.outlet_id = st.outlet_id INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE st.outlet_id IS NOT NULL';
+		let { query: newQuery, params } = filterParams(req, query);
 
 		return await db.query(newQuery, {
 			raw: true,
@@ -34,8 +35,8 @@ class Sales {
 	}
 	async getSalesByDistributor(req: Request): Promise<salesByHirarki[]> {
 		const { sort } = req.validated;
-		let qTarget = queryTarget + ' AND o.`distributor_id` = d.`distributor_id`';
-		let qAktual = queryAktual + ' AND o.`distributor_id` = d.`distributor_id`';
+		let qTarget = queryTarget + ' AND ou.`distributor_id` = d.`distributor_id`';
+		let qAktual = queryAktual + ' AND ou.`distributor_id` = d.`distributor_id`';
 
 		let query = `SELECT d.distributor_name as distributor, (${qTarget}) AS target, (${qAktual}) AS aktual, (CONCAT(TRUNCATE(((${qAktual})/(${qTarget})* 100), 2 ), '%')) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN mstr_distributor as d ON d.distributor_id = o.distributor_id INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE d.distributor_id IS NOT NULL`;
 
@@ -52,8 +53,8 @@ class Sales {
 	}
 	async getSalesByArea(req: Request): Promise<salesByHirarki[]> {
 		const { sort } = req.validated;
-		let qTarget = queryTarget + ' AND o.city_id_alias = ci.city_id_alias';
-		let qAktual = queryAktual + ' AND o.city_id_alias = ci.city_id_alias';
+		let qTarget = queryTarget + ' AND ou.city_id_alias = ci.city_id_alias';
+		let qAktual = queryAktual + ' AND ou.city_id_alias = ci.city_id_alias';
 
 		let query = `SELECT ci.city_name_alias as city, (${qTarget}) AS target, (${qAktual}) AS aktual, (CONCAT(TRUNCATE(((${qAktual})/(${qTarget})* 100), 2 ), '%')) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_city_alias as ci ON ci.city_id_alias = o.city_id_alias INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE ci.city_id_alias IS NOT NULL`;
 
@@ -68,10 +69,28 @@ class Sales {
 			replacements: params,
 		});
 	}
+	async getSalesByOutlet(req: Request): Promise<salesByHirarki[]> {
+		const { sort } = req.validated;
+		let qTarget = queryTarget + ' AND ou.outlet_id = o.outlet_id';
+		let qAktual = queryAktual + ' AND ou.outlet_id = o.outlet_id';
+
+		let query = `SELECT o.outlet_name as outlet_name, (${qTarget}) AS target, (${qAktual}) AS aktual, (CONCAT(TRUNCATE(((${qAktual})/(${qTarget})* 100), 2 ), '%')) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL`;
+
+		let { query: newQuery, params }: { query: string; params: string[] } =
+			filterParams(req, query);
+
+		newQuery += ` GROUP BY o.outlet_id ORDER BY pencapaian ${sort} LIMIT 5`;
+
+		return await db.query(newQuery, {
+			raw: true,
+			type: QueryTypes.SELECT,
+			replacements: params,
+		});
+	}
 	async getSalesByRegion(req: Request): Promise<salesByHirarki[]> {
 		const { sort } = req.validated;
-		let qTarget = queryTarget + ' AND o.region_id = reg.pulau_id_alias';
-		let qAktual = queryAktual + ' AND o.region_id = reg.pulau_id_alias';
+		let qTarget = queryTarget + ' AND ou.region_id = reg.pulau_id_alias';
+		let qAktual = queryAktual + ' AND ou.region_id = reg.pulau_id_alias';
 
 		let query = `SELECT reg.nama_pulau_alias AS region, (${qTarget}) AS target, (${qAktual}) AS aktual, (CONCAT(TRUNCATE(((${qAktual})/(${qTarget})* 100), 2 ), '%')) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE reg.pulau_id_alias IS NOT NULL`;
 
