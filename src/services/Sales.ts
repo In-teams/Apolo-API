@@ -50,6 +50,24 @@ class Sales {
 			replacements: params,
 		});
 	}
+	async getSalesByArea(req: Request): Promise<salesByHirarki[]> {
+		const { sort } = req.validated;
+		let qTarget = queryTarget + ' AND o.city_id_alias = ci.city_id_alias';
+		let qAktual = queryAktual + ' AND o.city_id_alias = ci.city_id_alias';
+
+		let query = `SELECT ci.city_name_alias as city, (${qTarget}) AS target, (${qAktual}) AS aktual, (CONCAT(TRUNCATE(((${qAktual})/(${qTarget})* 100), 2 ), '%')) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_city_alias as ci ON ci.city_id_alias = o.city_id_alias INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE ci.city_id_alias IS NOT NULL`;
+
+		let { query: newQuery, params }: { query: string; params: string[] } =
+			filterParams(req, query);
+
+		newQuery += ` GROUP BY ci.city_id_alias ORDER BY pencapaian ${sort} LIMIT 5`;
+
+		return await db.query(newQuery, {
+			raw: true,
+			type: QueryTypes.SELECT,
+			replacements: params,
+		});
+	}
 	async getSalesByRegion(req: Request): Promise<salesByHirarki[]> {
 		const { sort } = req.validated;
 		let qTarget = queryTarget + ' AND o.region_id = reg.pulau_id_alias';

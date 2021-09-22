@@ -88,6 +88,19 @@ class Sales {
 			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
+	async getSummaryByArea(
+		req: Request,
+		res: Response
+	): Promise<object | undefined> {
+		try {
+			let data: any = await Service.getSalesByArea(req);
+			data = await SalesHelper(req, data, 'city')
+			return response(res, true, data, null, 200);
+		} catch (error) {
+			console.log(error)
+			return response(res, false, null, JSON.stringify(error), 500);
+		}
+	}
 	async getSummaryByRegion(
 		req: Request,
 		res: Response
