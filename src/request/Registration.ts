@@ -20,6 +20,8 @@ class Registration {
       asm_id: joi.string(),
       salesman_id: joi.string(),
       sort: joi.string(),
+      quarter_id: joi.number().valid(1, 2, 3, 4),
+      month: joi.string(),
     });
 
     const { value, error } = schema.validate(req.query);

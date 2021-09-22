@@ -65,10 +65,10 @@ class Outlet {
 		} = req.validated;
 		const { scope, level } = req.body.decoded;
 		let addWhere: string = '';
-		if (level === 'distributor_manager') addWhere = 'o.distributor_id';
-		if (level === 'region_manager') addWhere = 'o.region_id';
-		if (level === 'area_manager') addWhere = 'o.city_id_alias';
-		if (level === 'outlet_manager') addWhere = 'o.outlet_id';
+		if (level === '4') addWhere = 'o.distributor_id';
+		if (level === '2') addWhere = 'o.region_id';
+		if (level === '3') addWhere = 'o.city_id_alias';
+		if (level === '5') addWhere = 'o.outlet_id';
 		const query = db()
 			.select(OutletService.getOutletCount(req).as('total_outlet'))
 			.countDistinct('o.outlet_id as total')
@@ -104,10 +104,10 @@ class Outlet {
 		} = req.validated;
 		const { scope, level } = req.body.decoded;
 		let addWhere: string = '';
-		if (level === 'distributor_manager') addWhere = 'o.distributor_id';
-		if (level === 'region_manager') addWhere = 'o.region_id';
-		if (level === 'area_manager') addWhere = 'o.city_id_alias';
-		if (level === 'outlet_manager') addWhere = 'o.outlet_id';
+		if (level === '4') addWhere = 'o.distributor_id';
+		if (level === '2') addWhere = 'o.region_id';
+		if (level === '3') addWhere = 'o.city_id_alias';
+		if (level === '5') addWhere = 'o.outlet_id';
 		const query = db()
 			.select('outlet_id', 'tgl_registrasi', 'outlet_name')
 			.from('mstr_outlet as o')
