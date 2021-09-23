@@ -1,7 +1,7 @@
 import { Request } from "express";
 
 class filterParams{
-    index(req: Request, query: string){
+    query(req: Request, query: string): {query: string, params: string[]} {
         let {
 			outlet_id,
 			area_id,
@@ -55,6 +55,40 @@ class filterParams{
 
         return {query, params}
     }
+    target(req: Request, query: string){
+        let {
+			month_id,
+			quarter_id
+		} = req.validated;
+		let params: string[] = [];
+		if (month_id) {
+			query += ' AND b.id = ?';
+			params.push(month_id);
+		}
+		if (quarter_id) {
+			query += ' AND b.id IN (?)';
+			params.push(quarter_id);
+		}
+
+        return {query, params}
+    }
+    aktual(req: Request, query: string){
+        let {
+			month_id,
+			quarter_id
+		} = req.validated;
+		let params: string[] = [];
+		if (month_id) {
+			query += ' AND MONTH(tr.tgl_transaksi) = ?';
+			params.push(month_id);
+		}
+		if (quarter_id) {
+			query += ' AND MONTH(tr.tgl_transaksi) IN (?)';
+			params.push(quarter_id);
+		}
+
+        return {query, params}
+    }
 }
 
-export default new filterParams().index
+export default new filterParams()
