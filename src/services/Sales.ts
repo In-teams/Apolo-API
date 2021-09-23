@@ -16,12 +16,12 @@ class Sales {
 			salesman_id,
 			quarter_id,
 		} = req.validated;
-		// const {scope, level} = req.body.decoded
-		// let addWhere : string = ''
-		// if(level === "4") addWhere = 'o.distributor_id'
-		// if(level === "2") addWhere = 'o.region_id'
-		// if(level === "3") addWhere = 'o.city_id_alias'
-		// if(level === "5") addWhere = 'o.outlet_id'
+		const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "4") addWhere = 'o.distributor_id'
+		if(level === "2") addWhere = 'o.region_id'
+		if(level === "3") addWhere = 'o.city_id_alias'
+		if(level === "5") addWhere = 'o.outlet_id'
 		const query = db()
 			.select('st.outlet_id', 'b.id as bulan')
 			.sum('st.target_sales as target_annual')
@@ -45,17 +45,17 @@ class Sales {
 		.innerJoin('ms_bulan as b', 'month_target', 'b.bulan')
 		// .innerJoin("ms_user_scope", "mstr_outlet.outlet_id", "ms_user_scope.scope")
 		// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
-		// .where({
-		// 	...(month_id && { 'b.id': month_id }),
-		// 	...(outlet_id && { 'o.outlet_id': outlet_id }),
-		// 	...(area_id && { 'o.city_id_alias': area_id }),
-		// 	...(region_id && { 'o.region_id': region_id }),
-		// 	...(distributor_id && { 'o.distributor_id': distributor_id }),
-		// 	...(wilayah_id && { 'r.head_region_id': wilayah_id }),
-		// 	...(ass_id && { 'pic.ass_id': ass_id }),
-		// 	...(asm_id && { 'pic.asm_id': asm_id }),
-		// 	// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-		// }).whereIn(addWhere, scope.split(','));
+		.where({
+			...(month_id && { 'b.id': month_id }),
+			...(outlet_id && { 'o.outlet_id': outlet_id }),
+			...(area_id && { 'o.city_id_alias': area_id }),
+			...(region_id && { 'o.region_id': region_id }),
+			...(distributor_id && { 'o.distributor_id': distributor_id }),
+			...(wilayah_id && { 'r.head_region_id': wilayah_id }),
+			...(ass_id && { 'pic.ass_id': ass_id }),
+			...(asm_id && { 'pic.asm_id': asm_id }),
+			// ...(salesman_id && { "ms_user.user_id": salesman_id }),
+		}).whereIn(addWhere, scope.split(','));
 		if (quarter_id) query.whereIn('b.id', quarter_id);
 		// query.groupBy('outlet_id');
 		// console.log(query.toSQL().toNative());
@@ -74,12 +74,12 @@ class Sales {
 			salesman_id,
 			quarter_id,
 		} = req.validated;
-		// const {scope, level} = req.body.decoded
-		// let addWhere : string = ''
-		// if(level === "4") addWhere = 'o.distributor_id'
-		// if(level === "2") addWhere = 'o.region_id'
-		// if(level === "3") addWhere = 'o.city_id_alias'
-		// if(level === "5") addWhere = 'o.outlet_id'
+		const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "4") addWhere = 'o.distributor_id'
+		if(level === "2") addWhere = 'o.region_id'
+		if(level === "3") addWhere = 'o.city_id_alias'
+		if(level === "5") addWhere = 'o.outlet_id'
 		const query = db()
 			.select()
 			.sum('st.target_sales as total')
@@ -102,20 +102,21 @@ class Sales {
 			// 	'r.head_region_id',
 			// 	'hr.head_region_id'
 			// )
-			.innerJoin('ms_bulan as b', 'month_target', 'b.bulan');
+			.innerJoin('ms_bulan as b', 'month_target', 'b.bulan')
 		// .innerJoin("ms_user_scope", "mstr_outlet.outlet_id", "ms_user_scope.scope")
 		// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
-		// .where({
-		// 	...(month_id && { 'b.id': month_id }),
-		// 	...(outlet_id && { 'o.outlet_id': outlet_id }),
-		// 	...(area_id && { 'o.city_id_alias': area_id }),
-		// 	...(region_id && { 'o.region_id': region_id }),
-		// 	...(distributor_id && { 'o.distributor_id': distributor_id }),
-		// 	...(wilayah_id && { 'r.head_region_id': wilayah_id }),
-		// 	...(ass_id && { 'pic.ass_id': ass_id }),
-		// 	...(asm_id && { 'pic.asm_id': asm_id }),
-		// 	// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-		// })
+		.where({
+			...(month_id && { 'b.id': month_id }),
+			...(outlet_id && { 'o.outlet_id': outlet_id }),
+			...(area_id && { 'o.city_id_alias': area_id }),
+			...(region_id && { 'o.region_id': region_id }),
+			...(distributor_id && { 'o.distributor_id': distributor_id }),
+			...(wilayah_id && { 'r.head_region_id': wilayah_id }),
+			...(ass_id && { 'pic.ass_id': ass_id }),
+			...(asm_id && { 'pic.asm_id': asm_id }),
+			// ...(salesman_id && { "ms_user.user_id": salesman_id }),
+		}).whereIn(addWhere, scope.split(','));
+		// .whereIn(addWhere, scope.split(','));
 		if (month_id) query.where({ 'b.id': month_id });
 		if (quarter_id) query.whereIn('b.id', quarter_id);
 		// console.log(query.toSQL().toNative());
@@ -217,16 +218,17 @@ class Sales {
 		// )
 		// .innerJoin("ms_user_scope", "mstr_outlet.outlet_id", "ms_user_scope.scope")
 		// .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
-		// .where({
-		// 	...(outlet_id && { 'o.outlet_id': outlet_id }),
-		// 	...(area_id && { 'o.city_id_alias': area_id }),
-		// 	...(region_id && { 'o.region_id': region_id }),
-		// 	...(distributor_id && { 'o.distributor_id': distributor_id }),
-		// 	...(wilayah_id && { 'r.head_region_id': wilayah_id }),
-		// 	...(ass_id && { 'pic.ass_id': ass_id }),
-		// 	...(asm_id && { 'pic.asm_id': asm_id }),
-		// 	// ...(salesman_id && { "ms_user.user_id": salesman_id }),
-		// }).whereIn(addWhere, scope.split(','));
+		.where({
+			...(outlet_id && { 'o.outlet_id': outlet_id }),
+			...(area_id && { 'o.city_id_alias': area_id }),
+			...(region_id && { 'o.region_id': region_id }),
+			...(distributor_id && { 'o.distributor_id': distributor_id }),
+			...(wilayah_id && { 'r.head_region_id': wilayah_id }),
+			...(ass_id && { 'pic.ass_id': ass_id }),
+			...(asm_id && { 'pic.asm_id': asm_id }),
+			// ...(salesman_id && { "ms_user.user_id": salesman_id }),
+		}).whereIn(addWhere, scope.split(','));
+		// .whereIn(addWhere, scope.split(','));
 		if (month_id) query.andWhereRaw('MONTH(tr.tgl_transaksi) = ?', [month_id]);
 		if (quarter_id)
 			query.andWhereRaw('MONTH(tr.tgl_transaksi) IN(?)', [quarter_id]);
@@ -573,7 +575,7 @@ class Sales {
 			.whereIn(addWhere, scope.split(','));
 		if (month)
 			query.andWhereRaw('MONTHNAME(trx_transaksi.tgl_transaksi) = ?', [month]);
-		query.groupBy('outlet_name').orderBy('aktual', sort).limit(5);
+		query.groupBy('outlet_name').orderBy('pencapaian', sort).limit(5);
 		return query;
 	}
 	getSummaryByASM(req: Request): any {
