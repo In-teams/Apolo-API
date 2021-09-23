@@ -140,6 +140,27 @@ class Sales {
 			replacements: [...pt, ...pa, ...pt, ...pa, ...params],
 		});
 	}
+	async getSalesByASS(req: Request): Promise<salesByHirarki[]> {
+		const { sort } = req.validated;
+		let qTarget = queryTarget + ' AND pic.ass_id = mp.kode_pic';
+		let qAktual = queryAktual + ' AND pic.ass_id = mp.kode_pic';
+
+		let { query: qt, params: pt } = filterParams.target(req, qTarget);
+		let { query: qa, params: pa } = filterParams.aktual(req, qAktual);
+
+		let query = `SELECT mp.nama_pic as nama_pic, (${qt}) AS target, (${qa}) AS aktual, (CONCAT(TRUNCATE(((${qa})/(${qt})* 100), 2 ), '%')) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN ms_pic as mp ON mp.kode_pic = dp.ass_id WHERE mp.kode_pic IS NOT NULL`;
+
+		let { query: newQuery, params }: { query: string; params: string[] } =
+			filterParams.query(req, query);
+
+		newQuery += ` GROUP BY mp.kode_pic ORDER BY pencapaian ${sort} LIMIT 5`;
+
+		return await db.query(newQuery, {
+			raw: true,
+			type: QueryTypes.SELECT,
+			replacements: [...pt, ...pa, ...pt, ...pa, ...params],
+		});
+	}
 }
 
 export default new Sales();
