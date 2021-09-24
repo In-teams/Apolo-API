@@ -175,7 +175,7 @@ class Sales {
 		let {query: newQ, params: newP} =  filterParams.aktual(req, query)
 		newQ += ' GROUP BY outlet_id';
 
-		let newQuery = `SELECT cluster, SUM(target) AS target, SUM(sales) AS aktual, COUNT(outlet_id) AS outlet FROM (${newQ}) AS custom GROUP BY cluster`
+		let newQuery = `SELECT cluster, SUM(target) AS target, SUM(sales) AS aktual, COUNT(outlet_id) AS outlet FROM (${newQ}) AS custom GROUP BY cluster ORDER BY cluster`
 		
 		return await db.query(newQuery, {
 			raw: true,

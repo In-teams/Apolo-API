@@ -163,8 +163,8 @@ class Sales {
 				...e,
 				aktual: +(e.aktual)
 			}))
-			data = NumberFormat(data, true, 'aktual', 'target')
-			// data = await SalesHelper(req, data, 'region')
+			// data = NumberFormat(data, true, 'aktual', 'target')
+			data = await SalesHelper(req, data, 'cluster')
 			return response(res, true, data, null, 200);
 		} catch (error) {
 			console.log(error)

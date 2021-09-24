@@ -18,8 +18,8 @@ class SalesHelper {
 		});
 		data = data.map((e: any) => ({
 			...e,
-			aktual: +e.aktual,
-			pencapaian: e.pencapaian + '%',
+			aktual: + e.aktual,
+			pencapaian: e.pencapaian ? e.pencapaian + '%' : ((e.aktual / e.target) * 100).toFixed(2) + '%',
 			kontribusi: ((+e.aktual / totalTarget) * 100).toFixed(2) + '%',
 			bobot_target: ((e.target / totalTarget) * 100).toFixed(2) + '%',
 			bobot_outlet: ((e.outlet / totalOutlet) * 100).toFixed(2) + '%',
