@@ -6,10 +6,10 @@ import salesByHirarki from '../types/SalesInterface';
 import OutletService from './Outlet';
 
 const queryTarget: string =
-	'SELECT SUM(st.target_sales) AS target FROM ( SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS st INNER JOIN mstr_outlet AS ou ON ou.outlet_id = st.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id INNER JOIN ms_bulan AS b ON b.bulan = st.month_target WHERE st.outlet_id IS NOT NULL';
+	'SELECT SUM(st.target_sales) AS target FROM ( SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS st INNER JOIN mstr_outlet AS o ON o.outlet_id = st.outlet_id INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id INNER JOIN ms_bulan AS b ON b.bulan = st.month_target WHERE st.outlet_id IS NOT NULL';
 
 const queryAktual: string =
-	'SELECT SUM(trb.sales) AS aktual FROM trx_transaksi tr INNER JOIN trx_transaksi_barang trb ON trb.kd_transaksi = tr.kd_transaksi INNER JOIN mstr_outlet ou ON ou.outlet_id = tr.no_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id WHERE ou.outlet_id IS NOT NULL';
+	'SELECT SUM(trb.sales) AS aktual FROM trx_transaksi tr INNER JOIN trx_transaksi_barang trb ON trb.kd_transaksi = tr.kd_transaksi INNER JOIN mstr_outlet AS o ON o.outlet_id = tr.no_id INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id WHERE o.outlet_id IS NOT NULL';
 
 class Sales {
 	async getOutletCount(req: Request): Promise<{ target: number }[]> {
@@ -37,8 +37,8 @@ class Sales {
 	}
 	async getSalesByDistributor(req: Request): Promise<salesByHirarki[]> {
 		const { sort } = req.validated;
-		let qTarget = queryTarget + ' AND ou.`distributor_id` = d.`distributor_id`';
-		let qAktual = queryAktual + ' AND ou.`distributor_id` = d.`distributor_id`';
+		let qTarget = queryTarget + ' AND o.`distributor_id` = d.`distributor_id`';
+		let qAktual = queryAktual + ' AND o.`distributor_id` = d.`distributor_id`';
 
 		let { query: qt, params: pt } = filterParams.target(req, qTarget);
 		let { query: qa, params: pa } = filterParams.aktual(req, qAktual);
@@ -58,8 +58,8 @@ class Sales {
 	}
 	async getSalesByArea(req: Request): Promise<salesByHirarki[]> {
 		const { sort } = req.validated;
-		let qTarget = queryTarget + ' AND ou.city_id_alias = ci.city_id_alias';
-		let qAktual = queryAktual + ' AND ou.city_id_alias = ci.city_id_alias';
+		let qTarget = queryTarget + ' AND o.city_id_alias = ci.city_id_alias';
+		let qAktual = queryAktual + ' AND o.city_id_alias = ci.city_id_alias';
 
 		let { query: qt, params: pt } = filterParams.target(req, qTarget);
 		let { query: qa, params: pa } = filterParams.aktual(req, qAktual);
@@ -79,8 +79,8 @@ class Sales {
 	}
 	async getSalesByOutlet(req: Request): Promise<salesByHirarki[]> {
 		const { sort } = req.validated;
-		let qTarget = queryTarget + ' AND ou.outlet_id = o.outlet_id';
-		let qAktual = queryAktual + ' AND ou.outlet_id = o.outlet_id';
+		let qTarget = queryTarget + ' AND o.outlet_id = o.outlet_id';
+		let qAktual = queryAktual + ' AND o.outlet_id = o.outlet_id';
 
 		let { query: qt, params: pt } = filterParams.target(req, qTarget);
 		let { query: qa, params: pa } = filterParams.aktual(req, qAktual);
@@ -100,8 +100,8 @@ class Sales {
 	}
 	async getSalesByRegion(req: Request): Promise<salesByHirarki[]> {
 		const { sort } = req.validated;
-		let qTarget = queryTarget + ' AND ou.region_id = reg.pulau_id_alias';
-		let qAktual = queryAktual + ' AND ou.region_id = reg.pulau_id_alias';
+		let qTarget = queryTarget + ' AND o.region_id = reg.pulau_id_alias';
+		let qAktual = queryAktual + ' AND o.region_id = reg.pulau_id_alias';
 
 		let { query: qt, params: pt } = filterParams.target(req, qTarget);
 		let { query: qa, params: pa } = filterParams.aktual(req, qAktual);
