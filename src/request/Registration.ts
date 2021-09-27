@@ -8,23 +8,6 @@
 // import OutletService from "../services/Outlet";
 // import RegistrationService from "../services/Registration";
 
-<<<<<<< HEAD
-class Registration {
-  get(req: Request, res: Response, next: NextFunction): any {
-    const schema = joi.object({
-      region_id: joi.string(),
-      area_id: joi.string(),
-      wilayah_id: joi.string(),
-      outlet_id: joi.string(),
-      distributor_id: joi.string(),
-      ass_id: joi.string(),
-      asm_id: joi.string(),
-      salesman_id: joi.string(),
-      sort: joi.string(),
-      quarter_id: joi.number().valid(1, 2, 3, 4),
-      month: joi.string(),
-    });
-=======
 // class Registration {
 //   get(req: Request, res: Response, next: NextFunction): any {
 //     const schema = joi.object({
@@ -38,7 +21,6 @@ class Registration {
 //       salesman_id: joi.string(),
 //       sort: joi.string(),
 //     });
->>>>>>> cd83ae9b08d3c8169b89fc35730b1b542456c245
 
 //     const { value, error } = schema.validate(req.query);
 //     if (error) {
