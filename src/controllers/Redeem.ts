@@ -117,6 +117,11 @@ class Redeem {
 	): Promise<object | undefined> {
 		try {
 			let point = await Service.getPointSummary(req);
+            point = point.map((e: any) => ({
+                ...e,
+                achieve: +e.achieve,
+                redeem: +e.redeem,
+            }))
 			point = NumberFormat(point, false, 'achieve', 'redeem');
 			return response(res, true, point[0], null, 200);
 		} catch (error) {
