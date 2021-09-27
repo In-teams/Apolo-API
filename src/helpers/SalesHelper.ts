@@ -31,7 +31,7 @@ class SalesHelper {
                 aktual,
                 target,
                 outlet,
-                [type]: 'Total Pencapaian',
+                [type]: type !== "Aktual" ? 'Total Pencapaian' :  "Total",
                 pencapaian: ((aktual / target) * 100).toFixed(2) + '%',
                 kontribusi: ((aktual / totalTarget) * 100).toFixed(2) + '%',
                 bobot_target: ((target / totalTarget) * 100).toFixed(2) + '%',
