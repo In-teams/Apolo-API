@@ -16,11 +16,12 @@ const queryAktual: string =
 let queryAktualAndPoint: string =
   "SELECT ou.`outlet_id`, MONTH(tr.tgl_transaksi) AS bulan, SUM(`sales`) AS `aktual`, SUM(`point_satuan`) AS `poin` FROM `trx_transaksi` AS `tr`INNER JOIN `trx_transaksi_barang` AS `trb` ON `tr`.`kd_transaksi` = `trb`.`kd_transaksi`INNER JOIN `mstr_outlet` AS ou ON `tr`.`no_id` = ou.`outlet_id`INNER JOIN `ms_dist_pic` AS `pic` ON ou.`distributor_id` = `pic`.`distributor_id`INNER JOIN `ms_pulau_alias` AS `r` ON ou.`region_id` = `r`.`pulau_id_alias`INNER JOIN `ms_head_region` AS `hr` ON `r`.`head_region_id` = `hr`.`head_region_id` WHERE ou.outlet_id IS NOT NULL";
 
+
+  let queryOutletCount = "SELECT COUNT(DISTINCT o.outlet_id) AS total FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS r ON o.`region_id` = r. `pulau_id_alias` INNER JOIN ms_dist_pic AS pic ON o.`distributor_id` = pic.`distributor_id` WHERE o.`outlet_id` IS NOT NULL"
+
 class Sales {
   async getOutletCount(req: Request): Promise<{ target: number }[]> {
-    let query =
-      "SELECT COUNT(DISTINCT o.outlet_id) AS total FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS r ON o.`region_id` = r. `pulau_id_alias` INNER JOIN ms_dist_pic AS pic ON o.`distributor_id` = pic.`distributor_id` WHERE o.`outlet_id` IS NOT NULL";
-    let { query: newQuery, params } = filterParams.query(req, query);
+    let { query: newQuery, params } = filterParams.query(req, queryOutletCount);
 
     return await db.query(newQuery, {
       raw: true,
@@ -287,6 +288,30 @@ class Sales {
       raw: true,
       type: QueryTypes.SELECT,
       replacements: [...pt, ...pap, ...params],
+    });
+  }
+  async getSummary(req: Request) {
+    let { query: qt, params: pt } = filterParams.target(
+      req,
+      queryTarget
+    );
+    let { query: qa, params: pa } = filterParams.aktual(
+      req,
+      queryAktual
+    );
+    let { query: qo, params: po } = filterParams.query(
+      req,
+      queryOutletCount
+    );
+
+    let query = `SELECT DISTINCT (${qa}) AS aktual, (${qt}) AS target, (${qo}) AS total_outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL`;
+
+    let { query: newQuery, params } = filterParams.query(req, query);
+
+    return await db.query(newQuery, {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: [...pt, ...pa, ...po, ...params],
     });
   }
 }

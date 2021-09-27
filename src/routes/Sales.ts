@@ -12,7 +12,7 @@ class Sales implements IRouter {
   }
 
   public routes(): void {
-    // this.router.get("/", SalesRequest.get, SalesController.get); // summary (all)
+    this.router.get("/", SalesRequest.get, SalesController.get); // summary (all)
     // this.router.get("/summary/hr", SalesRequest.get, SalesController.getSummaryByHR); // summary by head region (wilayah)
     this.router.get("/summary/region", SalesRequest.get, SalesController.getSummaryByRegion); // summary by region
     this.router.get("/summary/distributor", SalesRequest.get, SalesController.getSummaryByDistributor); // summary by distributor

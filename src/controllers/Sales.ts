@@ -246,6 +246,25 @@ class Sales {
 			return response(res, false, null, JSON.stringify(error), 500);
 		}
 	}
+	async get(
+		req: Request,
+		res: Response
+	): Promise<object | undefined> {
+		try {
+			let data: any = await Service.getSummary(req);
+			data = data.map((e: any) => ({
+				...e,
+				// kuartal: "Tahunan",
+				aktual: +(e.aktual)
+			}))
+			data = NumberFormat(data, true, 'aktual', 'target')
+			// data = await SalesHelper(req, data, 'kuartal', true)
+			return response(res, true, data, null, 200);
+		} catch (error) {
+			console.log(error)
+			return response(res, false, null, JSON.stringify(error), 500);
+		}
+	}
 }
 
 export default new Sales();
