@@ -95,7 +95,7 @@ class Sales {
     let { query: qt, params: pt } = filterParams.target(req, qTarget);
     let { query: qa, params: pa } = filterParams.aktual(req, qAktual);
 
-	// console.log(qt)
+    // console.log(qt)
 
     let query = `SELECT o.outlet_name as outlet_name, (${qt}) AS target, (${qa}) AS aktual, (CONCAT(TRUNCATE(((${qa})/(${qt})* 100), 2 ), '%')) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL`;
 
@@ -210,6 +210,31 @@ class Sales {
 
     let { query: newQuery, params } = filterParams.query(req, query);
     newQuery += "GROUP BY b.id ORDER BY b.id ASC";
+
+    return await db.query(newQuery, {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: [...pt, ...pap, ...params],
+    });
+  }
+  async getSummaryPerSemester(req: Request) {
+    const { semester_id } = req.validated;
+    let { query: qt, params: pt } = filterParams.target(
+      req,
+      queryTargetByOutlet
+    );
+    let { query: qap, params: pap } = filterParams.aktual(
+      req,
+      queryAktualAndPoint
+    );
+
+    qap += " GROUP BY bulan";
+    qt += " GROUP BY b.id";
+
+    let query = `SELECT CASE WHEN b.id = 1 OR b.id = 2 OR b.id = 3 THEN '1' WHEN b.id = 4 OR b.id = 5 OR b.id = 6 THEN '2' WHEN b.id = 7 OR b.id = 8 OR b.id = 9 THEN '3' WHEN b.id = 10 OR b.id = 11 OR b.id = 12 THEN '4' END AS kuartal, SUM(aktual) AS aktual, SUM(poin) AS poin, SUM(target) AS target FROM mstr_outlet AS o LEFT JOIN(${qt}) AS mst ON mst.outlet_id = o.outlet_id LEFT JOIN(${qap}) AS trb ON trb.bulan = mst.bulan INNER JOIN ms_bulan AS b ON b.id = mst.bulan WHERE o.outlet_id IS NOT NULL AND b.id IN (${semester_id})`;
+
+    let { query: newQuery, params } = filterParams.query(req, query);
+    newQuery += " GROUP BY kuartal";
 
     return await db.query(newQuery, {
       raw: true,

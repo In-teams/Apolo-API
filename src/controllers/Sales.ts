@@ -182,7 +182,25 @@ class Sales {
 				aktual: +(e.aktual)
 			}))
 			// data = NumberFormat(data, true, 'aktual', 'target')
-			data = await SalesHelper(req, data, 'cluster')
+			data = await SalesHelper(req, data, 'bulan')
+			return response(res, true, data, null, 200);
+		} catch (error) {
+			console.log(error)
+			return response(res, false, null, JSON.stringify(error), 500);
+		}
+	}
+	async getSummaryPerSemester(
+		req: Request,
+		res: Response
+	): Promise<object | undefined> {
+		try {
+			let data: any = await Service.getSummaryPerSemester(req);
+			data = data.map((e: any) => ({
+				...e,
+				aktual: +(e.aktual)
+			}))
+			// data = NumberFormat(data, true, 'aktual', 'target')
+			data = await SalesHelper(req, data, 'kuartal')
 			return response(res, true, data, null, 200);
 		} catch (error) {
 			console.log(error)
