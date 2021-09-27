@@ -224,7 +224,7 @@ class Sales {
     let query = `SELECT b.bulan, aktual, poin, SUM(target) AS target FROM mstr_outlet AS o LEFT JOIN(${qt}) AS mst ON mst.outlet_id = o.outlet_id LEFT JOIN(${qap}) AS trb ON trb.bulan = mst.bulan INNER JOIN ms_bulan AS b ON b.id = mst.bulan WHERE o.outlet_id IS NOT NULL`;
 
     let { query: newQuery, params } = filterParams.query(req, query);
-    newQuery += "GROUP BY b.id ORDER BY b.id ASC";
+    newQuery += " GROUP BY b.id ORDER BY b.id ASC";
 
     return await db.query(newQuery, {
       raw: true,
