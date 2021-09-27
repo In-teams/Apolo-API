@@ -5,12 +5,20 @@ import Service from "../services/Distributor";
 class Distributor {
   async get(req: Request, res: Response): Promise<object | undefined> {
     try {
-      const data = await Service.get(req);
-      req.log(req, false, "Success get distributor data [200]");
-      return response(res, true, data, null, 200);
+      interface distributor {
+				distributor_id: string | null;
+				distributor_name: string;
+			}
+			let data: distributor[] = await Service.get(req);
+			data = [
+				{
+					distributor_name: 'ALL',
+					distributor_id: null,
+				}, ...data
+			];
+			return response(res, true, data, null, 200);
     } catch (error) {
-      req.log(req, true, JSON.stringify(error.message));
-      return response(res, false, null, JSON.stringify(error.message), 500);
+      return response(res, false, null, JSON.stringify(error), 500);
     }
   }
 }

@@ -7,6 +7,7 @@ class Auth {
     const schema = joi.object({
       wilayah_id: joi.string(),
       area_id: joi.string(),
+      region_id: joi.string(),
       distributor_id: joi.string(),
       outlet_id: joi.string(),
       ass_id: joi.string(),
@@ -16,7 +17,6 @@ class Auth {
 
     const { value, error } = schema.validate(req.query);
     if (error) {
-      req.log(req, true, `Validation Error [400] : ${error.message}`);
       return response(res, false, null, error.message, 400);
     }
     req.validated = value

@@ -14,11 +14,12 @@ class Auth {
       asm_id: joi.string(),
       salesman_id: joi.string(),
       sort: joi.string(),
+      quarter_id: joi.number().valid(1, 2, 3, 4),
+      month: joi.string(),
     });
 
     const { value, error } = schema.validate(req.query);
     if (error) {
-      req.log(req, true, `Validation Error [400] : ${error.message}`);
       return response(res, false, null, error.message, 400);
     }
     req.validated = { ...value, sort: value.sort || "ASC" };

@@ -10,7 +10,6 @@ class Example {
 
     const { value, error } = schema.validate(req.body);
     if (error) {
-      req.log(req, true, `Post Data Validation Error [400] : ${error.message}`)
       return res.status(400).send({ error: true, msg: error.message });
     }
 

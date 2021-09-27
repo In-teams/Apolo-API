@@ -1,0 +1,1017 @@
+{
+	"info": {
+		"_postman_id": "fbc66549-862e-4a34-b5fd-086bbfd825d8",
+		"name": "Apolo API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Distributor",
+			"item": [
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/distributor",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"distributor"
+							],
+							"query": [
+								{
+									"key": "area_id",
+									"value": "2000",
+									"description": "area_id",
+									"disabled": true
+								},
+								{
+									"key": "region_id",
+									"value": "R2",
+									"description": "region_id",
+									"disabled": true
+								},
+								{
+									"key": "distributor_id",
+									"value": "100000",
+									"description": "distributor_id",
+									"disabled": true
+								},
+								{
+									"key": "wilayah_id",
+									"value": "NI",
+									"description": "wilayah_id",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Area",
+			"item": [
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/area",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"area"
+							],
+							"query": [
+								{
+									"key": "area_id",
+									"value": "2000",
+									"description": "area_id",
+									"disabled": true
+								},
+								{
+									"key": "region_id",
+									"value": "R2",
+									"description": "region_id",
+									"disabled": true
+								},
+								{
+									"key": "distributor_id",
+									"value": "100000",
+									"description": "distributor_id",
+									"disabled": true
+								},
+								{
+									"key": "wilayah_id",
+									"value": "NI",
+									"description": "wilayah_id",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Region",
+			"item": [
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/region",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"region"
+							],
+							"query": [
+								{
+									"key": "area_id",
+									"value": "2000",
+									"description": "area_id",
+									"disabled": true
+								},
+								{
+									"key": "region_id",
+									"value": "R2",
+									"description": "region_id",
+									"disabled": true
+								},
+								{
+									"key": "distributor_id",
+									"value": "100000",
+									"description": "distributor_id",
+									"disabled": true
+								},
+								{
+									"key": "wilayah_id",
+									"value": "NI",
+									"description": "wilayah_id",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Outlet",
+			"item": [
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/outlet",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"outlet"
+							],
+							"query": [
+								{
+									"key": "area_id",
+									"value": "2000",
+									"description": "area_id",
+									"disabled": true
+								},
+								{
+									"key": "region_id",
+									"value": "R2",
+									"description": "region_id",
+									"disabled": true
+								},
+								{
+									"key": "distributor_id",
+									"value": "100000",
+									"description": "distributor_id",
+									"disabled": true
+								},
+								{
+									"key": "wilayah_id",
+									"value": "NI",
+									"description": "wilayah_id",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get outlet active",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/outlet/active",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"outlet",
+								"active"
+							],
+							"query": [
+								{
+									"key": "area_id",
+									"value": "2000",
+									"description": "area_id",
+									"disabled": true
+								},
+								{
+									"key": "region_id",
+									"value": "R2",
+									"description": "region_id",
+									"disabled": true
+								},
+								{
+									"key": "distributor_id",
+									"value": "100000",
+									"description": "distributor_id",
+									"disabled": true
+								},
+								{
+									"key": "wilayah_id",
+									"value": "NI",
+									"description": "wilayah_id",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Wilayah",
+			"item": [
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/wilayah",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"wilayah"
+							],
+							"query": [
+								{
+									"key": "area_id",
+									"value": "2000",
+									"description": "area_id",
+									"disabled": true
+								},
+								{
+									"key": "region_id",
+									"value": "R2",
+									"description": "region_id",
+									"disabled": true
+								},
+								{
+									"key": "distributor_id",
+									"value": "100000",
+									"description": "distributor_id",
+									"disabled": true
+								},
+								{
+									"key": "wilayah_id",
+									"value": "NI",
+									"description": "wilayah_id",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/user?level=salesman",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user"
+							],
+							"query": [
+								{
+									"key": "area_id",
+									"value": "2000",
+									"description": "area_id",
+									"disabled": true
+								},
+								{
+									"key": "region_id",
+									"value": "R2",
+									"description": "region_id",
+									"disabled": true
+								},
+								{
+									"key": "distributor_id",
+									"value": "100000",
+									"description": "distributor_id",
+									"disabled": true
+								},
+								{
+									"key": "wilayah_id",
+									"value": "NI",
+									"description": "wilayah_id",
+									"disabled": true
+								},
+								{
+									"key": "level",
+									"value": "salesman",
+									"description": "ass, asm, salesman (required)"
+								},
+								{
+									"key": "ass_id",
+									"value": "MdlzCJ0101",
+									"description": "get asm by ass",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Sales",
+			"item": [
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/sales",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sales"
+							],
+							"query": [
+								{
+									"key": "area_id",
+									"value": "2000",
+									"description": "area_id",
+									"disabled": true
+								},
+								{
+									"key": "region_id",
+									"value": "R2",
+									"description": "region_id",
+									"disabled": true
+								},
+								{
+									"key": "distributor_id",
+									"value": "100000",
+									"description": "distributor_id",
+									"disabled": true
+								},
+								{
+									"key": "wilayah_id",
+									"value": "NI",
+									"description": "wilayah_id",
+									"disabled": true
+								},
+								{
+									"key": "month",
+									"value": "JANUARY",
+									"description": "get all month if empty",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get summary by hr",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/sales/summary/hr",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sales",
+								"summary",
+								"hr"
+							],
+							"query": [
+								{
+									"key": "area_id",
+									"value": "3000",
+									"description": "area_id",
+									"disabled": true
+								},
+								{
+									"key": "region_id",
+									"value": "R2",
+									"description": "region_id",
+									"disabled": true
+								},
+								{
+									"key": "distributor_id",
+									"value": "100000",
+									"description": "distributor_id",
+									"disabled": true
+								},
+								{
+									"key": "wilayah_id",
+									"value": "NI",
+									"description": "wilayah_id",
+									"disabled": true
+								},
+								{
+									"key": "outlet_id",
+									"value": "100000-ANA047",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get summary by asm",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/sales/summary/asm?sort=DESC",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sales",
+								"summary",
+								"asm"
+							],
+							"query": [
+								{
+									"key": "area_id",
+									"value": "3000",
+									"description": "area_id",
+									"disabled": true
+								},
+								{
+									"key": "region_id",
+									"value": "R2",
+									"description": "region_id",
+									"disabled": true
+								},
+								{
+									"key": "distributor_id",
+									"value": "100000",
+									"description": "distributor_id",
+									"disabled": true
+								},
+								{
+									"key": "wilayah_id",
+									"value": "NI",
+									"description": "wilayah_id",
+									"disabled": true
+								},
+								{
+									"key": "outlet_id",
+									"value": "100000-ANA047",
+									"disabled": true
+								},
+								{
+									"key": "sort",
+									"value": "DESC",
+									"description": "default ASC"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get summary by achiev",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/sales/summary/achieve",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sales",
+								"summary",
+								"achieve"
+							],
+							"query": [
+								{
+									"key": "area_id",
+									"value": "1000",
+									"description": "area_id",
+									"disabled": true
+								},
+								{
+									"key": "region_id",
+									"value": "R2",
+									"description": "region_id",
+									"disabled": true
+								},
+								{
+									"key": "distributor_id",
+									"value": "100000",
+									"description": "distributor_id",
+									"disabled": true
+								},
+								{
+									"key": "wilayah_id",
+									"value": "NI",
+									"description": "wilayah_id",
+									"disabled": true
+								},
+								{
+									"key": "outlet_id",
+									"value": "100000-ANA047",
+									"disabled": true
+								},
+								{
+									"key": "month",
+									"value": "JANUARY",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get summary per quarter (3 month)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/sales/summary/quarter?area_id=1000&quarter_id=1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sales",
+								"summary",
+								"quarter"
+							],
+							"query": [
+								{
+									"key": "area_id",
+									"value": "1000",
+									"description": "area_id"
+								},
+								{
+									"key": "region_id",
+									"value": "R2",
+									"description": "region_id",
+									"disabled": true
+								},
+								{
+									"key": "distributor_id",
+									"value": "100000",
+									"description": "distributor_id",
+									"disabled": true
+								},
+								{
+									"key": "wilayah_id",
+									"value": "NI",
+									"description": "wilayah_id",
+									"disabled": true
+								},
+								{
+									"key": "outlet_id",
+									"value": "100000-BRY004",
+									"disabled": true
+								},
+								{
+									"key": "month",
+									"value": "JANUARY",
+									"disabled": true
+								},
+								{
+									"key": "quarter_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get summary per semester (2 quarter)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/sales/summary/sem?sem=1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sales",
+								"summary",
+								"sem"
+							],
+							"query": [
+								{
+									"key": "area_id",
+									"value": "1000",
+									"description": "area_id",
+									"disabled": true
+								},
+								{
+									"key": "region_id",
+									"value": "R2",
+									"description": "region_id",
+									"disabled": true
+								},
+								{
+									"key": "distributor_id",
+									"value": "100000",
+									"description": "distributor_id",
+									"disabled": true
+								},
+								{
+									"key": "wilayah_id",
+									"value": "NI",
+									"description": "wilayah_id",
+									"disabled": true
+								},
+								{
+									"key": "outlet_id",
+									"value": "100000-BRY004",
+									"disabled": true
+								},
+								{
+									"key": "month",
+									"value": "JANUARY",
+									"disabled": true
+								},
+								{
+									"key": "sem",
+									"value": "1",
+									"description": "1 for quarter 1 & 2 --- 2 for quarter 3 & 4"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get summary per year (2 semester)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/sales/summary/year",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sales",
+								"summary",
+								"year"
+							],
+							"query": [
+								{
+									"key": "area_id",
+									"value": "1000",
+									"description": "area_id",
+									"disabled": true
+								},
+								{
+									"key": "region_id",
+									"value": "R2",
+									"description": "region_id",
+									"disabled": true
+								},
+								{
+									"key": "distributor_id",
+									"value": "100000",
+									"description": "distributor_id",
+									"disabled": true
+								},
+								{
+									"key": "wilayah_id",
+									"value": "NI",
+									"description": "wilayah_id",
+									"disabled": true
+								},
+								{
+									"key": "outlet_id",
+									"value": "100000-BRY004",
+									"disabled": true
+								},
+								{
+									"key": "month",
+									"value": "JANUARY",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get summary (year)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/sales/summary/years",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sales",
+								"summary",
+								"years"
+							],
+							"query": [
+								{
+									"key": "area_id",
+									"value": "1000",
+									"description": "area_id",
+									"disabled": true
+								},
+								{
+									"key": "region_id",
+									"value": "R2",
+									"description": "region_id",
+									"disabled": true
+								},
+								{
+									"key": "distributor_id",
+									"value": "100000",
+									"description": "distributor_id",
+									"disabled": true
+								},
+								{
+									"key": "wilayah_id",
+									"value": "NI",
+									"description": "wilayah_id",
+									"disabled": true
+								},
+								{
+									"key": "outlet_id",
+									"value": "100000-BRY004",
+									"disabled": true
+								},
+								{
+									"key": "month",
+									"value": "JANUARY",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Periode",
+			"item": []
+		},
+		{
+			"name": "Registration",
+			"item": [
+				{
+					"name": "get summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/registration/summary",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"registration",
+								"summary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/registration/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"registration",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Redeem",
+			"item": [
+				{
+					"name": "get summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/redeem/summary",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"redeem",
+								"summary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "apolo-api.inosis.id/api/v1/redeem/?wilayah_id=NI",
+							"host": [
+								"apolo-api",
+								"inosis",
+								"id"
+							],
+							"path": [
+								"api",
+								"v1",
+								"redeem",
+								""
+							],
+							"query": [
+								{
+									"key": "outlet_id",
+									"value": "100000-ANA047",
+									"disabled": true
+								},
+								{
+									"key": "wilayah_id",
+									"value": "NI"
+								},
+								{
+									"key": "area_id",
+									"value": "1000",
+									"disabled": true
+								},
+								{
+									"key": "distributor_id",
+									"value": "100000",
+									"disabled": true
+								},
+								{
+									"key": "region_id",
+									"value": "R1",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "App",
+			"item": [
+				{
+					"name": "get month",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/app/month",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"app",
+								"month"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get quarter",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/app/quarter",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"app",
+								"quarter"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get year",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/app/year",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"app",
+								"year"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "localhost:2000"
+		}
+	]
+}

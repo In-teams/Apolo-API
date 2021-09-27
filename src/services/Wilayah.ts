@@ -12,33 +12,38 @@ class Wilayah {
       asm_id,
       salesman_id,
     } = req.validated;
+    const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "4") addWhere = 'o.distributor_id'
+		if(level === "2") addWhere = 'o.region_id'
+		if(level === "3") addWhere = 'o.city_id_alias'
+		if(level === "5") addWhere = 'o.outlet_id'
     const query = db()
-      .select("ms_head_region.head_region_name")
-      .distinct("ms_head_region.head_region_id")
-      .from("ms_head_region")
+      .select("hr.head_region_name")
+      .distinct("hr.head_region_id")
+      .from("ms_head_region as hr")
       .innerJoin(
-        "ms_region",
-        "ms_head_region.head_region_id",
-        "ms_region.head_region_id"
+        "ms_pulau_alias as r",
+        "hr.head_region_id",
+        "r.head_region_id"
       )
-      .innerJoin("ms_outlet", "ms_region.region_id", "ms_outlet.region_id")
-      .innerJoin("ms_user_scope", "ms_outlet.outlet_id", "ms_user_scope.scope")
+      .innerJoin("mstr_outlet as o", "r.pulau_id_alias", "o.region_id")
+      .innerJoin("ms_user_scope as us", "o.outlet_id", "us.scope")
       .innerJoin(
-        "ms_dist_pic",
-        "ms_outlet.distributor_id",
-        "ms_dist_pic.distributor_id"
+        "ms_dist_pic as pic",
+        "o.distributor_id",
+        "pic.distributor_id"
       )
       .where({
-        ...(outlet_id && { "ms_outlet.outlet_id": outlet_id }),
-        ...(area_id && { "ms_outlet.area_id": area_id }),
-        ...(region_id && { "ms_outlet.region_id": region_id }),
-        ...(distributor_id && { "ms_outlet.distributor_id": distributor_id }),
-        ...(ass_id && { "ms_dist_pic.ass_id": ass_id }),
-        ...(asm_id && { "ms_dist_pic.asm_id": asm_id }),
-        ...(salesman_id && { "ms_user_scope.user_id": salesman_id }),
-      })
-      .orderBy("ms_head_region.head_region_id");
-    // console.log(query.toSQL().toNative());
+        ...(outlet_id && { "o.outlet_id": outlet_id }),
+        ...(area_id && { "o.city_id_alias": area_id }),
+        ...(region_id && { "o.region_id": region_id }),
+        ...(distributor_id && { "o.distributor_id": distributor_id }),
+        ...(ass_id && { "pic.ass_id": ass_id }),
+        ...(asm_id && { "pic.asm_id": asm_id }),
+        ...(salesman_id && { "us.user_id": salesman_id }),
+      }).whereIn(addWhere, scope.split(','))
+      .orderBy("head_region_id");
     return query;
   }
 }

@@ -1,5 +1,5 @@
 class NumberFormat {
-  index(data: [], isMoney: boolean = true, ...key: string[]): any[] {
+  index(data: any[], isMoney: boolean = true, ...key: string[]): any[] {
     return data.map((row: any) => {
       let res: any | string = {};
       for (let a of key.values()) {

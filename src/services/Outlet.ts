@@ -19,27 +19,27 @@ class Outlet {
     } = req.validated;
     const query = db()
       .select("")
-      .distinct("ms_outlet.*")
-      .from("ms_outlet")
-      .innerJoin("ms_region", "ms_outlet.region_id", "ms_region.region_id")
+      .distinct("o.*")
+      .from("mstr_outlet as o")
+      .innerJoin("ms_pulau_alias as r", "o.region_id", "r.pulau_id_alias")
+      .innerJoin("ms_user_scope as us", "o.outlet_id", "us.scope")
       .innerJoin(
-        "ms_dist_pic",
-        "ms_outlet.distributor_id",
-        "ms_dist_pic.distributor_id"
+        "ms_dist_pic as pic",
+        "o.distributor_id",
+        "pic.distributor_id"
       )
-      .innerJoin("ms_user_scope", "ms_outlet.outlet_id", "ms_user_scope.scope")
-      .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
+      // .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
       .where({
-        ...(distributor_id && { "ms_outlet.distributor_id": distributor_id }),
-        ...(outlet_id && { "ms_outlet.outlet_id": outlet_id }),
-        ...(area_id && { "ms_outlet.area_id": area_id }),
-        ...(region_id && { "ms_outlet.region_id": region_id }),
-        ...(wilayah_id && { "ms_region.head_region_id": wilayah_id }),
-        ...(ass_id && { "ms_dist_pic.ass_id": ass_id }),
-        ...(asm_id && { "ms_dist_pic.asm_id": asm_id }),
-        ...(salesman_id && { "ms_user.user_id": salesman_id }),
+        ...(distributor_id && { "o.distributor_id": distributor_id }),
+        ...(outlet_id && { "o.outlet_id": outlet_id }),
+        ...(area_id && { "o.city_id_alias": area_id }),
+        ...(region_id && { "o.region_id": region_id }),
+        ...(wilayah_id && { "r.head_region_id": wilayah_id }),
+        ...(ass_id && { "pic.ass_id": ass_id }),
+        ...(asm_id && { "pic.asm_id": asm_id }),
+        // ...(salesman_id && { "ms_user.user_id": salesman_id }),
       })
-      .orderBy("ms_outlet.outlet_id");
+      .orderBy("o.outlet_id");
     // console.log(query.toSQL().toNative().sql);
     return query;
   }
@@ -54,6 +54,12 @@ class Outlet {
       asm_id,
       salesman_id,
     } = req.validated;
+    const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "4") addWhere = 'o.distributor_id'
+		if(level === "2") addWhere = 'o.region_id'
+		if(level === "3") addWhere = 'o.city_id_alias'
+		if(level === "5") addWhere = 'o.outlet_id'
     const query = db()
       .select(this.getOutletCount(req).as("total_outlet"))
       .countDistinct("tr.no_id as aktif")
@@ -63,21 +69,26 @@ class Outlet {
         "tr.kd_transaksi",
         "trb.kd_transaksi"
       )
-      .innerJoin("ms_outlet as o", "tr.no_id", "o.outlet_id")
-      .innerJoin("ms_region as r", "o.region_id", "r.region_id")
-      .innerJoin("ms_dist_pic as pic", "o.distributor_id", "pic.distributor_id")
+      .innerJoin("mstr_outlet as o", "tr.no_id", "o.outlet_id")
+      .innerJoin("ms_pulau_alias as r", "o.region_id", "r.pulau_id_alias")
+      .innerJoin("ms_user_scope as us", "o.outlet_id", "us.scope")
+      .innerJoin(
+        "ms_dist_pic as pic",
+        "o.distributor_id",
+        "pic.distributor_id"
+      )
       // .innerJoin("ms_user_scope", "ms_outlet.outlet_id", "ms_user_scope.scope")
       // .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
       .where({
         ...(distributor_id && { "o.distributor_id": distributor_id }),
         ...(outlet_id && { "o.outlet_id": outlet_id }),
-        ...(area_id && { "o.area_id": area_id }),
+        ...(area_id && { "o.city_id_alias": area_id }),
         ...(region_id && { "o.region_id": region_id }),
         ...(wilayah_id && { "r.head_region_id": wilayah_id }),
         ...(ass_id && { "pic.ass_id": ass_id }),
         ...(asm_id && { "pic.asm_id": asm_id }),
         // ...(salesman_id && { "ms_user.user_id": salesman_id }),
-      });
+      }).whereIn(addWhere, scope.split(','));
     return query;
   }
 
@@ -92,24 +103,34 @@ class Outlet {
       asm_id,
       salesman_id,
     } = req.validated;
+    const {scope, level} = req.body.decoded
+		let addWhere : string = ''
+		if(level === "4") addWhere = 'o.distributor_id'
+		if(level === "2") addWhere = 'o.region_id'
+		if(level === "3") addWhere = 'o.city_id_alias'
+		if(level === "5") addWhere = 'o.outlet_id'
     const query = db()
       .select("")
       .countDistinct("o.outlet_id as total")
-      .from("ms_outlet as o")
-      .innerJoin("ms_region as r", "o.region_id", "r.region_id")
-      .innerJoin("ms_dist_pic as pic", "o.distributor_id", "pic.distributor_id")
-      // .innerJoin("ms_user_scope", "ms_outlet.outlet_id", "ms_user_scope.scope")
+      .from("mstr_outlet as o")
+      .innerJoin("ms_pulau_alias as r", "o.region_id", "r.pulau_id_alias")
+      // .innerJoin("ms_user_scope as us", "o.outlet_id", "us.scope")
+      .innerJoin(
+        "ms_dist_pic as pic",
+        "o.distributor_id",
+        "pic.distributor_id"
+      )
       // .innerJoin("ms_user", "ms_user_scope.user_id", "ms_user.user_id")
       .where({
         ...(distributor_id && { "o.distributor_id": distributor_id }),
         ...(outlet_id && { "o.outlet_id": outlet_id }),
-        ...(area_id && { "o.area_id": area_id }),
+        ...(area_id && { "o.city_id_alias": area_id }),
         ...(region_id && { "o.region_id": region_id }),
         ...(wilayah_id && { "r.head_region_id": wilayah_id }),
         ...(ass_id && { "pic.ass_id": ass_id }),
         ...(asm_id && { "pic.asm_id": asm_id }),
         // ...(salesman_id && { "ms_user.user_id": salesman_id }),
-      });
+      }).whereIn(addWhere, scope.split(','))
     return query;
   }
 }

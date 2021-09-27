@@ -1,5 +1,4 @@
 import { readFile, writeFile, unlink } from "fs";
-import readExcel from "read-excel-file/node";
 
 class FileSystem {
   WriteFile(path: string, row: string, buffer: boolean = false) {
@@ -34,15 +33,10 @@ class FileSystem {
   }
   async ReadExcelFile(path: string): Promise<any> {
     try {
-      let data: any = await readExcel(path);
-      // data = data.map((x: any[]) => ({
-      //   username: x[0],
-      //   password: x[1],
-      // }));
-      data.shift()
-
-      return data;
-    } catch (error) {}
+      
+    } catch (error) {
+      return error
+    }
   }
 }
 

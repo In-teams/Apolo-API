@@ -5,12 +5,16 @@ import Service from "../services/Outlet";
 class Outlet {
   async get(req: Request, res: Response): Promise<object | undefined> {
     try {
-      const data = await Service.get(req);
-      req.log(req, false, "Success get outlet data [200]");
-      return response(res, true, data, null, 200);
+			let data: any[] = await Service.get(req);
+			data = [
+				{
+					outlet_name: 'ALL',
+					outlet_id: null,
+				}, ...data
+			];
+			return response(res, true, data, null, 200);
     } catch (error) {
-      req.log(req, true, JSON.stringify(error.message));
-      return response(res, false, null, JSON.stringify(error.message), 500);
+      return response(res, false, null, JSON.stringify(error), 500);
     }
   }
   async getOutletActive(
@@ -19,11 +23,9 @@ class Outlet {
   ): Promise<object | undefined> {
     try {
       const active: any[] = await Service.getOutletActive(req);
-      req.log(req, false, "Success get outlet data [200]");
       return response(res, true, active[0], null, 200);
     } catch (error) {
-      req.log(req, true, JSON.stringify(error.message));
-      return response(res, false, null, JSON.stringify(error.message), 500);
+      return response(res, false, null, JSON.stringify(error), 500);
     }
   }
 }
