@@ -19,7 +19,9 @@ class Registration {
       ass_id: joi.string(),
       asm_id: joi.string(),
       salesman_id: joi.string(),
+      quarter_id: joi.number().valid(1, 2, 3, 4),
       sort: joi.string(),
+      month: joi.string(),
     });
 
     const { value, error } = schema.validate(req.query);
