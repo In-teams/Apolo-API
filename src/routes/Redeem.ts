@@ -1,6 +1,6 @@
 import { Router } from "express";
-import RedeemController from "../controllers/Redeem";
-import RedeemRequest from "../request/Redeem";
+// import RedeemController from "../controllers/Redeem";
+// import RedeemRequest from "../request/Redeem";
 import IRouter from "../types/RouterInterface";
 
 class Redeem implements IRouter {
@@ -12,12 +12,12 @@ class Redeem implements IRouter {
   }
 
   public routes(): void {
-    this.router.get("/", RedeemRequest.get, RedeemController.getPointSummary);
-    this.router.get("/product", RedeemRequest.getProduct,RedeemController.getproduct);
-    this.router.get("/summary", RedeemRequest.get, RedeemController.getPointSummaryByHR);
-    this.router.post("/", RedeemRequest.post, RedeemController.post);
-    this.router.post("/checkout", RedeemRequest.checkout, RedeemController.checkout);
-    this.router.post("/validation", RedeemRequest.validation, RedeemController.validation);
+    // this.router.get("/", RedeemRequest.get, RedeemController.getPointSummary);
+    // this.router.get("/product", RedeemRequest.getProduct,RedeemController.getproduct);
+    // this.router.get("/summary", RedeemRequest.get, RedeemController.getPointSummaryByHR);
+    // this.router.post("/", RedeemRequest.post, RedeemController.post);
+    // this.router.post("/checkout", RedeemRequest.checkout, RedeemController.checkout);
+    // this.router.post("/validation", RedeemRequest.validation, RedeemController.validation);
   }
 }
 

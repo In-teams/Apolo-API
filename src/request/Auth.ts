@@ -17,7 +17,6 @@ class Auth {
     req.validated = value;
     next();
   }
-
 }
 
 export default new Auth();

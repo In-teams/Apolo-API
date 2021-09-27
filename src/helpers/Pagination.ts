@@ -1,8 +1,8 @@
-import { dataPerPage } from "../config/app";
+import config from "../config/app";
 
 class Pagination {
   index(page: number) {
-    return dataPerPage * page - dataPerPage;
+    return config.dataPerPage * page - config.dataPerPage;
   }
 }
 

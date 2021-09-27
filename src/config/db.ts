@@ -1,23 +1,25 @@
-import * as dotenv from "dotenv";
-import { knex } from "knex";
-import {DB_HOST, DB_NAME, DB_PASS, DB_USER} from './app'
-dotenv.config();
+import { Sequelize } from 'sequelize';
+import app from './app';
 
-class db {
-  connection() {
-    // const { DB_NAME, DB_HOST, DB_PASS, DB_USER } = process.env;
-    const config = knex({
-      client: "mysql",
-      connection: {
-        host: DB_HOST,
-        user: DB_USER,
-        password: DB_PASS,
-        database: DB_NAME,
-      },
-      pool: { min: 0, max: 7 }
-    });
-    return config;
-  }
+class Connection {
+	public connect = new Sequelize(app.DB_NAME, app.DB_USER, app.DB_PASS, {
+		host: app.DB_HOST,
+		dialect: 'mysql',
+		logging: false
+	});
+
+	constructor() {
+		this.connection();
+	}
+	private connection() {
+		try {
+			this.connect.authenticate();
+			console.log('Database running');
+		} catch (error) {
+			console.log(error)
+			throw error;
+		}
+	}
 }
 
-export default new db().connection;
+export default new Connection().connect;
