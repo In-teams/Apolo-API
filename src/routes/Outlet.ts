@@ -13,7 +13,7 @@ class Outlet implements IRouter {
 
   public routes(): void {
     this.router.get("/", OutletRequest.get, OutletController.get);
-    // this.router.get("/active", OutletRequest.get, OutletController.getOutletActive); // active outlet 
+    this.router.get("/active", OutletRequest.get, OutletController.getOutletActive); // active outlet 
   }
 }
 
