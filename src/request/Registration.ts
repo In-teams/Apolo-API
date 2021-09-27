@@ -1,34 +1,34 @@
-// import { NextFunction, Request, Response } from "express";
-// import joi from "joi";
+import { NextFunction, Request, Response } from "express";
+import joi from "joi";
 // import { pathRegistration } from "../config/app";
-// import FileSystem from "../helpers/FileSystem";
-// import GetFileExtention from "../helpers/GetFileExtention";
-// import response from "../helpers/Response";
+import FileSystem from "../helpers/FileSystem";
+import GetFileExtention from "../helpers/GetFileExtention";
+import response from "../helpers/Response";
 // import PeriodeService from "../services/Periode";
-// import OutletService from "../services/Outlet";
+import OutletService from "../services/Outlet";
 // import RegistrationService from "../services/Registration";
 
-// class Registration {
-//   get(req: Request, res: Response, next: NextFunction): any {
-//     const schema = joi.object({
-//       region_id: joi.string(),
-//       area_id: joi.string(),
-//       wilayah_id: joi.string(),
-//       outlet_id: joi.string(),
-//       distributor_id: joi.string(),
-//       ass_id: joi.string(),
-//       asm_id: joi.string(),
-//       salesman_id: joi.string(),
-//       sort: joi.string(),
-//     });
+class Registration {
+  get(req: Request, res: Response, next: NextFunction): any {
+    const schema = joi.object({
+      region_id: joi.string(),
+      area_id: joi.string(),
+      wilayah_id: joi.string(),
+      outlet_id: joi.string(),
+      distributor_id: joi.string(),
+      ass_id: joi.string(),
+      asm_id: joi.string(),
+      salesman_id: joi.string(),
+      sort: joi.string(),
+    });
 
-//     const { value, error } = schema.validate(req.query);
-//     if (error) {
-//       return response(res, false, null, error.message, 400);
-//     }
-//     req.validated = { ...value, sort: value.sort || "ASC" };
-//     next();
-//   }
+    const { value, error } = schema.validate(req.query);
+    if (error) {
+      return response(res, false, null, error.message, 400);
+    }
+    req.validated = { ...value, sort: value.sort || "ASC" };
+    next();
+  }
 //   async post(req: Request, res: Response, next: NextFunction): Promise<any> {
 //     try {
 //       const schema = joi.object({
@@ -132,6 +132,6 @@
 //       return response(res, false, null, JSON.stringify(error), 400)
 //     }
 //   }
-// }
+}
 
-// export default new Registration();
+export default new Registration();
