@@ -258,7 +258,7 @@ class Sales {
       }));
       data = NumberFormat(data, true, "aktual", "target", "avg", "diff");
       // data = await SalesHelper(req, data, 'kuartal', true)
-      return response(res, true, data, null, 200);
+      return response(res, true, data[0], null, 200);
     } catch (error) {
       console.log(error);
       return response(res, false, null, JSON.stringify(error), 500);
