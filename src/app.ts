@@ -1,6 +1,11 @@
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
 import Route from "./routes";
+import cluster from "cluster";
+import totalCPUs from "os";
+
+const total = totalCPUs.cpus().length;
+const port: number = 2000;
 
 class App {
   public app: Application;
@@ -9,6 +14,7 @@ class App {
     this.app = express();
     this.secure();
     this.routes();
+    this.clustering()
   }
 
   protected secure(): void {
@@ -24,7 +30,7 @@ class App {
   protected routes(): void {
     const route = this.app;
     route.use("/api/v1", Route);
-    route.get('/', (req: Request, res: Response) => res.send("Server running"))
+    route.get("/", (req: Request, res: Response) => res.send("Server running"));
     route.get("*", (req: Request, res: Response) => {
       res.status(404).send("not found");
     });
@@ -32,9 +38,30 @@ class App {
       res.status(404).send("not found");
     });
   }
+
+  protected clustering() {
+    if (cluster.isMaster) {
+      console.log(`Number of CPUs is ${total}`);
+      console.log(`Master ${process.pid} is running`);
+
+      // Fork workers.
+      for (let i = 0; i < total; i++) {
+        cluster.fork();
+      }
+
+      cluster.on("exit", (worker, code, signal) => {
+        console.log(`worker ${worker.process.pid} died`);
+        console.log("Let's fork another worker!");
+        cluster.fork();
+      });
+    }else{
+      console.log(`Worker ${process.pid} started`);
+      this.app.listen(port, () => console.log(`running on ${port}`));
+    }
+  }
 }
 
-const port: number = 2000;
-const app = new App().app;
 
-app.listen(port, () => console.log(`running on ${port}`));
+new App().app;
+
+// app.listen(port, () => console.log(`running on ${port}`));
