@@ -31,6 +31,7 @@ class Registration {
       const result: object = {
         regist: regist[0].total,
         percentage: ((total / total_outlet) * 100).toFixed(2) + "%",
+        percen: parseFloat(((total / total_outlet) * 100).toFixed(2)),
         notregist: total_outlet - total,
         totalOutlet: total_outlet,
       };

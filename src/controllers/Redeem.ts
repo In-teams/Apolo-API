@@ -121,6 +121,8 @@ class Redeem {
                 ...e,
                 achieve: +e.achieve,
                 redeem: +e.redeem,
+                percentage: ((+e.redeem / e.achieve) * 100).toFixed(2) + '%',
+                percen: parseFloat(((+e.redeem / e.achieve) * 100).toFixed(2)),
             }))
 			point = NumberFormat(point, false, 'achieve', 'redeem');
 			return response(res, true, point[0], null, 200);
