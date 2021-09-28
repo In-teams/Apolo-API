@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import DateFormat from "../helpers/DateFormat";
 // import FileSystem from "../helpers/FileSystem";
 import response from "../helpers/Response";
 import Service from "../services/Registration";
@@ -32,6 +33,18 @@ class Registration {
         percentage: e.pencapaian + "%",
         pencapaian: parseFloat(e.pencapaian),
       }));
+      return response(res, true, regist, null, 200);
+    } catch (error) {
+      return response(res, false, null, JSON.stringify(error), 500);
+    }
+  }
+  async getLastRegistration(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      let regist: any[] = await Service.getLastRegistration(req);
+      regist = DateFormat.index(regist, "register_at")
       return response(res, true, regist, null, 200);
     } catch (error) {
       return response(res, false, null, JSON.stringify(error), 500);

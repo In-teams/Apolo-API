@@ -31,7 +31,19 @@ class Registration {
     return await db.query(query + ` GROUP BY wilayah ORDER BY pencapaian ${sort}`, {
       raw: true,
       type: QueryTypes.SELECT,
-      replacements: [...poc, ...params],
+      replacements: [...poc, ...poc, ...params],
+    });
+  }
+  async getLastRegistration(req: Request): Promise<any> {
+    let q =
+      "select distinct o.* from mstr_outlet as o INNER JOIN ms_pulau_alias as r on o.region_id = r.pulau_id_alias INNER JOIN ms_user_scope as us on o.outlet_id = us.scope INNER JOIN ms_dist_pic as dp on o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL AND o.register_at IS NOT NULL AND o.valid NOT IN('No', 'No+')";
+
+    let { query, params } = FilterParams.query(req, q);
+
+    return await db.query(query + " order by o.register_at DESC", {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: params,
     });
   }
 }

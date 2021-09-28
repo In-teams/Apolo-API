@@ -1,11 +1,11 @@
 import moment from "moment";
 
 class DateFormat {
-  index(data: [], ...key: string[]): any[] {
+  index(data: any[], ...key: string[]): any[] {
     return data.map((row: any) => {
       let res: any | string = {};
       for (let a of key.values()) {
-        res[a] = moment(row[a]).format('DD MMMM YYYY')
+        res[a] = moment(row[a]).format('DD MMMM YYYY H:m:s')
       }
       return { ...row, ...res };
     });
