@@ -14,7 +14,7 @@ class App {
     this.app = express();
     this.secure();
     this.routes();
-    this.clustering()
+    // this.clustering()
   }
 
   protected secure(): void {
@@ -62,6 +62,6 @@ class App {
 }
 
 
-new App().app;
+new App().app.listen(port, () => console.log(`running on ${port}`));;
 
 // app.listen(port, () => console.log(`running on ${port}`));

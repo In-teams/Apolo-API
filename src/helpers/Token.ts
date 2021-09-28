@@ -15,7 +15,7 @@ class Token {
 		try {
 			let token: string = req.headers.authorization || '';
 			const check: any = verify(token, config.jwtKey);
-			req.body.decoded = check.data;
+			req.decoded = check.data;
 			next();
 		} catch (error: any) {
 			if (error.name == 'TokenExpiredError') {

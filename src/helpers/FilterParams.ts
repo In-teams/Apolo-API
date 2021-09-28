@@ -12,7 +12,7 @@ class filterParams{
 			asm_id,
 			salesman_id,
 		} = req.validated;
-        const { scope, level } = req.body.decoded;
+        const { scope, level } = req.decoded;
 		let addWhere: string | null = null;
 		let params: string[] = [];
 		if (level === '4') addWhere = 'o.distributor_id';
@@ -66,7 +66,7 @@ class filterParams{
 			asm_id,
 			salesman_id,
 		} = req.validated;
-        const { scope, level } = req.body.decoded;
+        const { scope, level } = req.decoded;
 		let addWhere: string | null = null;
 		let params: string[] = [];
 		if (level === '4') addWhere = 'o.distributor_id';
@@ -121,7 +121,7 @@ class filterParams{
 			ass_id,
 			asm_id,
 		} = req.validated;
-		const { scope, level } = req.body.decoded;
+		const { scope, level } = req.decoded;
 		let addWhere: string | null = null;
 		let params: string[] = [];
 		if (level === '4') addWhere = 'ou.distributor_id';
@@ -184,7 +184,7 @@ class filterParams{
 			ass_id,
 			asm_id,
 		} = req.validated;
-		const { scope, level } = req.body.decoded;
+		const { scope, level } = req.decoded;
 		let addWhere: string | null = null;
 		let params: string[] = [];
 		if (level === '4') addWhere = 'ou.distributor_id';
