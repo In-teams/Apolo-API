@@ -331,7 +331,7 @@ class Sales {
   }
   async getTargetByOutlet(req: Request) {
     let q =
-      "SELECT SUM(mst.target_sales) AS target, mst.outlet_id FROM ( SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS mst INNER JOIN ms_bulan AS b ON b.bulan = mst.month_target INNER JOIN mstr_outlet as ou ON ou.outlet_id = mst.outlet_id INNER JOIN ms_dist_pic AS dp ON ou.distributor_id = dp.distributor_id INNER JOIN ms_pulau_alias AS r ON ou. region_id = r.pulau_id_alias WHERE mst.outlet_id IS NOT NULL";
+      "SELECT SUM(mst.target_sales) AS target, mst.outlet_id, COUNT(DISTINCT mst.outlet_id) AS outlet FROM ( SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS mst INNER JOIN ms_bulan AS b ON b.bulan = mst.month_target INNER JOIN mstr_outlet as ou ON ou.outlet_id = mst.outlet_id INNER JOIN ms_dist_pic AS dp ON ou.distributor_id = dp.distributor_id INNER JOIN ms_pulau_alias AS r ON ou. region_id = r.pulau_id_alias WHERE mst.outlet_id IS NOT NULL";
 
     let { query, params } = filterParams.target(req, q);
 
@@ -345,7 +345,7 @@ class Sales {
     req: Request
   ): Promise<{ aktual: string; no_id: string }[]> {
     let q =
-      "SELECT SUM(trb.sales) AS aktual, tr.no_id FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet AS ou ON ou.outlet_id = tr.no_id INNER JOIN ms_dist_pic AS dp ON ou.distributor_id = dp.distributor_id INNER JOIN ms_pulau_alias AS r ON ou. region_id = r.pulau_id_alias WHERE tr.no_id IS NOT NULL";
+      "SELECT SUM(trb.sales) AS aktual, tr.no_id, COUNT(DISTINCT tr.no_id) AS outlet FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet AS ou ON ou.outlet_id = tr.no_id INNER JOIN ms_dist_pic AS dp ON ou.distributor_id = dp.distributor_id INNER JOIN ms_pulau_alias AS r ON ou. region_id = r.pulau_id_alias WHERE tr.no_id IS NOT NULL";
 
     let { query, params } = filterParams.aktual(req, q);
 
