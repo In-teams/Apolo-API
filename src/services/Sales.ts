@@ -189,7 +189,7 @@ class Sales {
     });
   }
   async getSalesByAchiev(req: Request) {
-    const {month_id, quarter_id} = req.validated
+    const { month_id, quarter_id } = req.validated;
     let { query: qt, params: pt } = filterParams.target(
       req,
       queryTargetByOutlet
@@ -200,14 +200,14 @@ class Sales {
 
     let { query: newQ, params: newP } = filterParams.query(req, query);
     if (month_id) {
-			newQ += ' AND MONTH(tr.tgl_transaksi) = ?';
-			newP.push(month_id);
-		}
+      newQ += " AND MONTH(tr.tgl_transaksi) = ?";
+      newP.push(month_id);
+    }
 
     if (quarter_id) {
-			newQ += ' AND MONTH(tr.tgl_transaksi) IN(?)';
-			newP.push(quarter_id);
-		}
+      newQ += " AND MONTH(tr.tgl_transaksi) IN(?)";
+      newP.push(quarter_id);
+    }
     newQ += " GROUP BY outlet_id";
 
     let newQuery = `SELECT cluster, SUM(target) AS target, SUM(sales) AS aktual, COUNT(outlet_id) AS outlet FROM (${newQ}) AS custom GROUP BY cluster ORDER BY cluster_id`;
@@ -327,6 +327,32 @@ class Sales {
       raw: true,
       type: QueryTypes.SELECT,
       replacements: [...pt, ...pa, ...po, ...params],
+    });
+  }
+  async getTargetByOutlet(req: Request) {
+    let q =
+      "SELECT SUM(mst.target_sales) AS target, mst.outlet_id FROM ( SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS mst INNER JOIN ms_bulan AS b ON b.bulan = mst.month_target INNER JOIN mstr_outlet as ou ON ou.outlet_id = mst.outlet_id INNER JOIN ms_dist_pic AS dp ON ou.distributor_id = dp.distributor_id INNER JOIN ms_pulau_alias AS r ON ou. region_id = r.pulau_id_alias WHERE mst.outlet_id IS NOT NULL";
+
+    let { query, params } = filterParams.target(req, q);
+
+    return await db.query(query + " GROUP BY mst.outlet_id", {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: [...params],
+    });
+  }
+  async getAktualByOutlet(
+    req: Request
+  ): Promise<{ aktual: string; no_id: string }[]> {
+    let q =
+      "SELECT SUM(trb.sales) AS aktual, tr.no_id FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet AS ou ON ou.outlet_id = tr.no_id INNER JOIN ms_dist_pic AS dp ON ou.distributor_id = dp.distributor_id INNER JOIN ms_pulau_alias AS r ON ou. region_id = r.pulau_id_alias WHERE tr.no_id IS NOT NULL";
+
+    let { query, params } = filterParams.aktual(req, q);
+
+    return await db.query(query + " GROUP BY tr.no_id", {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: [...params],
     });
   }
 }
