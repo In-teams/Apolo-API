@@ -11,6 +11,7 @@ class SalesHelper {
   ) {
     let aktual: number = 0,
       outlet: number = 0,
+      poin: number = 0,
       target: number = 0;
     let totalTarget: any = await Service.getTarget(req);
     totalTarget = totalTarget[0].target || 0;
@@ -18,9 +19,11 @@ class SalesHelper {
     totalOutlet = totalOutlet[0].total || 0;
     data.map((e: any) => {
       aktual += +e.aktual;
-      target += e.target;
+      target += +e.target;
       outlet += e.outlet;
+      poin += +e.poin;
     });
+    console.log(totalTarget, target)
     data = data.map((e: any) => ({
       ...e,
       aktual: +e.aktual,
@@ -42,6 +45,7 @@ class SalesHelper {
       {
         aktual,
         target,
+        poin,
         outlet,
         [type]: type !== "Aktual" ? "Total Pencapaian" : "Total",
         pencapaian: ((aktual / target) * 100).toFixed(2) + "%",
