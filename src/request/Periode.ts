@@ -46,8 +46,6 @@ class Periode {
         tgl_selesai: joi.date(),
       });
 
-      console.log(req.params.id)
-
       const { value, error } = schema.validate({ ...req.body, ...req.params });
       if (error) {
         return response(res, false, null, error.message, 400);
@@ -66,9 +64,9 @@ class Periode {
           );
 
         next();
+      } else {
+        next();
       }
-
-      next();
     } catch (error) {
       console.log(error, "<<<<<< error");
     }

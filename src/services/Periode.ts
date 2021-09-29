@@ -37,8 +37,6 @@ class Periode {
   }
   async update(req: Request): Promise<any> {
     const { id, tgl_mulai, tgl_selesai, periode } = req.validated;
-    console.log(req.validated)
-    return
     delete req.validated.id;
     return await db.query(
       "UPDATE ms_periode_registrasi SET periode = ?, tgl_mulai = ?, tgl_selesai = ? WHERE id = ?",
