@@ -222,37 +222,74 @@ class Sales {
     try {
       const target = await Service.getTargetByOutlet(req);
       const aktual = await Service.getAktualByOutlet(req);
-      const match = target.map((e: any) => ({
-        ...e,
-        aktual: parseInt(
+
+      const sumData = (data: any[], key: string) =>
+        _.reduce(data, (prev: any, curr: any) => prev + curr[key], 0);
+      const sumDataBy = (data: any[], key: string) =>
+        _.sumBy(data, (o) => o[key]);
+      const getPercentage = (val1: number, val2: number): string =>
+        ((val1 / val2) * 100).toFixed(2) + "%";
+
+      const match = target.map((e: any) => {
+        const act = parseInt(
           aktual.find((a: any) => a.no_id === e.outlet_id)?.aktual || "0"
-        ),
-        cluster: getCluster(
-          parseInt(
-            aktual.find((a: any) => a.no_id === e.outlet_id)?.aktual || "0"
-          ),
-          e.target
-        ),
-      }));
+        );
+        return {
+          ...e,
+          bobot_outlet: getPercentage(e.outlet, sumData(target, "outlet")),
+          bobot_target: getPercentage(e.target, sumData(target, "target")),
+          kontribusi: getPercentage(act, sumData(target, "target")),
+          aktual: act,
+          pencapaian: ((act / e.target) * 100).toFixed(2) + "%",
+          cluster: getCluster(act, e.target),
+        };
+      });
+
       let grouping = _(match)
         .groupBy("cluster")
         .map((items) => ({
           cluster: items[0].cluster,
-          aktual: _.sumBy(items, (o) => o.aktual),
-          target: _.sumBy(items, (o) => o.target),
+          aktual: sumDataBy(items, "aktual"),
+          target: sumDataBy(items, "target"),
+          outlet: sumDataBy(items, "outlet"),
+          bobot_outlet: getPercentage(
+            sumDataBy(items, "outlet"),
+            sumData(target, "outlet")
+          ),
+          bobot_target: getPercentage(
+            sumDataBy(items, "target"),
+            sumData(target, "target")
+          ),
+          kontribusi: getPercentage(
+            sumDataBy(items, "aktual"),
+            sumData(target, "target")
+          ),
+          pencapaian: getPercentage(
+            sumDataBy(items, "aktual"),
+            sumDataBy(items, "target")
+          ),
         }))
         .sortBy("cluster")
         .push({
           cluster: "Total Pencapaian",
-          aktual: _.reduce(
-            match,
-            (prev: any, curr: any) => prev + curr.aktual,
-            0
+          aktual: sumData(match, "aktual"),
+          target: sumData(match, "target"),
+          outlet: sumData(match, "outlet"),
+          bobot_outlet: getPercentage(
+            sumData(match, "outlet"),
+            sumData(match, "outlet")
           ),
-          target: _.reduce(
-            match,
-            (prev: any, curr: any) => prev + curr.target,
-            0
+          bobot_target: getPercentage(
+            sumData(match, "target"),
+            sumData(match, "target")
+          ),
+          kontribusi: getPercentage(
+            sumData(match, "aktual"),
+            sumData(match, "target")
+          ),
+          pencapaian: getPercentage(
+            sumData(match, "aktual"),
+            sumData(match, "target")
           ),
         })
         .value();
