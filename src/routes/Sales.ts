@@ -20,7 +20,7 @@ class Sales implements IRouter {
     this.router.get("/summary/area", SalesRequest.get, SalesController.getSummaryByArea); // summary by area
     this.router.get("/summary/asm", SalesRequest.get, SalesController.getSummaryByASM); // summary by ASM
     this.router.get("/summary/ass", SalesRequest.get, SalesController.getSummaryByASS); // summary by ASS
-    this.router.get("/summary/achieve", SalesRequest.get, SalesController.getSummaryByAchieve); // summary by Achievement
+    this.router.get("/summary/achieve", SalesRequest.get, SalesController.coba); // summary by Achievement
     this.router.get("/summary/quarter", SalesRequest.get, SalesController.getSummaryPerQuarter); // summary per quarter (3 month)
     this.router.get("/summary/sem", SalesRequest.get, SalesController.getSummaryPerSemester); // summary by per semester (2 quarter)
     this.router.get("/summary/year", SalesRequest.get, SalesController.getSummaryPerYear); // summary by per year (2 semester)
