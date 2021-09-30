@@ -5,7 +5,7 @@ class DateFormat {
     return data.map((row: any) => {
       let res: any | string = {};
       for (let a of key.values()) {
-        res[a] = moment.utc(row[a]).format(format)
+        res[a] = row[a] ? moment.utc(row[a]).format(format) : '-'
       }
       return { ...row, ...res };
     });

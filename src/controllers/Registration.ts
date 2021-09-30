@@ -6,6 +6,16 @@ import response from "../helpers/Response";
 import Service from "../services/Registration";
 
 class Registration {
+  async getFile(req: Request, res: Response): Promise<object | undefined> {
+    try {
+      let data = await Service.getRegistrationFile(req);
+      data = DateFormat.index(data, "DD MMMM YYYY HH:mm:ss", "tgl_upload", "validated_at")
+      return response(res, true, data, null, 200);
+    } catch (error) {
+      console.log(error);
+      return response(res, false, null, JSON.stringify(error), 500);
+    }
+  }
   async getHistory(req: Request, res: Response): Promise<object | undefined> {
     try {
       let data = await Service.getRegistrationHistory(req);

@@ -76,6 +76,17 @@ class Registration {
       replacements: params,
     });
   }
+  async getRegistrationFile(req: Request): Promise<any> {
+    const { outlet_id } = req.validated;
+    let query =
+      "SELECT * FROM trx_file_registrasi WHERE outlet_id = ?";
+
+    return await db.query(query, {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: [outlet_id],
+    });
+  }
   async getRegistrationHistory(req: Request): Promise<any> {
     const { file_id } = req.validated;
     let query =
