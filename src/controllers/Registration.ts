@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import db from "../config/db";
 import DateFormat from "../helpers/DateFormat";
 import FileSystem from "../helpers/FileSystem";
 import response from "../helpers/Response";
@@ -6,12 +7,27 @@ import Service from "../services/Registration";
 
 class Registration {
   async post(req: Request, res: Response): Promise<object | undefined> {
+    const transaction = await db.transaction();
     try {
-      await Service.insertRegistrationForm(req)
+      await Service.insertRegistrationForm(req, transaction);
+      transaction.commit();
       return response(res, true, "Form successfully uploaded", null, 200);
     } catch (error) {
-      FileSystem.DeleteFile(req.validated.path)
-      console.log(error)
+      FileSystem.DeleteFile(req.validated.path);
+      console.log(error);
+      transaction.rollback();
+      return response(res, false, null, JSON.stringify(error), 500);
+    }
+  }
+  async validation(req: Request, res: Response): Promise<object | undefined> {
+    const transaction = await db.transaction();
+    try {
+      await Service.validation(req, transaction);
+      transaction.commit();
+      return response(res, true, "Form successfully validated", null, 200);
+    } catch (error) {
+      console.log(error);
+      transaction.rollback();
       return response(res, false, null, JSON.stringify(error), 500);
     }
   }
@@ -60,7 +76,7 @@ class Registration {
         percentage: e.pencapaian + "%",
         pencapaian: parseFloat(e.pencapaian),
       }));
-      const total = regist.reduce((prev, curr) => prev + curr.total, 0)
+      const total = regist.reduce((prev, curr) => prev + curr.total, 0);
       return response(res, true, regist, null, 200);
     } catch (error) {
       return response(res, false, null, JSON.stringify(error), 500);
@@ -72,7 +88,7 @@ class Registration {
   ): Promise<object | undefined> {
     try {
       let regist: any[] = await Service.getLastRegistration(req);
-      regist = DateFormat.index(regist, "register_at")
+      regist = DateFormat.index(regist, "register_at");
       return response(res, true, regist, null, 200);
     } catch (error) {
       return response(res, false, null, JSON.stringify(error), 500);

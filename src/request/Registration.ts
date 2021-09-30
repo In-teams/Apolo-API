@@ -86,38 +86,39 @@ class Registration {
       await FileSystem.WriteFile(path, value.file, true);
       next();
     } catch (error) {
+      // FileSystem.DeleteFile(req.validated.path)
       return response(res, false, null, JSON.stringify(error), 400);
     }
   }
-  //   async validation(
-  //     req: Request,
-  //     res: Response,
-  //     next: NextFunction
-  //   ): Promise<any> {
-  //     try {
-  //       const schema = joi.object({
-  //         status_registrasi: joi.number().required(),
-  //         periode_id: joi.number().required(),
-  //         outlet_id: joi.string().required(),
-  //       });
+    async validation(
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ): Promise<any> {
+      try {
+        const schema = joi.object({
+          status_registrasi: joi.number().required(),
+          file_id: joi.number().required(),
+          outlet_id: joi.string().required(),
+        });
 
-  //       const { value, error } = schema.validate(req.body);
-  //       if (error) {
-  //         return response(res, false, null, error.message, 400);
-  //       }
+        const { value, error } = schema.validate(req.body);
+        if (error) {
+          return response(res, false, null, error.message, 400);
+        }
 
-  //       req.validated = value;
-  //       const isUploaded = await RegistrationService.getRegistrationForm(req);
-  //       if (isUploaded.length < 1)
-  //         return response(res, false, null, "registration is not uploaded", 400);
-  //       const { status_registrasi: status } = isUploaded[0];
-  //       if (status === 7 || status === 8)
-  //         return response(res, false, null, "registration was validated", 400);
-  //       next();
-  //     } catch (error) {
-  //       return response(res, false, null, JSON.stringify(error), 400)
-  //     }
-  //   }
+        req.validated = {...value, validated_at: DateFormat.getToday("YYYY-MM-DD HH:mm:ss")};
+        const isUploaded = await RegistrationService.getRegistrationForm(req);
+        if (isUploaded.length < 1)
+          return response(res, false, null, "registration is not uploaded", 400);
+        const { status_registrasi: status } = isUploaded[0];
+        if (status === 7 || status === 8)
+          return response(res, false, null, "registration was validated", 400);
+        next();
+      } catch (error) {
+        return response(res, false, null, JSON.stringify(error), 400)
+      }
+    }
 }
 
 export default new Registration();
