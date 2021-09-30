@@ -18,6 +18,7 @@ class Registration implements IRouter {
     this.router.get("/summary/region", RegistrationRequest.get, RegistrationController.getRegistrationSummaryByRegion); // summary by region
     this.router.post("/", RegistrationRequest.post, RegistrationController.post); // upload registration file
     this.router.post("/validation", RegistrationRequest.validation, RegistrationController.validation); // upload registration file
+    this.router.get("/history/:file_id", RegistrationRequest.getHistory, RegistrationController.getHistory); // upload registration file
   }
 }
 

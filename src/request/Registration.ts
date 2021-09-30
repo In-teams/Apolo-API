@@ -1,16 +1,26 @@
 import { NextFunction, Request, Response } from "express";
 import joi from "joi";
 import config from "../config/app";
+import DateFormat from "../helpers/DateFormat";
 import FileSystem from "../helpers/FileSystem";
 import GetFileExtention from "../helpers/GetFileExtention";
 import response from "../helpers/Response";
 import PeriodeService from "../services/Periode";
-import OutletService from "../services/Outlet";
 import RegistrationService from "../services/Registration";
-import fs from "fs";
-import DateFormat from "../helpers/DateFormat";
 
 class Registration {
+  getHistory(req: Request, res: Response, next: NextFunction): any {
+    const schema = joi.object({
+      file_id: joi.number().required(),
+    });
+
+    const { value, error } = schema.validate(req.params);
+    if (error) {
+      return response(res, false, null, error.message, 400);
+    }
+    req.validated = value
+    next();
+  }
   get(req: Request, res: Response, next: NextFunction): any {
     const schema = joi.object({
       region_id: joi.string(),

@@ -76,6 +76,17 @@ class Registration {
       replacements: params,
     });
   }
+  async getRegistrationHistory(req: Request): Promise<any> {
+    const { file_id } = req.validated;
+    let query =
+      "SELECT h.*, s.status FROM trx_history_registrasi AS h INNER JOIN ms_status_registrasi AS s ON h.status_registrasi = s.id WHERE h.file_id = ?";
+
+    return await db.query(query, {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: [file_id],
+    });
+  }
   async getRegistrationForm(req: Request): Promise<any> {
     const { outlet_id, periode_id, file_id } = req.validated;
     let query =
@@ -122,6 +133,8 @@ class Registration {
       replacements: [status_registrasi, validated_at, outlet_id, file_id],
       transaction: t,
     });
+
+    console.log(validated_at)
 
     return await db.query(queryHistory, {
       raw: true,
