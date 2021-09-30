@@ -76,6 +76,39 @@ class Registration {
       replacements: params,
     });
   }
+  async getRegistrationForm(req: Request): Promise<any> {
+    const { outlet_id, periode_id } = req.validated;
+    let query =
+      "SELECT * FROM trx_file_registrasi WHERE outlet_id = ? AND periode_id = ?";
+
+    return await db.query(query, {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: [outlet_id, periode_id],
+    });
+  }
+  async insertRegistrationForm(req: Request): Promise<any> {
+    const { outlet_id, periode_id, filename, tgl_upload } = req.validated;
+    let query =
+      "INSERT INTO trx_file_registrasi (outlet_id, periode_id, filename, tgl_upload) VALUES(?, ?, ?, ?)";
+
+    return await db.query(query, {
+      raw: true,
+      type: QueryTypes.INSERT,
+      replacements: [outlet_id, periode_id, filename, tgl_upload],
+    });
+  }
+  async updateRegistrationForm(req: Request): Promise<any> {
+    const { outlet_id, periode_id, filename, tgl_upload } = req.validated;
+    let query =
+      "UPDATE trx_file_registrasi SET filename = ?, tgl_upload = ?, status_registrasi = ? WHERE outlet_id = ? AND periode_id = ?";
+
+    return await db.query(query, {
+      raw: true,
+      type: QueryTypes.INSERT,
+      replacements: [filename, tgl_upload, 2, outlet_id, periode_id],
+    });
+  }
 }
 
 export default new Registration();
