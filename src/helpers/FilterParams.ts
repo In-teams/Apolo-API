@@ -41,7 +41,7 @@ class filterParams{
 			params.push(area_id);
 		}
 		if (wilayah_id) {
-			query += ' AND reg.head_region_id = ?';
+			query += ' AND r.head_region_id = ?';
 			params.push(wilayah_id);
 		}
 		if (ass_id) {

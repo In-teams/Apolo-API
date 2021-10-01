@@ -20,12 +20,12 @@ class Registration {
   }
   async getRegistrationSummaryByHR(req: Request): Promise<any> {
     const { sort } = req.validated;
-    let { query: qoc, params: poc } = FilterParams.query(
+    let { query: qoc, params: poc } = FilterParams.count(
       req,
       queryOutletCount +
         " AND o.valid IN ('No', 'No+') AND r.head_region_id = mhr.head_region_id"
     );
-    let { query: qocs, params: pocs } = FilterParams.query(
+    let { query: qocs, params: pocs } = FilterParams.count(
       req,
       queryOutletCount
     );
@@ -43,12 +43,12 @@ class Registration {
   }
   async getRegistrationSummaryByRegion(req: Request): Promise<any> {
     const { sort } = req.validated;
-    let { query: qoc, params: poc } = FilterParams.query(
+    let { query: qoc, params: poc } = FilterParams.count(
       req,
       queryOutletCount +
         " AND o.valid IN ('No', 'No+') AND r.pulau_id_alias = reg.pulau_id_alias"
     );
-    let { query: qocs, params: pocs } = FilterParams.query(
+    let { query: qocs, params: pocs } = FilterParams.count(
       req,
       queryOutletCount
     );
@@ -57,6 +57,29 @@ class Registration {
     let { query, params } = FilterParams.query(req, q);
     return await db.query(
       query + ` GROUP BY region ORDER BY pencapaian ${sort} LIMIT 5`,
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+        replacements: [...poc, ...poc, ...poc, ...pocs, ...pocs, ...params],
+      }
+    );
+  }
+  async getRegistrationSummaryByDistributor(req: Request): Promise<any> {
+    const { sort } = req.validated;
+    let { query: qoc, params: poc } = FilterParams.query(
+      req,
+      queryOutletCount +
+        " AND o.valid IN ('No', 'No+') AND o.distributor_id = d.distributor_id"
+    );
+    let { query: qocs, params: pocs } = FilterParams.count(
+      req,
+      queryOutletCount
+    );
+    let q = `SELECT d.distributor_name as distributor, (${qoc}) AS notregist, COUNT(o.outlet_id) AS regist, ((${qoc}) + COUNT(o.outlet_id)) AS total, TRUNCATE((COUNT(o.outlet_id)/((${qoc}) + COUNT(o.outlet_id)) * 100), 2) AS pencapaian, (${qocs}) AS totals, TRUNCATE(((${qocs})/COUNT(o.outlet_id) * 100), 2) AS bobot_outlet FROM mstr_outlet AS o INNER JOIN mstr_distributor AS d ON o.distributor_id = d.distributor_id INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg. pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL AND o.valid NOT IN ('No', 'No+')`;
+
+    let { query, params } = FilterParams.query(req, q);
+    return await db.query(
+      query + ` GROUP BY distributor ORDER BY pencapaian ${sort} LIMIT 5`,
       {
         raw: true,
         type: QueryTypes.SELECT,
