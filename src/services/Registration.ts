@@ -4,7 +4,7 @@ import db from "../config/db";
 import FilterParams from "../helpers/FilterParams";
 
 let queryOutletCount =
-  "SELECT COUNT(DISTINCT o.outlet_id) AS total FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS r ON o.`region_id` = r. `pulau_id_alias` INNER JOIN ms_dist_pic AS dp ON o.`distributor_id` = dp.`distributor_id` WHERE o.`outlet_id` IS NOT NULL";
+  "SELECT COUNT(DISTINCT ou.outlet_id) AS total FROM mstr_outlet AS ou INNER JOIN ms_pulau_alias AS r ON ou.`region_id` = r. `pulau_id_alias` INNER JOIN ms_dist_pic AS dp ON ou.`distributor_id` = dp.`distributor_id` WHERE ou.`outlet_id` IS NOT NULL";
 
 class Registration {
   async getRegistrationSummary(req: Request): Promise<any> {
@@ -103,6 +103,29 @@ class Registration {
     let { query, params } = FilterParams.query(req, q);
     return await db.query(
       query + ` GROUP BY distributor ORDER BY pencapaian ${sort} LIMIT 5`,
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+        replacements: [...poc, ...poc, ...poc, ...pocs, ...pocs, ...params],
+      }
+    );
+  }
+  async getRegistrationSummaryByOutlet(req: Request): Promise<any> {
+    const { sort } = req.validated;
+    let { query: qoc, params: poc } = FilterParams.query(
+      req,
+      queryOutletCount +
+        " AND o.valid IN ('No', 'No+') AND ou.outlet_id = o.outlet_id"
+    );
+    let { query: qocs, params: pocs } = FilterParams.count(
+      req,
+      queryOutletCount
+    );
+    let q = `SELECT o.outlet_name as outlet, (${qoc}) AS notregist, COUNT(o.outlet_id) AS regist, ((${qoc}) + COUNT(o.outlet_id)) AS total, TRUNCATE((COUNT(o.outlet_id)/((${qoc}) + COUNT(o.outlet_id)) * 100), 2) AS pencapaian, (${qocs}) AS totals, TRUNCATE(((${qocs})/COUNT(o.outlet_id) * 100), 2) AS bobot_outlet FROM mstr_outlet AS o INNER JOIN mstr_distributor AS d ON o.distributor_id = d.distributor_id INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg. pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL AND o.valid NOT IN ('No', 'No+')`;
+
+    let { query, params } = FilterParams.query(req, q);
+    return await db.query(
+      query + ` GROUP BY outlet ORDER BY pencapaian ${sort} LIMIT 5`,
       {
         raw: true,
         type: QueryTypes.SELECT,

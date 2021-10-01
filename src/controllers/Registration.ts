@@ -138,6 +138,24 @@ class Registration {
       return response(res, false, null, JSON.stringify(error), 500);
     }
   }
+  async getRegistrationSummaryByOutlet(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      let regist: any[] = await Service.getRegistrationSummaryByOutlet(req);
+      regist = regist.map((e: any) => ({
+        ...e,
+        // total: e.regist + e.notregist,
+        percentage: e.pencapaian + "%",
+        pencapaian: parseFloat(e.pencapaian),
+      }));
+      const total = regist.reduce((prev, curr) => prev + curr.total, 0);
+      return response(res, true, regist, null, 200);
+    } catch (error) {
+      return response(res, false, null, JSON.stringify(error), 500);
+    }
+  }
   async getLastRegistration(
     req: Request,
     res: Response
