@@ -74,7 +74,7 @@ class Sales {
   ): Promise<object | undefined> {
     try {
       let data: any = await Service.getSalesByOutlet(req);
-      data = await SalesHelper(req, data, "outlet");
+      data = await SalesHelper(req, data, "outlet_name");
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
