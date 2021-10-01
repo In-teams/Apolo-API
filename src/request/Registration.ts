@@ -72,6 +72,8 @@ class Registration {
       if (check.length < 1)
         return response(res, false, null, "bukan periode upload", 400);
       const ext = GetFileExtention(value.file);
+      if(!ext)
+      return response(res, false, null, "only pdf and image extention will be allowed", 400)
       let { periode, id: periode_id } = check[0];
       periode = `p-${periode.split(" ")[1]}`;
       const filename = `${periode}-${Date.now()}-${value.outlet_id}${ext}`;
