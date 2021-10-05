@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import db from "../config/db";
 import DateFormat from "../helpers/DateFormat";
 import FileSystem from "../helpers/FileSystem";
+import RegistrationHelper from "../helpers/RegistrationHelper";
 import response from "../helpers/Response";
 import Service from "../services/Registration";
 
@@ -9,7 +10,12 @@ class Registration {
   async getFile(req: Request, res: Response): Promise<object | undefined> {
     try {
       let data = await Service.getRegistrationFile(req);
-      data = DateFormat.index(data, "DD MMMM YYYY HH:mm:ss", "tgl_upload", "validated_at")
+      data = DateFormat.index(
+        data,
+        "DD MMMM YYYY HH:mm:ss",
+        "tgl_upload",
+        "validated_at"
+      );
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
@@ -19,7 +25,7 @@ class Registration {
   async getHistory(req: Request, res: Response): Promise<object | undefined> {
     try {
       let data = await Service.getRegistrationHistory(req);
-      data = DateFormat.index(data, "DD MMMM YYYY HH:mm:ss", "created_at")
+      data = DateFormat.index(data, "DD MMMM YYYY HH:mm:ss", "created_at");
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
@@ -73,12 +79,7 @@ class Registration {
   ): Promise<object | undefined> {
     try {
       let regist: any[] = await Service.getRegistrationSummaryByHR(req);
-      regist = regist.map((e: any) => ({
-        ...e,
-        total: e.regist + e.notregist,
-        percentage: e.pencapaian + "%",
-        pencapaian: parseFloat(e.pencapaian),
-      }));
+      regist = RegistrationHelper(regist, "wilayah");
       return response(res, true, regist, null, 200);
     } catch (error) {
       return response(res, false, null, JSON.stringify(error), 500);
@@ -90,13 +91,7 @@ class Registration {
   ): Promise<object | undefined> {
     try {
       let regist: any[] = await Service.getRegistrationSummaryByRegion(req);
-      regist = regist.map((e: any) => ({
-        ...e,
-        // total: e.regist + e.notregist,
-        percentage: e.pencapaian + "%",
-        pencapaian: parseFloat(e.pencapaian),
-      }));
-      const total = regist.reduce((prev, curr) => prev + curr.total, 0);
+      regist = RegistrationHelper(regist, "region");
       return response(res, true, regist, null, 200);
     } catch (error) {
       return response(res, false, null, JSON.stringify(error), 500);
@@ -108,13 +103,7 @@ class Registration {
   ): Promise<object | undefined> {
     try {
       let regist: any[] = await Service.getRegistrationSummaryByArea(req);
-      regist = regist.map((e: any) => ({
-        ...e,
-        // total: e.regist + e.notregist,
-        percentage: e.pencapaian + "%",
-        pencapaian: parseFloat(e.pencapaian),
-      }));
-      const total = regist.reduce((prev, curr) => prev + curr.total, 0);
+      regist = RegistrationHelper(regist, "area");
       return response(res, true, regist, null, 200);
     } catch (error) {
       return response(res, false, null, JSON.stringify(error), 500);
@@ -125,14 +114,10 @@ class Registration {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let regist: any[] = await Service.getRegistrationSummaryByDistributor(req);
-      regist = regist.map((e: any) => ({
-        ...e,
-        // total: e.regist + e.notregist,
-        percentage: e.pencapaian + "%",
-        pencapaian: parseFloat(e.pencapaian),
-      }));
-      const total = regist.reduce((prev, curr) => prev + curr.total, 0);
+      let regist: any[] = await Service.getRegistrationSummaryByDistributor(
+        req
+      );
+      regist = RegistrationHelper(regist, "distributor");
       return response(res, true, regist, null, 200);
     } catch (error) {
       return response(res, false, null, JSON.stringify(error), 500);
@@ -144,13 +129,7 @@ class Registration {
   ): Promise<object | undefined> {
     try {
       let regist: any[] = await Service.getRegistrationSummaryByOutlet(req);
-      regist = regist.map((e: any) => ({
-        ...e,
-        // total: e.regist + e.notregist,
-        percentage: e.pencapaian + "%",
-        pencapaian: parseFloat(e.pencapaian),
-      }));
-      const total = regist.reduce((prev, curr) => prev + curr.total, 0);
+      regist = RegistrationHelper(regist, "outlet");
       return response(res, true, regist, null, 200);
     } catch (error) {
       return response(res, false, null, JSON.stringify(error), 500);
