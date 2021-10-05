@@ -10,6 +10,11 @@ class Registration {
   async getFile(req: Request, res: Response): Promise<object | undefined> {
     try {
       let data = await Service.getRegistrationFile(req);
+      data = data.map((e: any) => ({
+        ...e,
+        filename: `${req.protocol}://${req.headers.host}/file/registration/${e.filename}`,
+        ext: e.filename.split(/[#?]/)[0].split('.').pop().trim()
+      }))
       data = DateFormat.index(
         data,
         "DD MMMM YYYY HH:mm:ss",
@@ -17,6 +22,15 @@ class Registration {
         "validated_at"
       );
       return response(res, true, data, null, 200);
+    } catch (error) {
+      console.log(error);
+      return response(res, false, null, JSON.stringify(error), 500);
+    }
+  }
+  async getOutletData(req: Request, res: Response): Promise<object | undefined> {
+    try {
+      let data = await Service.getOutletData(req);
+      return response(res, true, data[0], null, 200);
     } catch (error) {
       console.log(error);
       return response(res, false, null, JSON.stringify(error), 500);
@@ -33,6 +47,19 @@ class Registration {
     }
   }
   async post(req: Request, res: Response): Promise<object | undefined> {
+    const transaction = await db.transaction();
+    try {
+      await Service.insertRegistrationForm(req, transaction);
+      transaction.commit();
+      return response(res, true, "Form successfully uploaded", null, 200);
+    } catch (error) {
+      FileSystem.DeleteFile(req.validated.path);
+      console.log(error);
+      transaction.rollback();
+      return response(res, false, null, JSON.stringify(error), 500);
+    }
+  }
+  async update(req: Request, res: Response): Promise<object | undefined> {
     const transaction = await db.transaction();
     try {
       await Service.insertRegistrationForm(req, transaction);
