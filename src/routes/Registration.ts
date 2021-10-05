@@ -12,6 +12,7 @@ class Registration implements IRouter {
   }
 
   public routes(): void {
+    this.router.get("/status-list", RegistrationController.getRegistrationStatus); // get status list
     this.router.get("/", RegistrationRequest.get, RegistrationController.get); // summary (all)
     this.router.get("/last", RegistrationRequest.get, RegistrationController.getLastRegistration); // last 5 registration
     this.router.get("/summary/hr", RegistrationRequest.get, RegistrationController.getRegistrationSummaryByHR); // summary by head region (wilayah)

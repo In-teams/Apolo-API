@@ -27,6 +27,15 @@ class Registration {
       return response(res, false, null, JSON.stringify(error), 500);
     }
   }
+  async getRegistrationStatus(req: Request, res: Response): Promise<object | undefined> {
+    try {
+      let data = await Service.getRegistrationStatus(req);
+      return response(res, true, data, null, 200);
+    } catch (error) {
+      console.log(error);
+      return response(res, false, null, JSON.stringify(error), 500);
+    }
+  }
   async getOutletData(req: Request, res: Response): Promise<object | undefined> {
     try {
       let data = await Service.getOutletData(req);

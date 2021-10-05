@@ -232,6 +232,15 @@ class Registration {
       replacements: [filename, tgl_upload, 2, outlet_id, periode_id],
     });
   }
+  async getRegistrationStatus(req: Request): Promise<any> {
+    let query =
+      "SELECT * FROM ms_status_registrasi";
+
+    return await db.query(query, {
+      raw: true,
+      type: QueryTypes.SELECT,
+    });
+  }
   async getOutletData(req: Request): Promise<any> {
     const { outlet_id } = req.validated;
     let query =
