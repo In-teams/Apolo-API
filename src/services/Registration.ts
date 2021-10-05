@@ -69,7 +69,7 @@ class Registration {
     let { query: qoc, params: poc } = FilterParams.query(
       req,
       queryOutletCount +
-        " AND ou.valid IN ('No', 'No+') AND o.city_id_alias = c.city_id_alias"
+        " AND ou.valid IN ('No', 'No+') AND ou.city_id_alias = c.city_id_alias"
     );
     let { query: qocs, params: pocs } = FilterParams.count(
       req,
@@ -92,7 +92,7 @@ class Registration {
     let { query: qoc, params: poc } = FilterParams.query(
       req,
       queryOutletCount +
-        " AND ou.valid IN ('No', 'No+') AND o.distributor_id = d.distributor_id"
+        " AND ou.valid IN ('No', 'No+') AND ou.distributor_id = d.distributor_id"
     );
     let { query: qocs, params: pocs } = FilterParams.count(
       req,
