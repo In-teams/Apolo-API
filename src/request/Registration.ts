@@ -75,8 +75,8 @@ class Registration {
       if(!ext)
       return response(res, false, null, "only pdf and image extention will be allowed", 400)
       let { periode, id: periode_id } = check[0];
-      periode = `p-${periode.split(" ")[1]}`;
-      const filename = `${periode}-${Date.now()}-${value.outlet_id}${ext}`;
+      periode = `p-${periode_id}`;
+      const filename = `f-${periode}-${Date.now()}-${value.outlet_id}${ext}`;
       // const path = "/" + filename;
       const path = config.pathRegistration + "/" + filename;
       req.validated = {
