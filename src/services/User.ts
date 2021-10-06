@@ -1,121 +1,34 @@
-import { Request } from 'express';
-import { QueryTypes } from 'sequelize';
-import db from '../config/db';
+import { Request } from "express";
+import { QueryTypes } from "sequelize";
+import db from "../config/db";
+import FilterParams from "../helpers/FilterParams";
 
 class Region {
-	async getAsm(req: Request): Promise<any[]> {
-		let {
-			outlet_id,
-			area_id,
-			wilayah_id,
-			distributor_id,
-			region_id,
-			ass_id,
-			salesman_id,
-		} = req.validated;
-		const { scope, level } = req.decoded;
-		let addWhere: string | null = null;
-		let params: string[] = [];
-		if (level === '4') addWhere = 'o.distributor_id';
-		if (level === '2') addWhere = 'o.region_id';
-		if (level === '3') addWhere = 'o.city_id_alias';
-		if (level === '5') addWhere = 'o.outlet_id';
+  async getAsm(req: Request): Promise<any[]> {
+    let query =
+      "select distinct pic.nama_pic, dp.asm_id from ms_dist_pic as dp inner join mstr_outlet as o on dp.distributor_id = o.distributor_id inner join ms_user_scope as us on o.outlet_id = us.scope inner join ms_pic as pic on dp.asm_id = pic.kode_pic inner join ms_pulau_alias as reg on o.region_id = reg.pulau_id_alias WHERE dp.distributor_id IS NOT NULL";
 
-		let query =
-			'select distinct pic.nama_pic, dp.asm_id from ms_dist_pic as dp inner join mstr_outlet as o on dp.distributor_id = o.distributor_id inner join ms_user_scope as us on o.outlet_id = us.scope inner join ms_pic as pic on dp.asm_id = pic.kode_pic inner join ms_pulau_alias as r on o.region_id = r.pulau_id_alias WHERE dp.distributor_id IS NOT NULL';
+    let { query: newQuery, params } = FilterParams.query(req, query);
 
-		if (addWhere) {
-			query += ' AND ' + addWhere + ' IN (?)';
-			params.push(scope);
-		}
-		if (distributor_id) {
-			query += ' AND o.distributor_id = ?';
-			params.push(distributor_id);
-		}
-		if (region_id) {
-			query += ' AND o.region_id = ?';
-			params.push(region_id);
-		}
-		if (outlet_id) {
-			query += ' AND o.outlet_id = ?';
-			params.push(outlet_id);
-		}
-		if (area_id) {
-			query += ' AND o.city_id_alias = ?';
-			params.push(area_id);
-		}
-		if (wilayah_id) {
-			query += ' AND r.head_region_id = ?';
-			params.push(wilayah_id);
-		}
-		if (ass_id) {
-			query += ' AND dp.ass_id = ?';
-			params.push(ass_id);
-		}
+    return await db.query(newQuery + " order by dp.asm_id asc", {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: params,
+    });
+  }
+  async getAss(req: Request): Promise<any> {
+    let query =
+      "select distinct pic.nama_pic, dp.ass_id from ms_dist_pic as dp inner join mstr_outlet as o on dp.distributor_id = o.distributor_id inner join ms_user_scope as us on o.outlet_id = us.scope inner join ms_pic as pic on dp.ass_id = pic.kode_pic inner join ms_pulau_alias as reg on o.region_id = reg.pulau_id_alias WHERE dp.distributor_id IS NOT NULL";
 
-		return await db.query(query + ' order by dp.asm_id asc', {
-			raw: true,
-			type: QueryTypes.SELECT,
-			replacements: params,
-		});
-	}
-	async getAss(req: Request): Promise<any> {
-		let {
-			outlet_id,
-			area_id,
-			wilayah_id,
-			distributor_id,
-			region_id,
-			asm_id,
-			salesman_id,
-		} = req.validated;
-		const { scope, level } = req.decoded;
-		let addWhere: string | null = null;
-		let params: string[] = [];
-		if (level === '4') addWhere = 'o.distributor_id';
-		if (level === '2') addWhere = 'o.region_id';
-		if (level === '3') addWhere = 'o.city_id_alias';
-		if (level === '5') addWhere = 'o.outlet_id';
+    let { query: newQuery, params } = FilterParams.query(req, query);
 
-		let query =
-			'select distinct pic.nama_pic, dp.ass_id from ms_dist_pic as dp inner join mstr_outlet as o on dp.distributor_id = o.distributor_id inner join ms_user_scope as us on o.outlet_id = us.scope inner join ms_pic as pic on dp.ass_id = pic.kode_pic inner join ms_pulau_alias as r on o.region_id = r.pulau_id_alias WHERE dp.distributor_id IS NOT NULL';
-
-		if (addWhere) {
-			query += ' AND ' + addWhere + ' IN (?)';
-			params.push(scope);
-		}
-		if (distributor_id) {
-			query += ' AND o.distributor_id = ?';
-			params.push(distributor_id);
-		}
-		if (region_id) {
-			query += ' AND o.region_id = ?';
-			params.push(region_id);
-		}
-		if (outlet_id) {
-			query += ' AND o.outlet_id = ?';
-			params.push(outlet_id);
-		}
-		if (area_id) {
-			query += ' AND o.city_id_alias = ?';
-			params.push(area_id);
-		}
-		if (wilayah_id) {
-			query += ' AND r.head_region_id = ?';
-			params.push(wilayah_id);
-		}
-		if (asm_id) {
-			query += ' AND dp.asm_id = ?';
-			params.push(asm_id);
-		}
-
-		return await db.query(query + ' order by dp.ass_id asc', {
-			raw: true,
-			type: QueryTypes.SELECT,
-			replacements: params,
-		});
-	}
-	getSalesman(req: Request): any {}
+    return await db.query(newQuery + " order by dp.ass_id asc", {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: params,
+    });
+  }
+  getSalesman(req: Request): any {}
 }
 
 export default new Region();
