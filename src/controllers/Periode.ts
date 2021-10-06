@@ -10,7 +10,7 @@ class Periode {
       return response(res, true, "Success Create New Periode", null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async update(req: Request, res: Response): Promise<object | undefined> {
@@ -27,7 +27,7 @@ class Periode {
       await Service.delete(req);
       return response(res, true, "Success Delete Periode", null, 200);
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async get(req: Request, res: Response): Promise<object | undefined> {
@@ -38,7 +38,7 @@ class Periode {
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
 }

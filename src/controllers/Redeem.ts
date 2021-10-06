@@ -20,7 +20,7 @@ class Redeem {
 			point = NumberFormat(point, false, 'achieve', 'redeem');
 			return response(res, true, point[0], null, 200);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error), 500);
+			return response(res, false, null, error, 500);
 		}
 	}
 }

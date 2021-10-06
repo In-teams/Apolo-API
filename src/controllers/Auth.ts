@@ -18,7 +18,7 @@ class Auth {
 			return response(res, true, data[0], null, 200);
 		} catch (error) {
 			console.log(error);
-			return response(res, false, null, JSON.stringify(error), 500);
+			return response(res, false, null, error, 500);
 		}
 	}
 }

@@ -26,7 +26,7 @@ class Sales {
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getSummaryByArea(
@@ -39,7 +39,7 @@ class Sales {
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getSummaryByASM(
@@ -52,7 +52,7 @@ class Sales {
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getSummaryByASS(
@@ -65,7 +65,7 @@ class Sales {
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getSummaryByOutlet(
@@ -78,7 +78,7 @@ class Sales {
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getSummaryByRegion(
@@ -91,7 +91,7 @@ class Sales {
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getSummaryByHR(
@@ -104,7 +104,7 @@ class Sales {
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getSummaryByAchieve(
@@ -122,7 +122,7 @@ class Sales {
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getSummaryPerQuarter(
@@ -140,7 +140,7 @@ class Sales {
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getSummaryPerSemester(
@@ -159,7 +159,7 @@ class Sales {
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getSummaryPerYear(
@@ -178,7 +178,7 @@ class Sales {
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getSummaryPerYears(
@@ -197,7 +197,7 @@ class Sales {
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async get(req: Request, res: Response): Promise<object | undefined> {
@@ -215,7 +215,7 @@ class Sales {
       return response(res, true, data[0], null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async coba(req: Request, res: Response): Promise<object | undefined> {
@@ -297,7 +297,7 @@ class Sales {
       return response(res, true, grouping, null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
 }

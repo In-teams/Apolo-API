@@ -31,7 +31,7 @@ class User {
 
 			return response(res, true, [add, ...data], null, 200);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error), 500);
+			return response(res, false, null, error, 500);
 		}
 	}
 }

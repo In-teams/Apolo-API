@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import db from "../config/db";
 import DateFormat from "../helpers/DateFormat";
 import FileSystem from "../helpers/FileSystem";
+import GetFile from "../helpers/GetFile";
 import RegistrationHelper from "../helpers/RegistrationHelper";
 import response from "../helpers/Response";
 import Service from "../services/Registration";
@@ -10,11 +11,7 @@ class Registration {
   async getFile(req: Request, res: Response): Promise<object | undefined> {
     try {
       let data = await Service.getRegistrationFile(req);
-      data = data.map((e: any) => ({
-        ...e,
-        filename: `${req.protocol}://${req.headers.host}/file/registration/${e.filename}`,
-        ext: e.filename.split(/[#?]/)[0].split('.').pop().trim()
-      }))
+      data = GetFile(req, data, "registration", "filename")
       data = DateFormat.index(
         data,
         "DD MMMM YYYY HH:mm:ss",
@@ -24,7 +21,7 @@ class Registration {
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getRegistrationStatus(req: Request, res: Response): Promise<object | undefined> {
@@ -33,16 +30,24 @@ class Registration {
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getOutletData(req: Request, res: Response): Promise<object | undefined> {
     try {
       let data = await Service.getOutletData(req);
+      let bank_file = await Service.getRegistrationFile(req, 3)
+      let npwp_file = await Service.getRegistrationFile(req, 2)
+      let ektp_file = await Service.getRegistrationFile(req, 1)
+      data[0].bank_file = bank_file[0]?.filename || null
+      data[0].npwp_file = npwp_file[0]?.filename || null
+      data[0].ektp_file = ektp_file[0]?.filename || null
+
+      data = GetFile(req, data, 'registration', 'bank_file', 'npwp_file', 'ektp_file')
       return response(res, true, data[0], null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getHistory(req: Request, res: Response): Promise<object | undefined> {
@@ -52,7 +57,7 @@ class Registration {
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async post(req: Request, res: Response): Promise<object | undefined> {
@@ -65,7 +70,7 @@ class Registration {
       FileSystem.DeleteFile(req.validated.path);
       console.log(error);
       transaction.rollback();
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async update(req: Request, res: Response): Promise<object | undefined> {
@@ -78,7 +83,7 @@ class Registration {
       FileSystem.DeleteFile(req.validated.path);
       console.log(error);
       transaction.rollback();
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async validation(req: Request, res: Response): Promise<object | undefined> {
@@ -90,7 +95,7 @@ class Registration {
     } catch (error) {
       console.log(error);
       transaction.rollback();
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async get(req: Request, res: Response): Promise<object | undefined> {
@@ -106,7 +111,7 @@ class Registration {
       };
       return response(res, true, result, null, 200);
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getRegistrationSummaryByHR(
@@ -118,7 +123,7 @@ class Registration {
       regist = RegistrationHelper(regist, "wilayah");
       return response(res, true, regist, null, 200);
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getRegistrationSummaryByRegion(
@@ -130,7 +135,7 @@ class Registration {
       regist = RegistrationHelper(regist, "region");
       return response(res, true, regist, null, 200);
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getRegistrationSummaryByArea(
@@ -142,7 +147,7 @@ class Registration {
       regist = RegistrationHelper(regist, "area");
       return response(res, true, regist, null, 200);
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getRegistrationSummaryByDistributor(
@@ -156,7 +161,7 @@ class Registration {
       regist = RegistrationHelper(regist, "distributor");
       return response(res, true, regist, null, 200);
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getRegistrationSummaryByOutlet(
@@ -168,7 +173,7 @@ class Registration {
       regist = RegistrationHelper(regist, "outlet");
       return response(res, true, regist, null, 200);
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
   async getLastRegistration(
@@ -180,7 +185,7 @@ class Registration {
       regist = DateFormat.index(regist, "register_at");
       return response(res, true, regist, null, 200);
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error), 500);
+      return response(res, false, null, error, 500);
     }
   }
 }

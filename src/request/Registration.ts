@@ -134,7 +134,7 @@ class Registration {
       next();
     } catch (error) {
       // FileSystem.DeleteFile(req.validated.path)
-      return response(res, false, null, JSON.stringify(error), 400);
+      return response(res, false, null, error, 400);
     }
   }
   async update(req: Request, res: Response, next: NextFunction): Promise<any> {
@@ -228,7 +228,7 @@ class Registration {
     } catch (error) {
       console.log(error)
       // FileSystem.DeleteFile(req.validated.path)
-      return response(res, false, null, JSON.stringify(error), 400);
+      return response(res, false, null, error, 400);
     }
   }
   async validation(
@@ -260,7 +260,7 @@ class Registration {
         return response(res, false, null, "registration was validated", 400);
       next();
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error), 400);
+      return response(res, false, null, error, 400);
     }
   }
 }

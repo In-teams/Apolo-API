@@ -145,14 +145,15 @@ class Registration {
       replacements: params,
     });
   }
-  async getRegistrationFile(req: Request): Promise<any> {
+  async getRegistrationFile(req: Request, type_file?: number): Promise<any> {
     const { outlet_id } = req.validated;
-    let query = "SELECT * FROM trx_file_registrasi WHERE outlet_id = ?";
+    if(!type_file) type_file = 0
+    let query = "SELECT * FROM trx_file_registrasi WHERE outlet_id = ? AND type_file = ?";
 
     return await db.query(query, {
       raw: true,
       type: QueryTypes.SELECT,
-      replacements: [outlet_id],
+      replacements: [outlet_id, type_file],
     });
   }
   async getRegistrationHistory(req: Request): Promise<any> {
