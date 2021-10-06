@@ -24,10 +24,10 @@ class RegistrationHelper {
           100
         ).toFixed(2)
       ),
-      totals: data[0].totals,
+      totals: data[0]?.totals,
       bobot_outlet:
         (
-          (data.reduce((prev, curr) => prev + curr.total, 0) / data[0].totals) *
+          (data.reduce((prev, curr) => prev + curr.total, 0) / data[0]?.totals) *
           100
         ).toFixed(2) + "%",
     };
