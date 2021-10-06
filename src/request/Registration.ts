@@ -8,6 +8,7 @@ import response from "../helpers/Response";
 import Outlet from "../services/Outlet";
 import PeriodeService from "../services/Periode";
 import RegistrationService from "../services/Registration";
+import appHelper from "../helpers/App";
 
 class Registration {
   getHistory(req: Request, res: Response, next: NextFunction): any {
@@ -53,7 +54,17 @@ class Registration {
     if (error) {
       return response(res, false, null, error.message, 400);
     }
-    req.validated = { ...value, sort: value.sort || "ASC" };
+    let quarter: string[] | undefined = value.quarter_id
+      ? appHelper.getMonthIdByQuarter(value.quarter_id)
+      : undefined;
+    req.validated = {
+      ...value,
+      sort: value.sort || "ASC",
+      quarter: value.quarter_id,
+      month: appHelper.getMonthName(value.month),
+      month_id: value.month,
+      ...(value.quarter_id && { quarter_id: quarter }),
+    };
     next();
   }
   getOutletData(req: Request, res: Response, next: NextFunction): any {
@@ -86,9 +97,9 @@ class Registration {
       }
 
       req.validated = value;
-      const outletCheck = await Outlet.getOutlet(req)
-      if(outletCheck.length < 1)
-      return response(res, false, null, "outlet id not found", 404);
+      const outletCheck = await Outlet.getOutlet(req);
+      if (outletCheck.length < 1)
+        return response(res, false, null, "outlet id not found", 404);
       const check = await PeriodeService.checkData(req);
       if (check.length < 1)
         return response(res, false, null, "bukan periode upload", 400);
@@ -173,9 +184,9 @@ class Registration {
       }
 
       req.validated = value;
-      const outletCheck = await Outlet.getOutlet(req)
-      if(outletCheck.length < 1)
-      return response(res, false, null, "outlet id not found", 404);
+      const outletCheck = await Outlet.getOutlet(req);
+      if (outletCheck.length < 1)
+        return response(res, false, null, "outlet id not found", 404);
       const check = await PeriodeService.checkData(req);
       if (check.length < 1)
         return response(res, false, null, "bukan periode upload", 400);
@@ -190,10 +201,16 @@ class Registration {
           400
         );
       let { periode, id: periode_id } = check[0];
-      req.validated.periode_id = periode_id
+      req.validated.periode_id = periode_id;
       const uploaded = await RegistrationService.getRegistrationForm(req);
-      if(uploaded.length < 1)
-      return response(res, false, null, "please upload registration form!", 400);
+      if (uploaded.length < 1)
+        return response(
+          res,
+          false,
+          null,
+          "please upload registration form!",
+          400
+        );
       periode = `p-${periode_id}`;
       const IdType = req.body.type === "npwp" ? "n" : "e";
       const file = `${IdType}-${periode}-${Date.now()}-${
@@ -201,26 +218,31 @@ class Registration {
       }${extFile}`;
       const bank = `b-${periode}-${Date.now()}-${value.outlet_id}${extBank}`;
       const bankFile = await RegistrationService.getRegistrationForm(req, 3);
-      if(bankFile.length > 0){
-        const {filename, id} = bankFile[0]
-        await RegistrationService.deleteRegistrationFile(id)
+      if (bankFile.length > 0) {
+        const { filename, id } = bankFile[0];
+        await RegistrationService.deleteRegistrationFile(id);
         await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
       }
-      const FileId = await RegistrationService.getRegistrationForm(req, value.type === "npwp" ? 2 : 1 );
-      if(FileId.length > 0){
-        const {filename, id} = FileId[0]
-        await RegistrationService.deleteRegistrationFile(id)
+      const FileId = await RegistrationService.getRegistrationForm(
+        req,
+        value.type === "npwp" ? 2 : 1
+      );
+      if (FileId.length > 0) {
+        const { filename, id } = FileId[0];
+        await RegistrationService.deleteRegistrationFile(id);
         await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
       }
       await FileSystem.WriteFile(
         config.pathRegistration + "/" + bank,
         value.bank_file,
-        true, extBank
+        true,
+        extBank
       );
       await FileSystem.WriteFile(
         config.pathRegistration + "/" + file,
         value[`${req.body.type}_file`],
-        true, extFile
+        true,
+        extFile
       );
       delete value.bank_file;
       delete value[`${req.body.type}_file`];
@@ -229,11 +251,11 @@ class Registration {
         ...value,
         [value.type]: file,
         bank,
-        tgl_upload: DateFormat.getToday("YYYY-MM-DD HH:mm:ss")
+        tgl_upload: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),
       };
-      next()
+      next();
     } catch (error) {
-      console.log(error)
+      console.log(error);
       // FileSystem.DeleteFile(req.validated.path)
       return response(res, false, null, error, 400);
     }
