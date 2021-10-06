@@ -2,10 +2,16 @@ import { Request, Response } from "express";
 import Service from "../services/Periode";
 import response from "../helpers/Response";
 import DateFormat from "../helpers/DateFormat";
+import moment from "moment";
+import Scheduler from "../helpers/Scheduler";
 
 class Periode {
   async create(req: Request, res: Response): Promise<object | undefined> {
     try {
+      // console.log(DateFormat.getDate(req.validated.tgl_selesai, "MM"))
+      // console.log(DateFormat.getDate(req.validated.tgl_selesai, "DD"))
+      // return
+      Scheduler.start("* * * * * *", console.log("running"))
       await Service.create(req);
       return response(res, true, "Success Create New Periode", null, 200);
     } catch (error) {

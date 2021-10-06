@@ -11,7 +11,10 @@ class DateFormat {
     });
   }
   getToday(formatDate: string){
-    return moment().format(formatDate)
+    return moment.utc().format(formatDate)
+  }
+  getDate(date: any, formatDate: string){
+    return moment.utc(date).format(formatDate)
   }
 }
 
