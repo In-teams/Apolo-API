@@ -166,15 +166,16 @@ class Registration {
       replacements: [file_id],
     });
   }
-  async getRegistrationForm(req: Request): Promise<any> {
-    const { outlet_id, periode_id, file_id } = req.validated;
+  async getRegistrationForm(req: Request, type_file?: number): Promise<any> {
+    if(!type_file) type_file = 0
+    const { outlet_id, periode_id, file_id} = req.validated;
     let query =
-      "SELECT * FROM trx_file_registrasi WHERE outlet_id = ? AND (periode_id = ? OR id = ?)";
+      "SELECT * FROM trx_file_registrasi WHERE outlet_id = ? AND (periode_id = ? OR id = ?) AND type_file = ?";
 
     return await db.query(query, {
       raw: true,
       type: QueryTypes.SELECT,
-      replacements: [outlet_id, periode_id, file_id],
+      replacements: [outlet_id, periode_id, file_id, type_file],
     });
   }
   async insertRegistrationForm(req: Request, t: any): Promise<any> {
@@ -241,6 +242,16 @@ class Registration {
       type: QueryTypes.SELECT,
     });
   }
+  async deleteRegistrationFile(id: number): Promise<any> {
+    let query =
+      "DELETE FROM trx_file_registrasi WHERE id = ?";
+
+    return await db.query(query, {
+      raw: true,
+      type: QueryTypes.DELETE,
+      replacements: [id]
+    });
+  }
   async getOutletData(req: Request): Promise<any> {
     const { outlet_id } = req.validated;
     let query =
@@ -252,20 +263,31 @@ class Registration {
       replacements: [outlet_id],
     });
   }
-  async updateOutletData(req: Request): Promise<any> {
-    const { type, nama, no_npwp, no_ektp, ektp, npwp, no_hp, alamat, rtrw, kode_pos, provinsi, kabupaten, kecamatan, kelurahan, bank } = req.validated;
+  async updateOutletData(req: Request, t: any): Promise<any> {
+    const { type, outlet_id, nama, no_npwp, no_ektp, ektp, npwp, no_hp, alamat, rtrw, kode_pos, provinsi, kabupaten, kecamatan, kelurahan, bank, periode_id, tgl_upload } = req.validated;
     let queryBaseEKTP =
-      "UPDATE mstr_outlet SET nama_konsumen = ?, ektp = ?, alamat1 = ?, rtrw = ?, kelurahan = ?, kecamatan = ?, kabupaten = ?, propinsi = ?, kode_pos = ?, no_wa = ?";
+      "UPDATE mstr_outlet SET nama_konsumen = ?, ektp = ?, alamat1 = ?, rtrw = ?, kelurahan = ?, kecamatan = ?, kabupaten = ?, propinsi = ?, kodepos = ?, no_wa = ? WHERE outlet_id = ?";
     let queryBaseNPWP =
-      "UPDATE mstr_outlet SET nama_konsumen = ?, npwp = ?, alamat1 = ?, rtrw = ?, kelurahan = ?, kecamatan = ?, kabupaten = ?, propinsi = ?, kode_pos = ?, no_wa = ?";
+      "UPDATE mstr_outlet SET nama_konsumen = ?, npwp = ?, alamat1 = ?, rtrw = ?, kelurahan = ?, kecamatan = ?, kabupaten = ?, propinsi = ?, kodepos = ?, no_wa = ? WHERE outlet_id = ?";
 
-    let params: any[] = type === "ektp" ? [nama, no_ektp, alamat, rtrw, kelurahan, kecamatan, kabupaten, provinsi, kode_pos, no_hp] : 
-                      [nama, no_npwp, alamat, rtrw, kelurahan, kecamatan, kabupaten, provinsi, kode_pos, no_hp]
+    let params: any[] = type === "ektp" ? [nama, no_ektp, alamat, rtrw, kelurahan, kecamatan, kabupaten, provinsi, kode_pos, no_hp, outlet_id] : 
+                      [nama, no_npwp, alamat, rtrw, kelurahan, kecamatan, kabupaten, provinsi, kode_pos, no_hp, outlet_id]
 
-    return await db.query(type === "ektp" ? queryBaseEKTP : queryBaseNPWP, {
+    await db.query(type === "ektp" ? queryBaseEKTP : queryBaseNPWP, {
       raw: true,
       type: QueryTypes.UPDATE,
       replacements: params,
+      transaction: t
+    });
+
+    const file = npwp ? npwp : ektp
+    const type_file = npwp ? 2 : 1
+
+    return await db.query("INSERT INTO trx_file_registrasi (outlet_id, periode_id, filename, tgl_upload, type_file) VALUES ?", {
+      raw: true,
+      type: QueryTypes.INSERT,
+      replacements: [[[outlet_id, periode_id, file, tgl_upload, type_file], [outlet_id, periode_id, bank, tgl_upload, 3]]],
+      transaction: t
     });
   }
 }

@@ -183,12 +183,28 @@ class Registration {
           400
         );
       let { periode, id: periode_id } = check[0];
+      req.validated.periode_id = periode_id
+      const uploaded = await RegistrationService.getRegistrationForm(req);
+      if(uploaded.length < 1)
+      return response(res, false, null, "please upload registration form!", 400);
       periode = `p-${periode_id}`;
       const IdType = req.body.type === "npwp" ? "n" : "e";
       const file = `${IdType}-${periode}-${Date.now()}-${
         value.outlet_id
       }${extFile}`;
       const bank = `b-${periode}-${Date.now()}-${value.outlet_id}${extBank}`;
+      const bankFile = await RegistrationService.getRegistrationForm(req, 3);
+      if(bankFile.length > 0){
+        const {filename, id} = bankFile[0]
+        await RegistrationService.deleteRegistrationFile(id)
+        await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
+      }
+      const FileId = await RegistrationService.getRegistrationForm(req, value.type === "npwp" ? 2 : 1 );
+      if(FileId.length > 0){
+        const {filename, id} = FileId[0]
+        await RegistrationService.deleteRegistrationFile(id)
+        await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
+      }
       await FileSystem.WriteFile(
         config.pathRegistration + "/" + bank,
         value.bank_file,
@@ -206,9 +222,11 @@ class Registration {
         ...value,
         [value.type]: file,
         bank,
+        tgl_upload: DateFormat.getToday("YYYY-MM-DD HH:mm:ss")
       };
       next()
     } catch (error) {
+      console.log(error)
       // FileSystem.DeleteFile(req.validated.path)
       return response(res, false, null, JSON.stringify(error), 400);
     }

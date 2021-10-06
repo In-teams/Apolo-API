@@ -71,9 +71,9 @@ class Registration {
   async update(req: Request, res: Response): Promise<object | undefined> {
     const transaction = await db.transaction();
     try {
-      await Service.insertRegistrationForm(req, transaction);
+      await Service.updateOutletData(req, transaction);
       transaction.commit();
-      return response(res, true, "Form successfully uploaded", null, 200);
+      return response(res, true, "Data successfully updated", null, 200);
     } catch (error) {
       FileSystem.DeleteFile(req.validated.path);
       console.log(error);
