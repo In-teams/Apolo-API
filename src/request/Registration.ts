@@ -5,6 +5,7 @@ import DateFormat from "../helpers/DateFormat";
 import FileSystem from "../helpers/FileSystem";
 import GetFileExtention from "../helpers/GetFileExtention";
 import response from "../helpers/Response";
+import Outlet from "../services/Outlet";
 import PeriodeService from "../services/Periode";
 import RegistrationService from "../services/Registration";
 
@@ -85,6 +86,9 @@ class Registration {
       }
 
       req.validated = value;
+      const outletCheck = await Outlet.getOutlet(req)
+      if(outletCheck.length < 1)
+      return response(res, false, null, "outlet id not found", 404);
       const check = await PeriodeService.checkData(req);
       if (check.length < 1)
         return response(res, false, null, "bukan periode upload", 400);
@@ -169,6 +173,9 @@ class Registration {
       }
 
       req.validated = value;
+      const outletCheck = await Outlet.getOutlet(req)
+      if(outletCheck.length < 1)
+      return response(res, false, null, "outlet id not found", 404);
       const check = await PeriodeService.checkData(req);
       if (check.length < 1)
         return response(res, false, null, "bukan periode upload", 400);
