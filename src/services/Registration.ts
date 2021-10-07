@@ -211,12 +211,15 @@ class Registration {
       "INSERT INTO trx_history_registrasi (outlet_id, status_registrasi, file_id, created_at) VALUES(?, ?, ?, ?)";
 
     if (status_registrasi === 7 || status_registrasi === 8) {
-      await db.query("UPDATE mstr_outlet SET register_at = ?, valid = 'Yes+' WHERE outlet_id = ?", {
-        raw: true,
-        type: QueryTypes.UPDATE,
-        replacements: [validated_at, outlet_id],
-        transaction: t,
-      });
+      await db.query(
+        "UPDATE mstr_outlet SET register_at = ?, valid = 'Yes+' WHERE outlet_id = ?",
+        {
+          raw: true,
+          type: QueryTypes.UPDATE,
+          replacements: [validated_at, outlet_id],
+          transaction: t,
+        }
+      );
     }
 
     await db.query(query, {
@@ -252,6 +255,25 @@ class Registration {
       type: QueryTypes.SELECT,
     });
   }
+  async getRegistrationSummaryByMonth(req: Request): Promise<any> {
+    const status = await db.query("SELECT * FROM ms_status_registrasi", {
+      raw: true,
+      type: QueryTypes.SELECT,
+    });
+
+    let q = "";
+    status.map((e: any, i: number) => {
+      q += `COUNT(CASE WHEN status_registrasi = ${e.id} THEN tr.id END) AS '${e.status}'`;
+      if (i + 1 !== status.length) return (q += ", ");
+    });
+
+    let query = `SELECT b.id, b.bulan, ${q} FROM ms_bulan AS b LEFT JOIN trx_file_registrasi AS tr ON b.id = MONTH(tr.tgl_upload) LEFT JOIN ms_status_registrasi AS s ON tr.status_registrasi = s.id WHERE tr.type_file = 0 OR tr.type_file IS NULL GROUP BY b.id`
+
+    return await db.query(query, {
+      raw: true,
+      type: QueryTypes.SELECT,
+    });
+  }
   async deleteRegistrationFile(id: number): Promise<any> {
     let query = "DELETE FROM trx_file_registrasi WHERE id = ?";
 
@@ -273,24 +295,15 @@ class Registration {
   }
   async updateOutletData(req: Request, t: any): Promise<any> {
     const {
-      type,
-      outlet_id,
-      nama,
-      no_npwp,
-      no_ektp,
-      ektp,
-      npwp,
-      no_hp,
-      alamat,
-      rtrw,
-      kode_pos,
-      provinsi,
-      kabupaten,
-      kecamatan,
-      kelurahan,
-      bank,
-      periode_id,
-      tgl_upload,
+      type, outlet_id,
+      nama, no_npwp,
+      no_ektp, ektp,
+      npwp, no_hp,
+      alamat, rtrw,
+      kode_pos, provinsi,
+      kabupaten, kecamatan,
+      kelurahan, bank,
+      periode_id, tgl_upload,
     } = req.validated;
     let queryBaseEKTP =
       "UPDATE mstr_outlet SET nama_konsumen = ?, ektp = ?, alamat1 = ?, rtrw = ?, kelurahan = ?, kecamatan = ?, kabupaten = ?, propinsi = ?, kodepos = ?, no_wa = ? WHERE outlet_id = ?";
@@ -300,30 +313,18 @@ class Registration {
     let params: any[] =
       type === "ektp"
         ? [
-            nama,
-            no_ektp,
-            alamat,
-            rtrw,
-            kelurahan,
-            kecamatan,
-            kabupaten,
-            provinsi,
-            kode_pos,
-            no_hp,
-            outlet_id,
+            nama, no_ektp,
+            alamat, rtrw,
+            kelurahan, kecamatan,
+            kabupaten, provinsi,
+            kode_pos, no_hp, outlet_id,
           ]
         : [
-            nama,
-            no_npwp,
-            alamat,
-            rtrw,
-            kelurahan,
-            kecamatan,
-            kabupaten,
-            provinsi,
-            kode_pos,
-            no_hp,
-            outlet_id,
+            nama, no_npwp,
+            alamat, rtrw,
+            kelurahan, kecamatan,
+            kabupaten, provinsi,
+            kode_pos, no_hp, outlet_id,
           ];
 
     await db.query(type === "ektp" ? queryBaseEKTP : queryBaseNPWP, {

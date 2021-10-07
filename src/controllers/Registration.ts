@@ -11,7 +11,7 @@ class Registration {
   async getFile(req: Request, res: Response): Promise<object | undefined> {
     try {
       let data = await Service.getRegistrationFile(req);
-      data = GetFile(req, data, "registration", "filename")
+      data = GetFile(req, data, "registration", "filename");
       data = DateFormat.index(
         data,
         "DD MMMM YYYY HH:mm:ss",
@@ -24,7 +24,10 @@ class Registration {
       return response(res, false, null, error, 500);
     }
   }
-  async getRegistrationStatus(req: Request, res: Response): Promise<object | undefined> {
+  async getRegistrationStatus(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
     try {
       let data = await Service.getRegistrationStatus(req);
       return response(res, true, data, null, 200);
@@ -33,17 +36,27 @@ class Registration {
       return response(res, false, null, error, 500);
     }
   }
-  async getOutletData(req: Request, res: Response): Promise<object | undefined> {
+  async getOutletData(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
     try {
       let data = await Service.getOutletData(req);
-      let bank_file = await Service.getRegistrationFile(req, 3)
-      let npwp_file = await Service.getRegistrationFile(req, 2)
-      let ektp_file = await Service.getRegistrationFile(req, 1)
-      data[0].bank_file = bank_file[0]?.filename || null
-      data[0].npwp_file = npwp_file[0]?.filename || null
-      data[0].ektp_file = ektp_file[0]?.filename || null
+      let bank_file = await Service.getRegistrationFile(req, 3);
+      let npwp_file = await Service.getRegistrationFile(req, 2);
+      let ektp_file = await Service.getRegistrationFile(req, 1);
+      data[0].bank_file = bank_file[0]?.filename || null;
+      data[0].npwp_file = npwp_file[0]?.filename || null;
+      data[0].ektp_file = ektp_file[0]?.filename || null;
 
-      data = GetFile(req, data, 'registration', 'bank_file', 'npwp_file', 'ektp_file')
+      data = GetFile(
+        req,
+        data,
+        "registration",
+        "bank_file",
+        "npwp_file",
+        "ektp_file"
+      );
       return response(res, true, data[0], null, 200);
     } catch (error) {
       console.log(error);
@@ -110,6 +123,18 @@ class Registration {
         totalOutlet: total_outlet,
       };
       return response(res, true, result, null, 200);
+    } catch (error) {
+      return response(res, false, null, error, 500);
+    }
+  }
+  async getSummaryByMonth(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      const status: any[] = await Service.getRegistrationStatus(req);
+      const regist: any[] = await Service.getRegistrationSummaryByMonth(req);
+      return response(res, true, {data: regist, key: status.map((e: any) => e.status)}, null, 200);
     } catch (error) {
       return response(res, false, null, error, 500);
     }
