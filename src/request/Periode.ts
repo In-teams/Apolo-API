@@ -17,6 +17,8 @@ class Periode {
       if (error) {
         return response(res, false, null, error.message, 400);
       }
+      if(value.tgl_selesai < value.tgl_mulai)
+      return response(res, false, null, "tgl selesai tidak boleh lebih kecil dari tgl mulai", 400)
 
       req.validated = {
         ...value,
@@ -51,7 +53,13 @@ class Periode {
         return response(res, false, null, error.message, 400);
       }
 
+      if(value.tgl_selesai < value.tgl_mulai)
+      return response(res, false, null, "tgl selesai tidak boleh lebih kecil dari tgl mulai", 400)
+
       req.validated = value;
+      const checkById = await Service.get(value.id)
+      if(checkById.length < 1) 
+      return response(res, false, null, "Periode not found", 404)
       const cekData = await Service.checkData(req);
       if (cekData.length > 0) {
         if (cekData[0].id !== value.id)
@@ -63,8 +71,11 @@ class Periode {
             400
           );
 
+        req.validated.old_tgl_selesai = cekData[0].tgl_selesai
+        
         next();
       } else {
+        req.validated.old_tgl_selesai = checkById[0].tgl_selesai
         next();
       }
     } catch (error) {
@@ -81,8 +92,13 @@ class Periode {
       if (error) {
         return response(res, false, null, error.message, 400);
       }
+      const checkById = await Service.get(value.id)
+      if(checkById.length < 1) 
+      return response(res, false, null, "Periode not found", 404)
 
+      
       req.validated = value;
+      req.validated.old_tgl_selesai = checkById[0].tgl_selesai
 
       next();
     } catch (error) {

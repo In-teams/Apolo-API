@@ -4,10 +4,17 @@ import { QueryTypes } from "sequelize";
 import db from "../config/db";
 
 class Periode {
-  async get(req: Request): Promise<any> {
+  async gets(req: Request): Promise<any> {
     return await db.query("SELECT * FROM ms_periode_registrasi", {
       raw: true,
       type: QueryTypes.SELECT,
+    });
+  }
+  async get(id: number): Promise<any> {
+    return await db.query("SELECT * FROM ms_periode_registrasi WHERE id = ?", {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: [id]
     });
   }
   async checkData(req: Request): Promise<any> {

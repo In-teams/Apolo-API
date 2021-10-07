@@ -41,6 +41,13 @@ class Outlet {
       replacements: [...poc, ...params],
     });
   }
+  async resetRegistration(): Promise<any> {
+    return await db.query("UPDATE mstr_outlet SET valid = ?, register_at = ? WHERE outlet_id = ?", {
+      raw: true,
+      type: QueryTypes.UPDATE,
+      replacements: ["No", null, "100000-ANA047"],
+    });
+  }
 }
 
 export default new Outlet();

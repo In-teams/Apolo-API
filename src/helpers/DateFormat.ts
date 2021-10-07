@@ -16,6 +16,9 @@ class DateFormat {
   getDate(date: any, formatDate: string){
     return moment.utc(date).format(formatDate)
   }
+  getNextDate(date: any, coundDay: number, formatDate: string){
+    return moment.utc(date).add(coundDay, 'day').format(formatDate)
+  }
 }
 
 export default new DateFormat();
