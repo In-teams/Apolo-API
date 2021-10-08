@@ -193,6 +193,12 @@ class Registration {
       replacements: [outlet_id, periode_id, filename, tgl_upload],
       transaction: t,
     });
+    await db.query("UPDATE mstr_outlet SET formulir = ? WHERE outlet_id = ?", {
+      raw: true,
+      type: QueryTypes.UPDATE,
+      replacements: [insert[0], outlet_id],
+      transaction: t,
+    });
 
     return await db.query(queryHistory, {
       raw: true,

@@ -176,6 +176,7 @@ class Registration {
         kabupaten: joi.string().required(),
         kecamatan: joi.string().required(),
         kelurahan: joi.string().required(),
+        jenis_badan: joi.string(),
       });
 
       const { value, error } = schema.validate({ ...req.body, ...req.params });
