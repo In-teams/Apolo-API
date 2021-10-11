@@ -133,7 +133,11 @@ class Registration {
   ): Promise<object | undefined> {
     try {
       const status: any[] = await Service.getRegistrationStatus(req);
-      const regist: any[] = await Service.getRegistrationSummaryByMonth(req);
+      let regist: any[] = await Service.getRegistrationSummaryByMonth(req);
+      regist = regist.map((e: any) => ({
+        ...e,
+        [status[0].status]: e.totals - e.outlet
+      }))
       return response(res, true, {data: regist, key: status.map((e: any) => e.status)}, null, 200);
     } catch (error) {
       return response(res, false, null, error, 500);

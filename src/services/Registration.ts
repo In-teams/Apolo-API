@@ -273,11 +273,14 @@ class Registration {
       if (i + 1 !== status.length) return (q += ", ");
     });
 
-    let query = `SELECT b.id, b.bulan, ${q} FROM ms_bulan AS b LEFT JOIN trx_file_registrasi AS tr ON b.id = MONTH(tr.tgl_upload) LEFT JOIN ms_status_registrasi AS s ON tr.status_registrasi = s.id WHERE tr.type_file = 0 OR tr.type_file IS NULL GROUP BY b.id`
+    let {query: qoc, params} = FilterParams.count(req, queryOutletCount)
+
+    let query = `SELECT b.id, b.bulan, COUNT(tr.outlet_id) AS outlet, (${qoc}) AS totals, ${q} FROM ms_bulan AS b LEFT JOIN trx_file_registrasi AS tr ON b.id = MONTH(tr.tgl_upload) LEFT JOIN ms_status_registrasi AS s ON tr.status_registrasi = s.id WHERE tr.type_file = 0 OR tr.type_file IS NULL GROUP BY b.id`
 
     return await db.query(query, {
       raw: true,
       type: QueryTypes.SELECT,
+      replacements: [...params]
     });
   }
   async deleteRegistrationFile(id: number): Promise<any> {
