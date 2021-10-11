@@ -5,10 +5,10 @@ import DateFormat from "../helpers/DateFormat";
 import FilterParams from "../helpers/FilterParams";
 
 let getPointQuery =
-  "SELECT SUM(trb.point_satuan) AS perolehan FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id";
+  "SELECT CAST(SUM(trb.point_satuan) AS INTEGER) AS achieve FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id";
 
 let getPointRedeemQuery =
-  "SELECT SUM(trrb.point_satuan * trrb.quantity) AS redeem FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trrb ON tr.kd_transaksi = trrb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id";
+  "SELECT CAST(SUM(trrb.point_satuan * trrb.quantity) AS INTEGER) AS redeem FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trrb ON tr.kd_transaksi = trrb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id";
 
 class Redeem {
   async getPointSummary(req: Request): Promise<any> {
@@ -26,6 +26,24 @@ class Redeem {
       raw: true,
       type: QueryTypes.SELECT,
       replacements: [...pp, ...prp, ...params],
+    });
+  }
+  async getPoint(req: Request): Promise<any> {
+    let { query: pq, params: pp } = FilterParams.aktual(req, getPointQuery);
+
+    return await db.query(pq, {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: pp,
+    });
+  }
+  async getPointRedeem(req: Request): Promise<any> {
+    let { query: pq, params: pp } = FilterParams.aktual(req, getPointRedeemQuery);
+
+    return await db.query(pq, {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: pp,
     });
   }
 }
