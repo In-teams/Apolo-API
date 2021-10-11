@@ -281,6 +281,17 @@ class Registration {
     });
   }
   async getRegistrationSummaryByMonth(req: Request): Promise<any> {
+
+    let {query, params} = FilterParams.count(req, queryOutletCount)
+    let {query: qreg, params: preg} = FilterParams.count(req, "SELECT COUNT(*) AS regist, MONTH(tgl_upload) AS bulan FROM mstr_outlet AS ou INNER JOIN trx_file_registrasi AS fr ON fr.outlet_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.`region_id` = r. `pulau_id_alias` INNER JOIN ms_dist_pic AS pic ON ou.`distributor_id` = pic.`distributor_id` WHERE ou.`outlet_id` IS NOT NULL")
+
+    return await db.query(`SELECT b.*, c.regist, (${query}) AS outlet FROM ms_bulan AS b LEFT JOIN (${qreg} GROUP BY bulan) AS c ON c.bulan = b.id ORDER BY b.id`, {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: [...params, ...preg],
+    });
+  }
+  async getRegistrationReportByMonth(req: Request): Promise<any> {
     const status = await db.query("SELECT * FROM ms_status_registrasi", {
       raw: true,
       type: QueryTypes.SELECT,
