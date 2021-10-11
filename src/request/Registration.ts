@@ -127,8 +127,8 @@ class Registration {
       delete req.validated.file;
       const uploaded = await RegistrationService.getRegistrationForm(req);
       if (uploaded.length > 0) {
-        const { status_registrasi: status } = uploaded[0];
-        if (status === 7 || status === 8) {
+        const { level } = uploaded[0];
+        if (level === "Level 4") {
           return response(
             res,
             false,
@@ -285,8 +285,8 @@ class Registration {
       const isUploaded = await RegistrationService.getRegistrationForm(req);
       if (isUploaded.length < 1)
         return response(res, false, null, "registration is not uploaded", 400);
-      const { status_registrasi: status } = isUploaded[0];
-      if (status === 7 || status === 8)
+      const { level } = isUploaded[0];
+      if (level === "Level 4")
         return response(res, false, null, "registration was validated", 400);
       next();
     } catch (error) {
