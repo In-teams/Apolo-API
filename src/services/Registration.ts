@@ -187,6 +187,15 @@ class Registration {
     let queryHistory =
       "INSERT INTO trx_history_registrasi (outlet_id, file_id, created_at) VALUES(?, ?, ?)";
 
+    await db.query(
+      "INSERT INTO trx_history_file_registrasi (outlet_id, periode_id, filename, tgl_upload) VALUES(?, ?, ?, ?)",
+      {
+        raw: true,
+        type: QueryTypes.INSERT,
+        replacements: [outlet_id, periode_id, filename, tgl_upload],
+        transaction: t,
+      }
+    );
     const insert = await db.query(query, {
       raw: true,
       type: QueryTypes.INSERT,
@@ -242,10 +251,20 @@ class Registration {
       transaction: t,
     });
   }
-  async updateRegistrationForm(req: Request): Promise<any> {
+  async updateRegistrationForm(req: Request, t: any): Promise<any> {
     const { outlet_id, periode_id, filename, tgl_upload } = req.validated;
     let query =
       "UPDATE trx_file_registrasi SET filename = ?, tgl_upload = ?, status_registrasi = ? WHERE outlet_id = ? AND periode_id = ?";
+
+    await db.query(
+      "INSERT INTO trx_history_file_registrasi (outlet_id, periode_id, filename, tgl_upload) VALUES(?, ?, ?, ?)",
+      {
+        raw: true,
+        type: QueryTypes.INSERT,
+        replacements: [outlet_id, periode_id, filename, tgl_upload],
+        transaction: t,
+      }
+    );
 
     return await db.query(query, {
       raw: true,
@@ -273,14 +292,14 @@ class Registration {
       if (i + 1 !== status.length) return (q += ", ");
     });
 
-    let {query: qoc, params} = FilterParams.count(req, queryOutletCount)
+    let { query: qoc, params } = FilterParams.count(req, queryOutletCount);
 
-    let query = `SELECT b.id, b.bulan, COUNT(tr.outlet_id) AS outlet, (${qoc}) AS totals, ${q} FROM ms_bulan AS b LEFT JOIN trx_file_registrasi AS tr ON b.id = MONTH(tr.tgl_upload) LEFT JOIN ms_status_registrasi AS s ON tr.status_registrasi = s.id WHERE tr.type_file = 0 OR tr.type_file IS NULL GROUP BY b.id`
+    let query = `SELECT b.id, b.bulan, COUNT(tr.outlet_id) AS outlet, (${qoc}) AS totals, ${q} FROM ms_bulan AS b LEFT JOIN trx_file_registrasi AS tr ON b.id = MONTH(tr.tgl_upload) LEFT JOIN ms_status_registrasi AS s ON tr.status_registrasi = s.id WHERE tr.type_file = 0 OR tr.type_file IS NULL GROUP BY b.id`;
 
     return await db.query(query, {
       raw: true,
       type: QueryTypes.SELECT,
-      replacements: [...params]
+      replacements: [...params],
     });
   }
   async deleteRegistrationFile(id: number): Promise<any> {
@@ -304,15 +323,24 @@ class Registration {
   }
   async updateOutletData(req: Request, t: any): Promise<any> {
     const {
-      type, outlet_id,
-      nama, no_npwp,
-      no_ektp, ektp,
-      npwp, no_hp,
-      alamat, rtrw,
-      kode_pos, provinsi,
-      kabupaten, kecamatan,
-      kelurahan, bank,
-      periode_id, tgl_upload,
+      type,
+      outlet_id,
+      nama,
+      no_npwp,
+      no_ektp,
+      ektp,
+      npwp,
+      no_hp,
+      alamat,
+      rtrw,
+      kode_pos,
+      provinsi,
+      kabupaten,
+      kecamatan,
+      kelurahan,
+      bank,
+      periode_id,
+      tgl_upload,
     } = req.validated;
     let queryBaseEKTP =
       "UPDATE mstr_outlet SET nama_konsumen = ?, ektp = ?, alamat1 = ?, rtrw = ?, kelurahan = ?, kecamatan = ?, kabupaten = ?, propinsi = ?, kodepos = ?, no_wa = ? WHERE outlet_id = ?";
@@ -326,14 +354,16 @@ class Registration {
             alamat, rtrw,
             kelurahan, kecamatan,
             kabupaten, provinsi,
-            kode_pos, no_hp, outlet_id,
+            kode_pos, no_hp,
+            outlet_id,
           ]
         : [
             nama, no_npwp,
             alamat, rtrw,
             kelurahan, kecamatan,
             kabupaten, provinsi,
-            kode_pos, no_hp, outlet_id,
+            kode_pos, no_hp,
+            outlet_id,
           ];
 
     await db.query(type === "ektp" ? queryBaseEKTP : queryBaseNPWP, {
@@ -345,6 +375,21 @@ class Registration {
 
     const file = npwp ? npwp : ektp;
     const type_file = npwp ? 2 : 1;
+
+    await db.query(
+      "INSERT INTO trx_history_file_registrasi (outlet_id, periode_id, filename, tgl_upload, type_file) VALUES ?",
+      {
+        raw: true,
+        type: QueryTypes.INSERT,
+        replacements: [
+          [
+            [outlet_id, periode_id, file, tgl_upload, type_file],
+            [outlet_id, periode_id, bank, tgl_upload, 3],
+          ],
+        ],
+        transaction: t,
+      }
+    );
 
     return await db.query(
       "INSERT INTO trx_file_registrasi (outlet_id, periode_id, filename, tgl_upload, type_file) VALUES ?",

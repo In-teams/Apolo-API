@@ -9,6 +9,7 @@ import Outlet from "../services/Outlet";
 import PeriodeService from "../services/Periode";
 import RegistrationService from "../services/Registration";
 import appHelper from "../helpers/App";
+import db from "../config/db";
 
 class Registration {
   getHistory(req: Request, res: Response, next: NextFunction): any {
@@ -80,6 +81,7 @@ class Registration {
     next();
   }
   async post(req: Request, res: Response, next: NextFunction): Promise<any> {
+    const t = await db.transaction()
     try {
       const schema = joi.object({
         file: joi.string().base64().required(),
@@ -138,16 +140,18 @@ class Registration {
           );
         } else {
           const { id, filename } = uploaded[0];
-          await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
+          // await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
           await FileSystem.WriteFile(path, value.file, true, ext);
           req.validated.id = id;
-          await RegistrationService.updateRegistrationForm(req);
+          await RegistrationService.updateRegistrationForm(req, t);
+          t.commit()
           return response(res, true, "Form successfully uploaded", null, 200);
         }
       }
       await FileSystem.WriteFile(path, value.file, true, ext);
       next();
     } catch (error) {
+      t.rollback()
       // FileSystem.DeleteFile(req.validated.path)
       return response(res, false, null, error, 400);
     }
