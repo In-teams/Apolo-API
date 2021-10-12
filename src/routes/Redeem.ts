@@ -14,6 +14,7 @@ class Redeem implements IRouter {
   public routes(): void {
     this.router.get("/", RedeemRequest.get, RedeemController.getPointSummary);
     this.router.get("/summary/hr", RedeemRequest.get, RedeemController.getPointSummaryByHR);
+    this.router.get("/summary/region", RedeemRequest.get, RedeemController.getPointSummaryByRegion);
     // this.router.get("/product", RedeemRequest.getProduct,RedeemController.getproduct);
     // this.router.post("/", RedeemRequest.post, RedeemController.post);
     // this.router.post("/checkout", RedeemRequest.checkout, RedeemController.checkout);

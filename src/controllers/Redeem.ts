@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import NumberFormat from "../helpers/NumberFormat";
 import response from "../helpers/Response";
 import Service from "../services/Redeem";
+import Region from "../services/Region";
 import Wilayah from "../services/Wilayah";
 
 class Redeem {
@@ -77,6 +78,49 @@ class Redeem {
             : -1
         );
       return response(res, true, hr, null, 200);
+    } catch (error) {
+      console.log(error);
+      return response(res, false, null, error, 500);
+    }
+  }
+  async getPointSummaryByRegion(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      let { sort } = req.validated;
+      const point: any[] = await Service.getPointByRegion(req);
+      const pointRedeem: any[] = await Service.getPointRedeemByRegion(req);
+      let region: any[] = await Region.get(req);
+      region = region
+        .map((e: any) => {
+          const achieve = parseFloat(
+            point.find((p: any) => p.pulau_id_alias === e.region_id)
+              ?.achieve || 0
+          );
+          const redeem = parseFloat(
+            pointRedeem.find((p: any) => p.pulau_id_alias === e.region_id)
+              ?.redeem || 0
+          );
+          return {
+            ...e,
+            achieve: achieve,
+            redeem: redeem,
+            diff: parseFloat((achieve - redeem).toFixed(2)),
+            percentage: parseFloat(((redeem / achieve) * 100).toFixed(2)),
+            pencapaian: ((redeem / achieve) * 100).toFixed(2) + "%",
+          };
+        })
+        .sort((a, b) =>
+          a.percentage > b.percentage
+            ? sort.toUpperCase() === "DESC"
+              ? -1
+              : 1
+            : sort.toUpperCase() === "DESC"
+            ? 1
+            : -1
+        ).slice(0,5);
+      return response(res, true, region, null, 200);
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
