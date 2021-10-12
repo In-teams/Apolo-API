@@ -82,6 +82,15 @@ class Redeem {
       replacements: pp,
     });
   }
+  async getPointByASM(req: Request): Promise<any> {
+    let { query: pq, params: pp } = FilterParams.aktual(req, "SELECT pic.asm_id, CAST(SUM(trb.point_satuan) AS DECIMAL(20,2)) AS achieve FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id");
+
+    return await db.query(pq + " GROUP BY pic.asm_id", {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: pp,
+    });
+  }
   async getPointRedeem(req: Request): Promise<any> {
     let { query: pq, params: pp } = FilterParams.aktual(req, getPointRedeemQuery);
 
@@ -131,6 +140,15 @@ class Redeem {
     let { query: pq, params: pp } = FilterParams.aktual(req, "SELECT ou.outlet_id, CAST(SUM(trrb.point_satuan * trrb.quantity) AS DECIMAL(20,2)) AS redeem FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trrb ON tr.kd_transaksi = trrb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id");
 
     return await db.query(pq + " GROUP BY ou.outlet_id", {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: pp,
+    });
+  }
+  async getPointRedeemByASM(req: Request): Promise<any> {
+    let { query: pq, params: pp } = FilterParams.aktual(req, "SELECT pic.asm_id, CAST(SUM(trrb.point_satuan * trrb.quantity) AS DECIMAL(20,2)) AS redeem FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trrb ON tr.kd_transaksi = trrb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id");
+
+    return await db.query(pq + " GROUP BY pic.asm_id", {
       raw: true,
       type: QueryTypes.SELECT,
       replacements: pp,

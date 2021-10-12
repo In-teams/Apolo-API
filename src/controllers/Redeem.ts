@@ -6,6 +6,7 @@ import Distributor from "../services/Distributor";
 import Outlet from "../services/Outlet";
 import Service from "../services/Redeem";
 import Region from "../services/Region";
+import User from "../services/User";
 import Wilayah from "../services/Wilayah";
 
 class Redeem {
@@ -253,6 +254,49 @@ class Redeem {
             : -1
         ).slice(0,5);
       return response(res, true, outlet, null, 200);
+    } catch (error) {
+      console.log(error);
+      return response(res, false, null, error, 500);
+    }
+  }
+  async getPointSummaryByASM(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      let { sort } = req.validated;
+      const point: any[] = await Service.getPointByASM(req);
+      const pointRedeem: any[] = await Service.getPointRedeemByASM(req);
+      let asm: any[] = await User.getAsm(req);
+      asm = asm
+        .map((e: any) => {
+          const achieve = parseFloat(
+            point.find((p: any) => p.asm_id === e.asm_id)
+              ?.achieve || 0
+          );
+          const redeem = parseFloat(
+            pointRedeem.find((p: any) => p.asm_id === e.asm_id)
+              ?.redeem || 0
+          );
+          return {
+            ...e,
+            achieve: achieve,
+            redeem: redeem,
+            diff: parseFloat((achieve - redeem).toFixed(2)),
+            percentage: parseFloat(((redeem / achieve) * 100).toFixed(2)),
+            pencapaian: ((redeem / achieve) * 100).toFixed(2) + "%",
+          };
+        })
+        .sort((a, b) =>
+          a.percentage > b.percentage
+            ? sort.toUpperCase() === "DESC"
+              ? -1
+              : 1
+            : sort.toUpperCase() === "DESC"
+            ? 1
+            : -1
+        ).slice(0,5);
+      return response(res, true, asm, null, 200);
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
