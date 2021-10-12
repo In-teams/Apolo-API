@@ -3,12 +3,26 @@ import chaiHttp from "chai-http";
 import app from "../src/app";
 
 const expect = chai.expect;
-const token: string =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJfaWQiOiJzdXBlciIsIm5hbWUiOm51bGwsInVzZXJfcHJvZmlsZSI6IiIsImxldmVsIjoiMSIsImVtYWlsIjpudWxsLCJzY29wZSI6bnVsbCwicGhvdG8iOm51bGwsInJlZ2lkIjpudWxsfSwiaWF0IjoxNjM0MDA4OTM4fQ.HY_z7VgxqDDnMK5tIleCilpNCUHCWfulwqYflAnUxPs";
+let token: string = "";
 
 chai.use(chaiHttp);
 
 // chai.should()
+it("Get Token", (done) => {
+  chai
+    .request(app)
+    .post("/api/v1/auth")
+    .send({
+      username: "super",
+      password: "admin",
+    })
+    .end((err, res) => {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      token = res.body.data.token;
+      done();
+    });
+});
 describe("Redeem Endpoint", () => {
   it("Should Error Get Redeem Summary when pass not allowed Qparams", (done) => {
     chai
@@ -197,5 +211,4 @@ describe("Redeem Endpoint", () => {
         done();
       });
   });
-  
 });
