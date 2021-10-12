@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import NumberFormat from "../helpers/NumberFormat";
 import response from "../helpers/Response";
+import Area from "../services/Area";
+import Distributor from "../services/Distributor";
 import Service from "../services/Redeem";
 import Region from "../services/Region";
 import Wilayah from "../services/Wilayah";
@@ -121,6 +123,92 @@ class Redeem {
             : -1
         ).slice(0,5);
       return response(res, true, region, null, 200);
+    } catch (error) {
+      console.log(error);
+      return response(res, false, null, error, 500);
+    }
+  }
+  async getPointSummaryByArea(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      let { sort } = req.validated;
+      const point: any[] = await Service.getPointByArea(req);
+      const pointRedeem: any[] = await Service.getPointRedeemByArea(req);
+      let area: any[] = await Area.get(req);
+      area = area
+        .map((e: any) => {
+          const achieve = parseFloat(
+            point.find((p: any) => p.city_id_alias === e.area_id)
+              ?.achieve || 0
+          );
+          const redeem = parseFloat(
+            pointRedeem.find((p: any) => p.city_id_alias === e.area_id)
+              ?.redeem || 0
+          );
+          return {
+            ...e,
+            achieve: achieve,
+            redeem: redeem,
+            diff: parseFloat((achieve - redeem).toFixed(2)),
+            percentage: parseFloat(((redeem / achieve) * 100).toFixed(2)),
+            pencapaian: ((redeem / achieve) * 100).toFixed(2) + "%",
+          };
+        })
+        .sort((a, b) =>
+          a.percentage > b.percentage
+            ? sort.toUpperCase() === "DESC"
+              ? -1
+              : 1
+            : sort.toUpperCase() === "DESC"
+            ? 1
+            : -1
+        ).slice(0,5);
+      return response(res, true, area, null, 200);
+    } catch (error) {
+      console.log(error);
+      return response(res, false, null, error, 500);
+    }
+  }
+  async getPointSummaryByDistributor(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      let { sort } = req.validated;
+      const point: any[] = await Service.getPointByDistributor(req);
+      const pointRedeem: any[] = await Service.getPointRedeemByDistributor(req);
+      let distributor: any[] = await Distributor.get(req);
+      distributor = distributor
+        .map((e: any) => {
+          const achieve = parseFloat(
+            point.find((p: any) => p.distributor_id === e.distributor_id)
+              ?.achieve || 0
+          );
+          const redeem = parseFloat(
+            pointRedeem.find((p: any) => p.distributor_id === e.distributor_id)
+              ?.redeem || 0
+          );
+          return {
+            ...e,
+            achieve: achieve,
+            redeem: redeem,
+            diff: parseFloat((achieve - redeem).toFixed(2)),
+            percentage: parseFloat(((redeem / achieve) * 100).toFixed(2)),
+            pencapaian: ((redeem / achieve) * 100).toFixed(2) + "%",
+          };
+        })
+        .sort((a, b) =>
+          a.percentage > b.percentage
+            ? sort.toUpperCase() === "DESC"
+              ? -1
+              : 1
+            : sort.toUpperCase() === "DESC"
+            ? 1
+            : -1
+        ).slice(0,5);
+      return response(res, true, distributor, null, 200);
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
