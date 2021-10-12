@@ -302,6 +302,49 @@ class Redeem {
       return response(res, false, null, error, 500);
     }
   }
+  async getPointSummaryByASS(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      let { sort } = req.validated;
+      const point: any[] = await Service.getPointByASS(req);
+      const pointRedeem: any[] = await Service.getPointRedeemByASS(req);
+      let ass: any[] = await User.getAss(req);
+      ass = ass
+        .map((e: any) => {
+          const achieve = parseFloat(
+            point.find((p: any) => p.ass_id === e.ass_id)
+              ?.achieve || 0
+          );
+          const redeem = parseFloat(
+            pointRedeem.find((p: any) => p.ass_id === e.ass_id)
+              ?.redeem || 0
+          );
+          return {
+            ...e,
+            achieve: achieve,
+            redeem: redeem,
+            diff: parseFloat((achieve - redeem).toFixed(2)),
+            percentage: parseFloat(((redeem / achieve) * 100).toFixed(2)),
+            pencapaian: ((redeem / achieve) * 100).toFixed(2) + "%",
+          };
+        })
+        .sort((a, b) =>
+          a.percentage > b.percentage
+            ? sort.toUpperCase() === "DESC"
+              ? -1
+              : 1
+            : sort.toUpperCase() === "DESC"
+            ? 1
+            : -1
+        ).slice(0,5);
+      return response(res, true, ass, null, 200);
+    } catch (error) {
+      console.log(error);
+      return response(res, false, null, error, 500);
+    }
+  }
 }
 // result redeem tidak sama, karna join ke outlet
 export default new Redeem();
