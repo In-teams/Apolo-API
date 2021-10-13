@@ -165,24 +165,30 @@ class Registration {
         // nama: joi.string().required(),
         ...(req.body.type === "ektp"
           ? {
-              no_ektp: joi.string().min(16).max(16).required(),
+              ektp: joi.string().min(16).max(16).required(),
               ektp_file: joi.string().base64().required(),
             }
           : {
-              no_npwp: joi.string().min(15).max(15).required(),
+              npwp: joi.string().min(15).max(15).required(),
               npwp_file: joi.string().base64().required(),
             }),
         bank_file: joi.string().base64().required(),
-        no_hp: joi.string().min(11).max(13).required(),
-        alamat: joi.string().required(),
+        no_wa: joi.string().min(11).max(13).required(),
+        alamat1: joi.string().required(),
         rtrw: joi.string().required(),
-        kode_pos: joi.string().min(5).max(5).required(),
-        provinsi: joi.string().required(),
+        kodepos: joi.string().min(5).max(5).required(),
+        propinsi: joi.string().required(),
         kabupaten: joi.string().required(),
         kecamatan: joi.string().required(),
         kelurahan: joi.string().required(),
         // jenis_badan: joi.string(),
       });
+
+      req.body = {
+        ...req.body,
+        bank_file: req.body.bank_file.replace("data:", "").replace(/^.+,/, ""),
+        [req.body.type + "_file"]: req.body[req.body.type + "_file"].replace("data:", "").replace(/^.+,/, ""),
+      };
 
       
       const { value, error } = schema.validate({ ...req.body, ...req.params });
@@ -258,7 +264,7 @@ class Registration {
 
       req.validated = {
         ...value,
-        [value.type]: file,
+        [value.type + "_file"]: file,
         bank,
         tgl_upload: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),
       };

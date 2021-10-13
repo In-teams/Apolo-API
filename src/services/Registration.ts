@@ -324,7 +324,7 @@ class Registration {
   }
   async getOutletData(req: Request): Promise<any> {
     const { outlet_id } = req.validated;
-    let query = "SELECT * FROM mstr_outlet WHERE outlet_id = ?";
+    let query = "SELECT outlet_id, outlet_name, jenis_badan, ektp, npwp, kodepos, rtrw, kelurahan, kecamatan, kabupaten, propinsi, no_wa, alamat1 FROM mstr_outlet WHERE outlet_id = ?";
 
     return await db.query(query, {
       raw: true,
@@ -337,15 +337,15 @@ class Registration {
       type,
       outlet_id,
       nama,
-      no_npwp,
-      no_ektp,
-      ektp,
       npwp,
-      no_hp,
-      alamat,
+      ektp,
+      ektp_file,
+      npwp_file,
+      no_wa,
+      alamat1,
       rtrw,
-      kode_pos,
-      provinsi,
+      kodepos,
+      propinsi,
       kabupaten,
       kecamatan,
       kelurahan,
@@ -362,19 +362,19 @@ class Registration {
     let params: any[] =
       type === "ektp"
         ? [
-            nama, no_ektp,
-            alamat, rtrw,
+            nama, ektp,
+            alamat1, rtrw,
             kelurahan, kecamatan,
-            kabupaten, provinsi,
-            kode_pos, no_hp,
+            kabupaten, propinsi,
+            kodepos, no_wa,
             jenis_badan, outlet_id,
           ]
         : [
-            nama, no_npwp,
-            alamat, rtrw,
+            nama, npwp,
+            alamat1, rtrw,
             kelurahan, kecamatan,
-            kabupaten, provinsi,
-            kode_pos, no_hp,
+            kabupaten, propinsi,
+            kodepos, no_wa,
             jenis_badan, outlet_id,
           ];
 
@@ -385,8 +385,8 @@ class Registration {
       transaction: t,
     });
 
-    const file = npwp ? npwp : ektp;
-    const type_file = npwp ? 2 : 1;
+    const file = npwp_file ? npwp_file : ektp_file;
+    const type_file = npwp_file ? 2 : 1;
 
     await db.query(
       "INSERT INTO trx_history_file_registrasi (outlet_id, periode_id, filename, tgl_upload, type_file) VALUES ?",
