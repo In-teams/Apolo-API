@@ -352,11 +352,12 @@ class Registration {
       bank,
       periode_id,
       tgl_upload,
+      jenis_badan
     } = req.validated;
     let queryBaseEKTP =
-      "UPDATE mstr_outlet SET nama_konsumen = ?, ektp = ?, alamat1 = ?, rtrw = ?, kelurahan = ?, kecamatan = ?, kabupaten = ?, propinsi = ?, kodepos = ?, no_wa = ? WHERE outlet_id = ?";
+      "UPDATE mstr_outlet SET nama_konsumen = ?, ektp = ?, alamat1 = ?, rtrw = ?, kelurahan = ?, kecamatan = ?, kabupaten = ?, propinsi = ?, kodepos = ?, no_wa = ?, jenis_badan = ? WHERE outlet_id = ?";
     let queryBaseNPWP =
-      "UPDATE mstr_outlet SET nama_konsumen = ?, npwp = ?, alamat1 = ?, rtrw = ?, kelurahan = ?, kecamatan = ?, kabupaten = ?, propinsi = ?, kodepos = ?, no_wa = ? WHERE outlet_id = ?";
+      "UPDATE mstr_outlet SET nama_konsumen = ?, npwp = ?, alamat1 = ?, rtrw = ?, kelurahan = ?, kecamatan = ?, kabupaten = ?, propinsi = ?, kodepos = ?, no_wa = ?, jenis_badan = ? WHERE outlet_id = ?";
 
     let params: any[] =
       type === "ektp"
@@ -366,7 +367,7 @@ class Registration {
             kelurahan, kecamatan,
             kabupaten, provinsi,
             kode_pos, no_hp,
-            outlet_id,
+            jenis_badan, outlet_id,
           ]
         : [
             nama, no_npwp,
@@ -374,7 +375,7 @@ class Registration {
             kelurahan, kecamatan,
             kabupaten, provinsi,
             kode_pos, no_hp,
-            outlet_id,
+            jenis_badan, outlet_id,
           ];
 
     await db.query(type === "ektp" ? queryBaseEKTP : queryBaseNPWP, {

@@ -160,8 +160,9 @@ class Registration {
     try {
       const schema = joi.object({
         outlet_id: joi.string().required(),
+        jenis_badan: joi.string().valid("personal", "PT/CV/FIRMA").required(),
         type: joi.string().valid("ektp", "npwp").required(),
-        nama: joi.string().required(),
+        // nama: joi.string().required(),
         ...(req.body.type === "ektp"
           ? {
               no_ektp: joi.string().min(16).max(16).required(),
@@ -180,13 +181,16 @@ class Registration {
         kabupaten: joi.string().required(),
         kecamatan: joi.string().required(),
         kelurahan: joi.string().required(),
-        jenis_badan: joi.string(),
+        // jenis_badan: joi.string(),
       });
 
+      
       const { value, error } = schema.validate({ ...req.body, ...req.params });
       if (error) {
         return response(res, false, null, error.message, 400);
       }
+      if(value.type_badan === "PT/CV/FIRMA" && value.type === "ektp")
+      return response(res, false, null, "Type PT/CV/FIRMA hanya bisa upload NPWP", 400);
 
       req.validated = value;
       const outletCheck = await Outlet.getOutlet(req);
