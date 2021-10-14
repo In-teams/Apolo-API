@@ -81,7 +81,7 @@ class Registration {
     next();
   }
   async post(req: Request, res: Response, next: NextFunction): Promise<any> {
-    const t = await db.transaction()
+    const t = await db.transaction();
     try {
       const schema = joi.object({
         file: joi.string().base64().required(),
@@ -144,14 +144,14 @@ class Registration {
           await FileSystem.WriteFile(path, value.file, true, ext);
           req.validated.id = id;
           await RegistrationService.updateRegistrationForm(req, t);
-          t.commit()
+          t.commit();
           return response(res, true, "Form successfully uploaded", null, 200);
         }
       }
       await FileSystem.WriteFile(path, value.file, true, ext);
       next();
     } catch (error) {
-      t.rollback()
+      t.rollback();
       // FileSystem.DeleteFile(req.validated.path)
       return response(res, false, null, error, 400);
     }
@@ -166,13 +166,13 @@ class Registration {
         ...(req.body.type === "ektp"
           ? {
               ektp: joi.string().min(16).max(16).required(),
-              ektp_file: joi.string().base64().required(),
+              ektp_file: joi.string().base64(),
             }
           : {
               npwp: joi.string().min(15).max(15).required(),
-              npwp_file: joi.string().base64().required(),
+              npwp_file: joi.string().base64(),
             }),
-        bank_file: joi.string().base64().required(),
+        bank_file: joi.string().base64(),
         no_wa: joi.string().min(11).max(13).required(),
         alamat1: joi.string().required(),
         rtrw: joi.string().required(),
@@ -186,17 +186,32 @@ class Registration {
 
       req.body = {
         ...req.body,
-        bank_file: req.body.bank_file.replace("data:", "").replace(/^.+,/, ""),
-        [req.body.type + "_file"]: req.body[req.body.type + "_file"].replace("data:", "").replace(/^.+,/, ""),
+        ...(req.body.bank_file && {
+          bank_file: req.body.bank_file
+            .replace("data:", "")
+            .replace(/^.+,/, ""),
+        }),
+        ...(req.body[req.body.type + "_file"] && {
+          [req.body.type + "_file"]: req.body[req.body.type + "_file"]
+            .replace("data:", "")
+            .replace(/^.+,/, ""),
+        }),
       };
 
-      
       const { value, error } = schema.validate({ ...req.body, ...req.params });
       if (error) {
         return response(res, false, null, error.message, 400);
       }
-      if(value.type_badan === "PT/CV/FIRMA" && value.type === "ektp")
-      return response(res, false, null, "Type PT/CV/FIRMA hanya bisa upload NPWP", 400);
+
+      const { type } = req.body;
+      if (value.jenis_badan === "PT/CV/FIRMA" && type === "ektp")
+        return response(
+          res,
+          false,
+          null,
+          "Type PT/CV/FIRMA hanya bisa upload NPWP",
+          400
+        );
 
       req.validated = value;
       const outletCheck = await Outlet.getOutlet(req);
@@ -205,18 +220,9 @@ class Registration {
       const check = await PeriodeService.checkData(req);
       if (check.length < 1)
         return response(res, false, null, "bukan periode upload", 400);
-      const extFile = GetFileExtention(value[`${req.body.type}_file`]);
-      const extBank = GetFileExtention(value.bank_file);
-      if (!extFile || !extBank)
-        return response(
-          res,
-          false,
-          null,
-          "only pdf and image extention will be allowed",
-          400
-        );
       let { periode, id: periode_id } = check[0];
       req.validated.periode_id = periode_id;
+      periode = `p-${periode_id}`;
       const uploaded = await RegistrationService.getRegistrationForm(req);
       if (uploaded.length < 1)
         return response(
@@ -226,48 +232,99 @@ class Registration {
           "please upload registration form!",
           400
         );
-      periode = `p-${periode_id}`;
-      const IdType = req.body.type === "npwp" ? "n" : "e";
-      const file = `${IdType}-${periode}-${Date.now()}-${
-        value.outlet_id
-      }${extFile}`;
-      const bank = `b-${periode}-${Date.now()}-${value.outlet_id}${extBank}`;
-      const bankFile = await RegistrationService.getRegistrationForm(req, 3);
-      if (bankFile.length > 0) {
-        const { filename, id } = bankFile[0];
-        await RegistrationService.deleteRegistrationFile(id);
-        await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
-      }
+      // req.validated.outlet = req.validated;
+      req.validated.file = {
+        type: req.body.type,
+      };
+      delete req.validated.type;
       const FileId = await RegistrationService.getRegistrationForm(
         req,
-        value.type === "npwp" ? 2 : 1
+        type === "npwp" ? 2 : 1
       );
-      if (FileId.length > 0) {
-        const { filename, id } = FileId[0];
-        await RegistrationService.deleteRegistrationFile(id);
-        await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
-      }
-      await FileSystem.WriteFile(
-        config.pathRegistration + "/" + bank,
-        value.bank_file,
-        true,
-        extBank
-      );
-      await FileSystem.WriteFile(
-        config.pathRegistration + "/" + file,
-        value[`${req.body.type}_file`],
-        true,
-        extFile
-      );
-      delete value.bank_file;
-      delete value[`${req.body.type}_file`];
+      const bankFile = await RegistrationService.getRegistrationForm(req, 3);
 
-      req.validated = {
-        ...value,
-        [value.type + "_file"]: file,
-        bank,
-        tgl_upload: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),
-      };
+      if (FileId.length < 1 && !value[`${type}_file`])
+        return response(
+          res,
+          false,
+          null,
+          `${type + '_file'} is required`,
+          400
+        );
+      if (bankFile.length < 1 && !value.bank_file)
+        return response(res, false, null, "bank_file is required", 400);
+
+      if (value[`${type}_file`]) {
+        const extFile = GetFileExtention(value[`${type}_file`]);
+        if (!extFile)
+          return response(
+            res,
+            false,
+            null,
+            "only pdf and image extention will be allowed",
+            400
+          );
+
+        const IdType = type === "npwp" ? "n" : "e";
+        const file = `${IdType}-${periode}-${Date.now()}-${
+          value.outlet_id
+        }${extFile}`;
+
+        if (FileId.length > 0 && value[type + "_file"]) {
+          const { filename, id } = FileId[0];
+          await RegistrationService.deleteRegistrationFile(id);
+          await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
+        }
+
+        await FileSystem.WriteFile(
+          config.pathRegistration + "/" + file,
+          value[`${req.body.type}_file`],
+          true,
+          extFile
+        );
+        delete req.validated[`${req.body.type}_file`];
+
+        // delete req.validated.outlet.periode_id;
+        // delete req.validated.outlet.type;
+
+        req.validated.file = {
+          type,
+          [type + "_file"]: file,
+        };
+      }
+
+      if (value.bank_file) {
+        const extBank = GetFileExtention(value.bank_file);
+        if (!extBank)
+          return response(
+            res,
+            false,
+            null,
+            "only pdf and image extention will be allowed",
+            400
+          );
+
+        const bank = `b-${periode}-${Date.now()}-${value.outlet_id}${extBank}`;
+
+        if (bankFile.length > 0 && value.bank_file) {
+          const { filename, id } = bankFile[0];
+          await RegistrationService.deleteRegistrationFile(id);
+          await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
+        }
+        await FileSystem.WriteFile(
+          config.pathRegistration + "/" + bank,
+          value.bank_file,
+          true,
+          extBank
+        );
+        delete req.validated.bank_file;
+        req.validated.file = {
+          ...req.validated.file,
+          type,
+          bank,
+          tgl_upload: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),
+        };
+      }
       next();
     } catch (error) {
       console.log(error);

@@ -281,15 +281,20 @@ class Registration {
     });
   }
   async getRegistrationSummaryByMonth(req: Request): Promise<any> {
+    let { query, params } = FilterParams.count(req, queryOutletCount);
+    let { query: qreg, params: preg } = FilterParams.count(
+      req,
+      "SELECT COUNT(*) AS regist, MONTH(tgl_upload) AS bulan FROM mstr_outlet AS ou INNER JOIN trx_file_registrasi AS fr ON fr.outlet_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.`region_id` = r. `pulau_id_alias` INNER JOIN ms_dist_pic AS pic ON ou.`distributor_id` = pic.`distributor_id` WHERE ou.`outlet_id` IS NOT NULL"
+    );
 
-    let {query, params} = FilterParams.count(req, queryOutletCount)
-    let {query: qreg, params: preg} = FilterParams.count(req, "SELECT COUNT(*) AS regist, MONTH(tgl_upload) AS bulan FROM mstr_outlet AS ou INNER JOIN trx_file_registrasi AS fr ON fr.outlet_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.`region_id` = r. `pulau_id_alias` INNER JOIN ms_dist_pic AS pic ON ou.`distributor_id` = pic.`distributor_id` WHERE ou.`outlet_id` IS NOT NULL")
-
-    return await db.query(`SELECT b.*, c.regist, (${query}) AS outlet FROM ms_bulan AS b LEFT JOIN (${qreg} GROUP BY bulan) AS c ON c.bulan = b.id ORDER BY b.id`, {
-      raw: true,
-      type: QueryTypes.SELECT,
-      replacements: [...params, ...preg],
-    });
+    return await db.query(
+      `SELECT b.*, c.regist, (${query}) AS outlet FROM ms_bulan AS b LEFT JOIN (${qreg} GROUP BY bulan) AS c ON c.bulan = b.id ORDER BY b.id`,
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+        replacements: [...params, ...preg],
+      }
+    );
   }
   async getRegistrationReportByMonth(req: Request): Promise<any> {
     const status = await db.query("SELECT * FROM ms_status_registrasi", {
@@ -324,7 +329,8 @@ class Registration {
   }
   async getOutletData(req: Request): Promise<any> {
     const { outlet_id } = req.validated;
-    let query = "SELECT outlet_id, outlet_name, jenis_badan, ektp, npwp, kodepos, rtrw, kelurahan, kecamatan, kabupaten, propinsi, no_wa, alamat1 FROM mstr_outlet WHERE outlet_id = ?";
+    let query =
+      "SELECT outlet_id, outlet_name, jenis_badan, ektp, npwp, kodepos, rtrw, kelurahan, kecamatan, kabupaten, propinsi, no_wa, alamat1 FROM mstr_outlet WHERE outlet_id = ?";
 
     return await db.query(query, {
       raw: true,
@@ -333,90 +339,83 @@ class Registration {
     });
   }
   async updateOutletData(req: Request, t: any): Promise<any> {
-    const {
-      type,
-      outlet_id,
-      nama,
-      npwp,
-      ektp,
-      ektp_file,
-      npwp_file,
-      no_wa,
-      alamat1,
-      rtrw,
-      kodepos,
-      propinsi,
-      kabupaten,
-      kecamatan,
-      kelurahan,
-      bank,
-      periode_id,
-      tgl_upload,
-      jenis_badan
-    } = req.validated;
-    let queryBaseEKTP =
-      "UPDATE mstr_outlet SET nama_konsumen = ?, ektp = ?, alamat1 = ?, rtrw = ?, kelurahan = ?, kecamatan = ?, kabupaten = ?, propinsi = ?, kodepos = ?, no_wa = ?, jenis_badan = ? WHERE outlet_id = ?";
-    let queryBaseNPWP =
-      "UPDATE mstr_outlet SET nama_konsumen = ?, npwp = ?, alamat1 = ?, rtrw = ?, kelurahan = ?, kecamatan = ?, kabupaten = ?, propinsi = ?, kodepos = ?, no_wa = ?, jenis_badan = ? WHERE outlet_id = ?";
-
-    let params: any[] =
-      type === "ektp"
-        ? [
-            nama, ektp,
-            alamat1, rtrw,
-            kelurahan, kecamatan,
-            kabupaten, propinsi,
-            kodepos, no_wa,
-            jenis_badan, outlet_id,
-          ]
-        : [
-            nama, npwp,
-            alamat1, rtrw,
-            kelurahan, kecamatan,
-            kabupaten, propinsi,
-            kodepos, no_wa,
-            jenis_badan, outlet_id,
-          ];
-
-    await db.query(type === "ektp" ? queryBaseEKTP : queryBaseNPWP, {
-      raw: true,
-      type: QueryTypes.UPDATE,
-      replacements: params,
-      transaction: t,
-    });
-
-    const file = npwp_file ? npwp_file : ektp_file;
-    const type_file = npwp_file ? 2 : 1;
+    let { outlet_id, file, periode_id } = req.validated;
+    delete req.validated.periode_id;
+    delete req.validated.file;
+    const deleted = file.type === "npwp" ? "ektp" : "npwp";
+    req.validated = {...req.validated, [deleted]: null}
+    const OutletColumns: any[] = Object.keys(req.validated);
+    const OutletValues: any[] = Object.values(req.validated);
 
     await db.query(
-      "INSERT INTO trx_history_file_registrasi (outlet_id, periode_id, filename, tgl_upload, type_file) VALUES ?",
+      `UPDATE mstr_outlet SET ${OutletColumns.join(
+        " = ?, "
+      )} = ? WHERE outlet_id = ?`,
       {
-        raw: true,
-        type: QueryTypes.INSERT,
-        replacements: [
-          [
-            [outlet_id, periode_id, file, tgl_upload, type_file],
-            [outlet_id, periode_id, bank, tgl_upload, 3],
-          ],
-        ],
+        type: QueryTypes.UPDATE,
+        replacements: [...OutletValues, outlet_id],
         transaction: t,
       }
     );
 
-    return await db.query(
-      "INSERT INTO trx_file_registrasi (outlet_id, periode_id, filename, tgl_upload, type_file) VALUES ?",
-      {
-        raw: true,
-        type: QueryTypes.INSERT,
-        replacements: [
-          [
-            [outlet_id, periode_id, file, tgl_upload, type_file],
-            [outlet_id, periode_id, bank, tgl_upload, 3],
-          ],
-        ],
-        transaction: t,
+    if (file) {
+      file = { ...file, periode_id };
+      console.log(file)
+      if (file[file.type + "_file"]) {
+        // const fileType = file.type === "npwp" ? file.npwp_file : file.ektp_file;
+        // console.log(fileType)
+        const type_file = file.type === "npwp" ? 2 : 1;
+
+        await db.query(
+          `INSERT INTO trx_history_file_registrasi (outlet_id, periode_id, filename, tgl_upload, type_file) VALUES ?`,
+          {
+            raw: true,
+            type: QueryTypes.INSERT,
+            replacements: [
+              [[outlet_id, periode_id, file[file.type + "_file"], file.tgl_upload, type_file]],
+            ],
+            transaction: t,
+          }
+        );
+        await db.query(
+          `INSERT INTO trx_file_registrasi (outlet_id, periode_id, filename, tgl_upload, type_file) VALUES ?`,
+          {
+            raw: true,
+            type: QueryTypes.INSERT,
+            replacements: [
+              [[outlet_id, periode_id, file[file.type + "_file"], file.tgl_upload, type_file]],
+            ],
+            transaction: t,
+          }
+        );
       }
-    );
+      if (file.bank) {
+        await db.query(
+          `INSERT INTO trx_history_file_registrasi (outlet_id, periode_id, filename, tgl_upload, type_file) VALUES ?`,
+          {
+            raw: true,
+            type: QueryTypes.INSERT,
+            replacements: [
+              [[outlet_id, periode_id, file.bank, file.tgl_upload, 3]],
+            ],
+            transaction: t,
+          }
+        );
+        await db.query(
+          `INSERT INTO trx_file_registrasi (outlet_id, periode_id, filename, tgl_upload, type_file) VALUES ?`,
+          {
+            raw: true,
+            type: QueryTypes.INSERT,
+            replacements: [
+              [[outlet_id, periode_id, file.bank, file.tgl_upload, 3]],
+            ],
+            transaction: t,
+          }
+        );
+      }
+    }
+
+    return true
   }
 }
 
