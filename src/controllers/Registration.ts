@@ -41,13 +41,28 @@ class Registration {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let data = await Service.getOutletData(req);
+      let data = await Service.getOutletData(req.validated.outlet_id);
       let bank_file = await Service.getRegistrationFile(req, 3);
       let npwp_file = await Service.getRegistrationFile(req, 2);
       let ektp_file = await Service.getRegistrationFile(req, 1);
       data[0].bank_file = bank_file[0]?.filename || null;
       data[0].npwp_file = npwp_file[0]?.filename || null;
       data[0].ektp_file = ektp_file[0]?.filename || null;
+      data[0].fill_alamat = 0
+      data[0].fill_data_bank = 0
+      let program: any[] = await Service.getOutletProgram(
+        req.validated.outlet_id
+        );
+        if (program.filter((e: any) => e.jenis_hadiah === "MULTI")) {
+          data[0].fill_alamat = 1
+          data[0].fill_data_bank = 1
+        }
+        else if (program.filter((e: any) => e.jenis_hadiah === "DIGITAL")) {
+          data[0].fill_data_bank = 1
+        }
+        else if (program.filter((e: any) => e.jenis_hadiah === "FISIK")) {
+          data[0].fill_alamat = 1
+      }
 
       data = GetFile(
         req,
@@ -132,12 +147,12 @@ class Registration {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let data = await Service.getRegistrationSummaryByMonth(req)
+      let data = await Service.getRegistrationSummaryByMonth(req);
       data = data.map((e: any) => ({
         ...e,
-        notregist: e.outlet - e.regist
-      }))
-      return response(res, true, data, null, 200)
+        notregist: e.outlet - e.regist,
+      }));
+      return response(res, true, data, null, 200);
     } catch (error) {
       return response(res, false, null, error, 500);
     }
@@ -151,9 +166,15 @@ class Registration {
       let regist: any[] = await Service.getRegistrationReportByMonth(req);
       regist = regist.map((e: any) => ({
         ...e,
-        [status[0].status]: e.totals - e.outlet
-      }))
-      return response(res, true, {data: regist, key: status.map((e: any) => e.status)}, null, 200);
+        [status[0].status]: e.totals - e.outlet,
+      }));
+      return response(
+        res,
+        true,
+        { data: regist, key: status.map((e: any) => e.status) },
+        null,
+        200
+      );
     } catch (error) {
       return response(res, false, null, error, 500);
     }

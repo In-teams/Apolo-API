@@ -327,10 +327,21 @@ class Registration {
       replacements: [id],
     });
   }
-  async getOutletData(req: Request): Promise<any> {
-    const { outlet_id } = req.validated;
+  async getOutletData(outlet_id: string): Promise<any> {
+    // const { outlet_id } = req.validated;
     let query =
       "SELECT outlet_id, outlet_name, jenis_badan, ektp, npwp, kodepos, rtrw, kelurahan, kecamatan, kabupaten, propinsi, no_wa, alamat1, nama_rekening, nomor_rekening, nama_bank, cabang_bank, kota_bank FROM mstr_outlet WHERE outlet_id = ?";
+
+    return await db.query(query, {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: [outlet_id],
+    });
+  }
+  async getOutletProgram(outlet_id: string): Promise<any> {
+    // const { outlet_id } = req.validated;
+    let query =
+      "SELECT po.*, mp.nama_program, mp.jenis_hadiah FROM trx_program_outlet AS po INNER JOIN ms_program AS mp ON mp.kode_program = po.kode_program WHERE outlet_id = ?";
 
     return await db.query(query, {
       raw: true,
@@ -343,7 +354,7 @@ class Registration {
     delete req.validated.periode_id;
     delete req.validated.file;
     const deleted = file.type === "npwp" ? "ektp" : "npwp";
-    req.validated = {...req.validated, [deleted]: null}
+    req.validated = { ...req.validated, [deleted]: null };
     const OutletColumns: any[] = Object.keys(req.validated);
     const OutletValues: any[] = Object.values(req.validated);
 
@@ -360,7 +371,7 @@ class Registration {
 
     if (file) {
       file = { ...file, periode_id };
-      console.log(file)
+      console.log(file);
       if (file[file.type + "_file"]) {
         // const fileType = file.type === "npwp" ? file.npwp_file : file.ektp_file;
         // console.log(fileType)
@@ -372,7 +383,15 @@ class Registration {
             raw: true,
             type: QueryTypes.INSERT,
             replacements: [
-              [[outlet_id, periode_id, file[file.type + "_file"], file.tgl_upload, type_file]],
+              [
+                [
+                  outlet_id,
+                  periode_id,
+                  file[file.type + "_file"],
+                  file.tgl_upload,
+                  type_file,
+                ],
+              ],
             ],
             transaction: t,
           }
@@ -383,7 +402,15 @@ class Registration {
             raw: true,
             type: QueryTypes.INSERT,
             replacements: [
-              [[outlet_id, periode_id, file[file.type + "_file"], file.tgl_upload, type_file]],
+              [
+                [
+                  outlet_id,
+                  periode_id,
+                  file[file.type + "_file"],
+                  file.tgl_upload,
+                  type_file,
+                ],
+              ],
             ],
             transaction: t,
           }
@@ -415,7 +442,7 @@ class Registration {
       }
     }
 
-    return true
+    return true;
   }
 }
 
