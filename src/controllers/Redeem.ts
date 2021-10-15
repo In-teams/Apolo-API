@@ -107,9 +107,25 @@ class Redeem {
     res: Response
   ): Promise<object | undefined> {
     try {
-      const point: any[] = await Service.getPointByDistributor(req);
-      const pointRedeem: any[] = await Service.getPointRedeemByDistributor(req);
+      let point: any[] = await Service.getPointByDistributor(req);
+      let pointRedeem: any[] = await Service.getPointRedeemByDistributor(req);
       let distributor: any[] = await Distributor.get(req);
+
+      // const arrayToObject1 = (arr: any[], key: string, key2: string) => {
+      //   return arr.reduce((obj: any, item: any) => {
+      //       obj[item[key]] = item[key2]
+      //       return obj
+      //   }, {})
+      // }
+      
+      // point = arrayToObject1(point, 'distributor_id', 'achieve')
+      // pointRedeem = arrayToObject1(pointRedeem, 'distributor_id', 'redeem')
+
+      // distributor = distributor.map((e: any) => ({
+      //   ...e,
+      //   achieve: point[e.distributor_id],
+      //   redeem: pointRedeem[e.distributor_id]
+      // }))
       distributor = RedeemHelper(
         distributor,
         point,
