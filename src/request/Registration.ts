@@ -242,15 +242,18 @@ class Registration {
         type === "npwp" ? 2 : 1
       );
       const bankFile = await RegistrationService.getRegistrationForm(req, 3);
+      const deletedFileType = type === "npwp" ? 1 : 2;
+
+      const deletedFile = await RegistrationService.getRegistrationForm(
+        req,
+        deletedFileType
+      );
+      if (deletedFile.length) {
+        await RegistrationService.deleteRegistrationFile(deletedFile[0].id);
+      }
 
       if (FileId.length < 1 && !value[`${type}_file`])
-        return response(
-          res,
-          false,
-          null,
-          `${type + '_file'} is required`,
-          400
-        );
+        return response(res, false, null, `${type + "_file"} is required`, 400);
       if (bankFile.length < 1 && !value.bank_file)
         return response(res, false, null, "bank_file is required", 400);
 
@@ -322,10 +325,13 @@ class Registration {
           ...req.validated.file,
           type,
           bank,
-          tgl_upload: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),
         };
       }
-      next();
+
+      (req.validated.file.tgl_upload = DateFormat.getToday(
+        "YYYY-MM-DD HH:mm:ss"
+      )),
+        next();
     } catch (error) {
       console.log(error);
       // FileSystem.DeleteFile(req.validated.path)
