@@ -29,16 +29,6 @@ class Redeem {
         percen: parseFloat(((result.redeem / result.achieve) * 100).toFixed(2)),
       };
       return response(res, true, result, null, 200);
-      //   let point = await Service.getPointSummary(req);
-      //   point = point.map((e: any) => ({
-      //       ...e,
-      //       achieve: +e.achieve,
-      //       redeem: +e.redeem,
-      //       percentage: ((+e.redeem / e.achieve) * 100).toFixed(2) + '%',
-      //       percen: parseFloat(((+e.redeem / e.achieve) * 100).toFixed(2)),
-      //   }))
-      //   point = NumberFormat(point, false, 'achieve', 'redeem');
-      //   return response(res, true, point[0], null, 200);
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);

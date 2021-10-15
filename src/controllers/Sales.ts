@@ -4,6 +4,9 @@ import response from "../helpers/Response";
 import SalesHelper from "../helpers/SalesHelper";
 import Service from "../services/Sales";
 import _ from "lodash";
+import Registration from "../services/Registration";
+import Outlet from "../services/Outlet";
+import Redeem from "../services/Redeem";
 
 const getCluster = (aktual: number, target: number): string => {
   const data = +((aktual / target) * 100).toFixed(2);
@@ -203,15 +206,42 @@ class Sales {
   async get(req: Request, res: Response): Promise<object | undefined> {
     try {
       let data: any = await Service.getSummary(req);
+      let dataOutletActive: any = await Outlet.getOutletActive(req);
+      let dataRegist: any = await Registration.getRegistrationSummary(req);
+      const { total, total_outlet } = dataRegist[0];
+      const result: object = {
+        ...dataOutletActive[0],
+        regist: dataRegist[0].total,
+        percentage_regist: ((total / total_outlet) * 100).toFixed(2) + "%",
+        percen_regist: ((total / total_outlet) * 100).toFixed(2),
+        notregist: total_outlet - total,
+        aoro: ((dataOutletActive[0].aktif/dataRegist[0].total) * 100).toFixed(2)
+      };
+      let point = await Redeem.getPoint(req);
+      let pointRedeem = await Redeem.getPointRedeem(req);
+      let resultPoin = NumberFormat(
+        { ...point[0], ...pointRedeem[0] },
+        false,
+        "achieve",
+        "redeem"
+      );
+      resultPoin = {
+        ...resultPoin,
+        percentage_poin: ((resultPoin.redeem / resultPoin.achieve) * 100).toFixed(2) + "%",
+        percen_poin: ((resultPoin.redeem / resultPoin.achieve) * 100).toFixed(2),
+        diff_poin: resultPoin.achieve - resultPoin.redeem,
+      };
       data = data.map((val: any) => ({
         ...val,
+        ...result,
+        ...resultPoin,
         aktual: +val.aktual,
         avg: val.aktual / val.total_outlet,
         diff: val.aktual - val.target,
         percentage: ((val.aktual / val.target) * 100).toFixed(2) + " %",
       }));
       data = NumberFormat(data, true, "aktual", "target", "avg", "diff");
-      // data = await SalesHelper(req, data, 'kuartal', true)
+      data = NumberFormat(data, false, "achieve", "redeem", "diff_poin");
       return response(res, true, data[0], null, 200);
     } catch (error) {
       console.log(error);
