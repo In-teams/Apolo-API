@@ -330,7 +330,7 @@ class Registration {
   async getOutletData(req: Request): Promise<any> {
     const { outlet_id } = req.validated;
     let query =
-      "SELECT outlet_id, outlet_name, jenis_badan, ektp, npwp, kodepos, rtrw, kelurahan, kecamatan, kabupaten, propinsi, no_wa, alamat1 FROM mstr_outlet WHERE outlet_id = ?";
+      "SELECT outlet_id, outlet_name, jenis_badan, ektp, npwp, kodepos, rtrw, kelurahan, kecamatan, kabupaten, propinsi, no_wa, alamat1, nama_rekening, nomor_rekening, nama_bank, cabang_bank, kota_bank FROM mstr_outlet WHERE outlet_id = ?";
 
     return await db.query(query, {
       raw: true,

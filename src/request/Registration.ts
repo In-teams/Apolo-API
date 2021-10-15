@@ -181,6 +181,11 @@ class Registration {
         kabupaten: joi.string().required(),
         kecamatan: joi.string().required(),
         kelurahan: joi.string().required(),
+        nama_rekening: joi.string().required(),
+        nomor_rekening: joi.string().required(),
+        nama_bank: joi.string().required(),
+        cabang_bank: joi.string().required(),
+        kota_bank: joi.string().required(),
         // jenis_badan: joi.string(),
       });
 
