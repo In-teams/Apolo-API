@@ -16,6 +16,15 @@ class Outlet {
       replacements: [outlet_id],
     });
   }
+  async getOutletCount(req: Request): Promise<any> {
+
+    const {query, params} = FilterParams.query(req, queryOutletCount)
+    return await db.query(query, {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: [...params],
+    });
+  }
   async get(req: Request): Promise<any> {
     let q =
       "select distinct o.outlet_id, o.outlet_name from mstr_outlet as o INNER JOIN ms_pulau_alias as reg on o.region_id = reg.pulau_id_alias INNER JOIN ms_user_scope as us on o.outlet_id = us.scope INNER JOIN ms_dist_pic as dp on o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL";

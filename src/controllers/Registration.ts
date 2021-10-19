@@ -5,6 +5,7 @@ import FileSystem from "../helpers/FileSystem";
 import GetFile from "../helpers/GetFile";
 import RegistrationHelper from "../helpers/RegistrationHelper";
 import response from "../helpers/Response";
+import Outlet from "../services/Outlet";
 import Service from "../services/Registration";
 
 class Registration {
@@ -128,14 +129,16 @@ class Registration {
   }
   async get(req: Request, res: Response): Promise<object | undefined> {
     try {
+      let outlet = await Outlet.getOutletCount(req)
+      outlet = outlet[0].total
       const regist: any[] = await Service.getRegistrationSummary(req);
-      const { total, total_outlet } = regist[0];
+      const { regist:total } = regist[0];
       const result: object = {
-        regist: regist[0].total,
-        percentage: ((total / total_outlet) * 100).toFixed(2) + "%",
-        percen: parseFloat(((total / total_outlet) * 100).toFixed(2)),
-        notregist: total_outlet - total,
-        totalOutlet: total_outlet,
+        regist: total,
+        percentage: ((total / outlet) * 100).toFixed(2) + "%",
+        percen: parseFloat(((total / outlet) * 100).toFixed(2)),
+        notregist: outlet - total,
+        totalOutlet: outlet,
       };
       return response(res, true, result, null, 200);
     } catch (error) {
@@ -247,7 +250,7 @@ class Registration {
   ): Promise<object | undefined> {
     try {
       let regist: any[] = await Service.getLastRegistration(req);
-      regist = DateFormat.index(regist, "register_at");
+      regist = DateFormat.index(regist, "DD MMMM YYYY HH:mm:ss", "tgl_upload")
       return response(res, true, regist, null, 200);
     } catch (error) {
       return response(res, false, null, error, 500);

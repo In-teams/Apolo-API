@@ -8,14 +8,14 @@ let queryOutletCount =
 
 class Registration {
   async getRegistrationSummary(req: Request): Promise<any> {
-    let { query: qoc, params: poc } = FilterParams.count(req, queryOutletCount);
-    let q = `SELECT (${qoc}) AS total_outlet, COUNT(DISTINCT o.outlet_id) AS total FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL AND o.valid NOT IN ('No', 'No+')`;
+    let q =
+      "SELECT COUNT(*) AS regist FROM mstr_outlet AS o INNER JOIN trx_file_registrasi AS rf ON rf.outlet_id = o.outlet_id AND rf.type_file = 0 INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id";
 
     let { query, params } = FilterParams.register(req, q);
     return await db.query(query, {
       raw: true,
       type: QueryTypes.SELECT,
-      replacements: [...poc, ...params],
+      replacements: [...params],
     });
   }
   async getRegistrationSummaryByHR(req: Request): Promise<any> {
@@ -135,11 +135,11 @@ class Registration {
   }
   async getLastRegistration(req: Request): Promise<any> {
     let q =
-      "select distinct o.* from mstr_outlet as o INNER JOIN ms_pulau_alias as reg on o.region_id = reg.pulau_id_alias INNER JOIN ms_user_scope as us on o.outlet_id = us.scope INNER JOIN ms_dist_pic as dp on o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL AND o.register_at IS NOT NULL AND o.valid NOT IN('No', 'No+')";
+      "SELECT fr.outlet_id, fr.tgl_upload, o.outlet_name FROM trx_file_registrasi AS fr INNER JOIN mstr_outlet AS o ON o.outlet_id = fr.outlet_id INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg. pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN ms_periode_registrasi pr ON pr.id = fr. periode_id WHERE fr.tgl_upload BETWEEN pr.tgl_mulai AND pr.tgl_selesai AND fr.type_file = 0";
 
     let { query, params } = FilterParams.register(req, q);
 
-    return await db.query(query + " order by o.register_at DESC", {
+    return await db.query(query + " order by fr.tgl_upload DESC", {
       raw: true,
       type: QueryTypes.SELECT,
       replacements: params,
@@ -284,7 +284,7 @@ class Registration {
     let { query, params } = FilterParams.count(req, queryOutletCount);
     let { query: qreg, params: preg } = FilterParams.count(
       req,
-      "SELECT COUNT(*) AS regist, MONTH(tgl_upload) AS bulan FROM mstr_outlet AS ou INNER JOIN trx_file_registrasi AS fr ON fr.outlet_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.`region_id` = r. `pulau_id_alias` INNER JOIN ms_dist_pic AS pic ON ou.`distributor_id` = pic.`distributor_id` WHERE ou.`outlet_id` IS NOT NULL"
+      "SELECT COUNT(*) AS regist, MONTH(tgl_upload) AS bulan FROM mstr_outlet AS ou INNER JOIN trx_file_registrasi AS fr ON fr.outlet_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.`region_id` = r. `pulau_id_alias` INNER JOIN ms_dist_pic AS pic ON ou.`distributor_id` = pic.`distributor_id` WHERE ou.`outlet_id` IS NOT NULL AND fr.type_file = 0"
     );
 
     return await db.query(
