@@ -32,7 +32,7 @@ class Registration {
     let level = status.map((e: any) => e.level.split(' ').join(''))
     let levelQ = '' 
     level.map((e: any, i: number) => {
-      levelQ += `IFNULL(${e}, ${i !== 0 ? '0' : '1'}) AS ${e}, `
+      levelQ += `IFNULL(${e}, ${i !== 0 ? '0' : 'IFNULL((COUNT(o.outlet_id) - IFNULL(regist, 0)), 0)'}) AS ${e}, `
     })
 
     const { sort } = req.validated;
