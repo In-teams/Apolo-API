@@ -19,28 +19,70 @@ class Registration {
     });
   }
   async getRegistrationSummaryByHR(req: Request): Promise<any> {
+    const status = await db.query("SELECT DISTINCT level FROM ms_status_registrasi", {
+      raw: true,
+      type: QueryTypes.SELECT,
+    });
+
+    let q = "";
+    status.map((e: any, i: number) => {
+      q += `COUNT(CASE WHEN level = '${e.level}' THEN 10 END) AS '${e.level.split(' ').join('')}'`;
+      if (i + 1 !== status.length) return (q += ", ");
+    });
+    let level = status.map((e: any) => e.level.split(' ').join(''))
+    let levelQ = '' 
+    level.map((e: any, i: number) => {
+      levelQ += `IFNULL(${e}, ${i !== 0 ? '0' : '1'}) AS ${e}, `
+    })
+
     const { sort } = req.validated;
-    let { query: qoc, params: poc } = FilterParams.count(
-      req,
-      queryOutletCount +
-        " AND ou.valid IN ('No', 'No+') AND r.head_region_id = mhr.head_region_id"
-    );
     let { query: qocs, params: pocs } = FilterParams.count(
       req,
       queryOutletCount
     );
-    let q = `SELECT mhr.head_region_name as wilayah, (${qoc}) AS notregist, COUNT(o.outlet_id) AS regist, ((${qoc}) + COUNT(o.outlet_id)) AS total, TRUNCATE((COUNT(o.outlet_id)/((${qoc}) + COUNT(o.outlet_id)) * 100), 2) AS pencapaian, (${qocs}) AS totals, CONCAT(TRUNCATE((COUNT(o.outlet_id)/(${qocs}) * 100), 2), '%') AS bobot_outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg. pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL AND o.valid NOT IN ('No', 'No+')`;
+    let { query: qr, params: pr } = FilterParams.register(
+      req,
+      `SELECT mhr.head_region_id AS wilayah, COUNT(*) AS regist, ${q} FROM mstr_outlet AS o INNER JOIN trx_file_registrasi AS rf ON rf.outlet_id = o.outlet_id AND rf.type_file = 0 INNER JOIN ms_status_registrasi AS sr ON sr.id = rf.status_registrasi INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id WHERE o.outlet_id IS NOT NULL`
+    );
 
-    let { query, params } = FilterParams.register(req, q);
+    qr += " GROUP BY mhr.head_region_id";
+
+    let { query, params } = FilterParams.query(
+      req,
+      `SELECT hr.head_region_name AS wilayah, ${levelQ} IFNULL(regist, 0) AS regist, IFNULL((COUNT(o.outlet_id) - IFNULL(regist, 0)), 0) AS notregist, COUNT(o.outlet_id) AS total, (${qocs}) AS totals, CONCAT(TRUNCATE((COUNT(o.outlet_id)/(${qocs}) * 100), 2), '%') AS bobot_outlet, TRUNCATE((IFNULL(regist, 0)/(COUNT(o.outlet_id)) * 100), 2) AS pencapaian FROM ms_head_region AS hr LEFT JOIN (${qr}) AS sub ON sub.wilayah = hr.head_region_id INNER JOIN ms_pulau_alias AS reg ON reg.head_region_id = hr.head_region_id INNER JOIN mstr_outlet AS o ON o.region_id = reg.pulau_id_alias WHERE o.outlet_id IS NOT NULL`
+    );
     return await db.query(
-      query + ` GROUP BY wilayah ORDER BY pencapaian ${sort}`,
+      query + ` GROUP BY head_region_name ORDER BY pencapaian ${sort}`,
       {
         raw: true,
         type: QueryTypes.SELECT,
-        replacements: [...poc, ...poc, ...poc, ...pocs, ...pocs, ...params],
+        replacements: [...pr, ...pocs, ...pocs, ...params],
       }
     );
   }
+  // async getRegistrationSummaryByHR(req: Request): Promise<any> {
+  //   const { sort } = req.validated;
+  //   let { query: qoc, params: poc } = FilterParams.count(
+  //     req,
+  //     queryOutletCount +
+  //       " AND ou.valid IN ('No', 'No+') AND r.head_region_id = mhr.head_region_id"
+  //   );
+  //   let { query: qocs, params: pocs } = FilterParams.count(
+  //     req,
+  //     queryOutletCount
+  //   );
+  //   let q = `SELECT mhr.head_region_name as wilayah, (${qoc}) AS notregist, COUNT(o.outlet_id) AS regist, ((${qoc}) + COUNT(o.outlet_id)) AS total, TRUNCATE((COUNT(o.outlet_id)/((${qoc}) + COUNT(o.outlet_id)) * 100), 2) AS pencapaian, (${qocs}) AS totals, CONCAT(TRUNCATE((COUNT(o.outlet_id)/(${qocs}) * 100), 2), '%') AS bobot_outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg. pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL AND o.valid NOT IN ('No', 'No+')`;
+
+  //   let { query, params } = FilterParams.register(req, q);
+  //   return await db.query(
+  //     query + ` GROUP BY wilayah ORDER BY pencapaian ${sort}`,
+  //     {
+  //       raw: true,
+  //       type: QueryTypes.SELECT,
+  //       replacements: [...poc, ...poc, ...poc, ...pocs, ...pocs, ...params],
+  //     }
+  //   );
+  // }
   async getRegistrationSummaryByRegion(req: Request): Promise<any> {
     const { sort } = req.validated;
     let { query: qoc, params: poc } = FilterParams.count(
