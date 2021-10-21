@@ -6,6 +6,31 @@ import FilterParams from "../helpers/FilterParams";
 let queryOutletCount =
   "SELECT COUNT(DISTINCT ou.outlet_id) AS total FROM mstr_outlet AS ou INNER JOIN ms_pulau_alias AS r ON ou.`region_id` = r. `pulau_id_alias` INNER JOIN ms_dist_pic AS pic ON ou.`distributor_id` = pic.`distributor_id` WHERE ou.`outlet_id` IS NOT NULL";
 
+const getLevelQuery = async () => {
+  const status = await db.query(
+    "SELECT DISTINCT level FROM ms_status_registrasi WHERE id != 1",
+    {
+      raw: true,
+      type: QueryTypes.SELECT,
+    }
+  );
+
+  let q = "";
+  status.map((e: any, i: number) => {
+    q += `COUNT(CASE WHEN level = '${e.level}' THEN 10 END) AS '${e.level
+      .split(" ")
+      .join("")}'`;
+    if (i + 1 !== status.length) return (q += ", ");
+  });
+  let level = status.map((e: any) => e.level.split(" ").join(""));
+  let levelQ = "";
+  level.map((e: any, i: number) => {
+    levelQ += `IFNULL(${e}, 0) AS ${e}, `;
+  });
+
+  return { q, levelQ };
+};
+
 class Registration {
   async getRegistrationSummary(req: Request): Promise<any> {
     let q =
@@ -19,26 +44,7 @@ class Registration {
     });
   }
   async getRegistrationSummaryByHR(req: Request): Promise<any> {
-    const status = await db.query(
-      "SELECT DISTINCT level FROM ms_status_registrasi WHERE id != 1",
-      {
-        raw: true,
-        type: QueryTypes.SELECT,
-      }
-    );
-
-    let q = "";
-    status.map((e: any, i: number) => {
-      q += `COUNT(CASE WHEN level = '${e.level}' THEN 10 END) AS '${e.level
-        .split(" ")
-        .join("")}'`;
-      if (i + 1 !== status.length) return (q += ", ");
-    });
-    let level = status.map((e: any) => e.level.split(" ").join(""));
-    let levelQ = "";
-    level.map((e: any, i: number) => {
-      levelQ += `IFNULL(${e}, 0) AS ${e}, `;
-    });
+    const { q, levelQ } = await getLevelQuery();
 
     const { sort } = req.validated;
     let { query: qocs, params: pocs } = FilterParams.count(
@@ -66,26 +72,7 @@ class Registration {
     );
   }
   async getRegistrationSummaryByRegion(req: Request): Promise<any> {
-    const status = await db.query(
-      "SELECT DISTINCT level FROM ms_status_registrasi WHERE id != 1",
-      {
-        raw: true,
-        type: QueryTypes.SELECT,
-      }
-    );
-
-    let q = "";
-    status.map((e: any, i: number) => {
-      q += `COUNT(CASE WHEN level = '${e.level}' THEN 10 END) AS '${e.level
-        .split(" ")
-        .join("")}'`;
-      if (i + 1 !== status.length) return (q += ", ");
-    });
-    let level = status.map((e: any) => e.level.split(" ").join(""));
-    let levelQ = "";
-    level.map((e: any, i: number) => {
-      levelQ += `IFNULL(${e}, 0) AS ${e}, `;
-    });
+    const { q, levelQ } = await getLevelQuery();
 
     const { sort } = req.validated;
     let { query: qocs, params: pocs } = FilterParams.count(
@@ -113,26 +100,7 @@ class Registration {
     );
   }
   async getRegistrationSummaryByArea(req: Request): Promise<any> {
-    const status = await db.query(
-      "SELECT DISTINCT level FROM ms_status_registrasi WHERE id != 1",
-      {
-        raw: true,
-        type: QueryTypes.SELECT,
-      }
-    );
-
-    let q = "";
-    status.map((e: any, i: number) => {
-      q += `COUNT(CASE WHEN level = '${e.level}' THEN 10 END) AS '${e.level
-        .split(" ")
-        .join("")}'`;
-      if (i + 1 !== status.length) return (q += ", ");
-    });
-    let level = status.map((e: any) => e.level.split(" ").join(""));
-    let levelQ = "";
-    level.map((e: any, i: number) => {
-      levelQ += `IFNULL(${e}, 0) AS ${e}, `;
-    });
+    const { q, levelQ } = await getLevelQuery();
 
     const { sort } = req.validated;
     let { query: qocs, params: pocs } = FilterParams.count(
@@ -159,50 +127,8 @@ class Registration {
       }
     );
   }
-  // async getRegistrationSummaryByDistributor(req: Request): Promise<any> {
-  //   const { sort } = req.validated;
-  //   let { query: qoc, params: poc } = FilterParams.query(
-  //     req,
-  //     queryOutletCount +
-  //       " AND ou.valid IN ('No', 'No+') AND ou.distributor_id = d.distributor_id"
-  //   );
-  //   let { query: qocs, params: pocs } = FilterParams.count(
-  //     req,
-  //     queryOutletCount
-  //   );
-  //   let q = `SELECT d.distributor_name as distributor, (${qoc}) AS notregist, COUNT(o.outlet_id) AS regist, ((${qoc}) + COUNT(o.outlet_id)) AS total, TRUNCATE((COUNT(o.outlet_id)/((${qoc}) + COUNT(o.outlet_id)) * 100), 2) AS pencapaian, (${qocs}) AS totals, CONCAT(TRUNCATE((COUNT(o.outlet_id)/(${qocs}) * 100), 2), '%') AS bobot_outlet FROM mstr_outlet AS o INNER JOIN mstr_distributor AS d ON o.distributor_id = d.distributor_id INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg. pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL AND o.valid NOT IN ('No', 'No+')`;
-
-  //   let { query, params } = FilterParams.register(req, q);
-  //   return await db.query(
-  //     query + ` GROUP BY distributor ORDER BY pencapaian ${sort} LIMIT 5`,
-  //     {
-  //       raw: true,
-  //       type: QueryTypes.SELECT,
-  //       replacements: [...poc, ...poc, ...poc, ...pocs, ...pocs, ...params],
-  //     }
-  //   );
-  // }
   async getRegistrationSummaryByDistributor(req: Request): Promise<any> {
-    const status = await db.query(
-      "SELECT DISTINCT level FROM ms_status_registrasi WHERE id != 1",
-      {
-        raw: true,
-        type: QueryTypes.SELECT,
-      }
-    );
-
-    let q = "";
-    status.map((e: any, i: number) => {
-      q += `COUNT(CASE WHEN level = '${e.level}' THEN 10 END) AS '${e.level
-        .split(" ")
-        .join("")}'`;
-      if (i + 1 !== status.length) return (q += ", ");
-    });
-    let level = status.map((e: any) => e.level.split(" ").join(""));
-    let levelQ = "";
-    level.map((e: any, i: number) => {
-      levelQ += `IFNULL(${e}, 0) AS ${e}, `;
-    });
+    const { q, levelQ } = await getLevelQuery();
 
     const { sort } = req.validated;
     let { query: qocs, params: pocs } = FilterParams.count(
@@ -230,25 +156,30 @@ class Registration {
     );
   }
   async getRegistrationSummaryByOutlet(req: Request): Promise<any> {
+    const { q, levelQ } = await getLevelQuery();
+
     const { sort } = req.validated;
-    let { query: qoc, params: poc } = FilterParams.query(
-      req,
-      queryOutletCount +
-        " AND ou.valid IN ('No', 'No+') AND ou.outlet_id = o.outlet_id"
-    );
     let { query: qocs, params: pocs } = FilterParams.count(
       req,
       queryOutletCount
     );
-    let q = `SELECT o.outlet_name as outlet, (${qoc}) AS notregist, COUNT(o.outlet_id) AS regist, ((${qoc}) + COUNT(o.outlet_id)) AS total, TRUNCATE((COUNT(o.outlet_id)/((${qoc}) + COUNT(o.outlet_id)) * 100), 2) AS pencapaian, (${qocs}) AS totals, CONCAT(TRUNCATE((COUNT(o.outlet_id)/(${qocs}) * 100), 2), '%') AS bobot_outlet FROM mstr_outlet AS o INNER JOIN mstr_distributor AS d ON o.distributor_id = d.distributor_id INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg. pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL AND o.valid NOT IN ('No', 'No+')`;
+    let { query: qr, params: pr } = FilterParams.register(
+      req,
+      `SELECT o.outlet_id as outlet_id, COUNT(*) AS regist, ${q} FROM mstr_outlet AS o INNER JOIN trx_file_registrasi AS rf ON rf.outlet_id = o.outlet_id AND rf.type_file = 0 INNER JOIN ms_status_registrasi AS sr ON sr.id = rf.status_registrasi INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id WHERE o.outlet_id IS NOT NULL`
+    );
 
-    let { query, params } = FilterParams.register(req, q);
+    qr += " GROUP BY outlet_id";
+
+    let { query, params } = FilterParams.query(
+      req,
+      `SELECT o.outlet_name AS outlet, ${levelQ} IFNULL(regist, 0) AS regist, IFNULL((COUNT(o.outlet_id) - IFNULL(regist, 0)), 0) AS notregist, COUNT(o.outlet_id) AS total, (${qocs}) AS totals, CONCAT(TRUNCATE((COUNT(o.outlet_id)/(${qocs}) * 100), 2), '%') AS bobot_outlet, TRUNCATE((IFNULL(regist, 0)/(COUNT(o.outlet_id)) * 100), 2) AS pencapaian FROM ms_head_region AS mhr INNER JOIN ms_pulau_alias AS reg ON reg.head_region_id = mhr.head_region_id INNER JOIN mstr_outlet AS o ON o.region_id = reg.pulau_id_alias INNER JOIN mstr_distributor AS d on d.distributor_id = o.distributor_id LEFT JOIN (${qr}) AS sub ON sub.outlet_id = o.outlet_id WHERE o.outlet_id IS NOT NULL`
+    );
     return await db.query(
       query + ` GROUP BY outlet ORDER BY pencapaian ${sort} LIMIT 5`,
       {
         raw: true,
         type: QueryTypes.SELECT,
-        replacements: [...poc, ...poc, ...poc, ...pocs, ...pocs, ...params],
+        replacements: [...pr, ...pocs, ...pocs, ...params],
       }
     );
   }
