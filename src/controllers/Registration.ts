@@ -244,6 +244,30 @@ class Registration {
       return response(res, false, null, error, 500);
     }
   }
+  async getRegistrationSummaryByASM(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      let regist: any[] = await Service.getRegistrationSummaryByASM(req);
+      regist = RegistrationHelper(regist, "asm");
+      return response(res, true, regist, null, 200);
+    } catch (error) {
+      return response(res, false, null, error, 500);
+    }
+  }
+  async getRegistrationSummaryByASS(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      let regist: any[] = await Service.getRegistrationSummaryByASS(req);
+      regist = RegistrationHelper(regist, "ass");
+      return response(res, true, regist, null, 200);
+    } catch (error) {
+      return response(res, false, null, error, 500);
+    }
+  }
   async getLastRegistration(
     req: Request,
     res: Response

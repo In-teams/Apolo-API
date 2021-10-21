@@ -181,6 +181,60 @@ class Registration {
       }
     );
   }
+  async getRegistrationSummaryByASM(req: Request): Promise<any> {
+    const { q, levelQ } = await getLevelQuery();
+    const { sort } = req.validated;
+    let { query: qocs, params: pocs } = FilterParams.count(
+      req,
+      queryOutletCount
+    );
+    let { query: qr, params: pr } = FilterParams.register(
+      req,
+      `SELECT pic.kode_pic as asm_id, COUNT(*) AS regist, ${q} FROM mstr_outlet AS o INNER JOIN trx_file_registrasi AS rf ON rf.outlet_id = o.outlet_id AND rf.type_file = 0 INNER JOIN ms_status_registrasi AS sr ON sr.id = rf.status_registrasi INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN mstr_distributor AS d ON o.distributor_id = d.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN ms_pic AS pic ON pic.kode_pic = dp.asm_id WHERE o.outlet_id IS NOT NULL`
+    );
+
+    qr += " GROUP BY asm_id";
+
+    let { query, params } = FilterParams.query(
+      req,
+      `SELECT pic.nama_pic AS asm, ${levelQ} IFNULL(regist, 0) AS regist, IFNULL((COUNT(o.outlet_id) - IFNULL(regist, 0)), 0) AS notregist, COUNT(o.outlet_id) AS total, (${qocs}) AS totals, CONCAT(TRUNCATE((COUNT(o.outlet_id)/(${qocs}) * 100), 2), '%') AS bobot_outlet, TRUNCATE((IFNULL(regist, 0)/(COUNT(o.outlet_id)) * 100), 2) AS pencapaian FROM ms_head_region AS mhr INNER JOIN ms_pulau_alias AS reg ON reg.head_region_id = mhr.head_region_id INNER JOIN mstr_outlet AS o ON o.region_id = reg.pulau_id_alias INNER JOIN mstr_distributor AS d ON o.distributor_id = d.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN ms_pic AS pic ON pic.kode_pic = dp.asm_id LEFT JOIN (${qr}) AS sub ON sub.asm_id = pic.kode_pic WHERE o.outlet_id IS NOT NULL`
+    );
+    return await db.query(
+      query + ` GROUP BY asm ORDER BY pencapaian ${sort} LIMIT 5`,
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+        replacements: [...pr, ...pocs, ...pocs, ...params],
+      }
+    );
+  }
+  async getRegistrationSummaryByASS(req: Request): Promise<any> {
+    const { q, levelQ } = await getLevelQuery();
+    const { sort } = req.validated;
+    let { query: qocs, params: pocs } = FilterParams.count(
+      req,
+      queryOutletCount
+    );
+    let { query: qr, params: pr } = FilterParams.register(
+      req,
+      `SELECT pic.kode_pic as ass_id, COUNT(*) AS regist, ${q} FROM mstr_outlet AS o INNER JOIN trx_file_registrasi AS rf ON rf.outlet_id = o.outlet_id AND rf.type_file = 0 INNER JOIN ms_status_registrasi AS sr ON sr.id = rf.status_registrasi INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN mstr_distributor AS d ON o.distributor_id = d.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN ms_pic AS pic ON pic.kode_pic = dp.ass_id WHERE o.outlet_id IS NOT NULL`
+    );
+
+    qr += " GROUP BY ass_id";
+
+    let { query, params } = FilterParams.query(
+      req,
+      `SELECT pic.nama_pic AS ass, ${levelQ} IFNULL(regist, 0) AS regist, IFNULL((COUNT(o.outlet_id) - IFNULL(regist, 0)), 0) AS notregist, COUNT(o.outlet_id) AS total, (${qocs}) AS totals, CONCAT(TRUNCATE((COUNT(o.outlet_id)/(${qocs}) * 100), 2), '%') AS bobot_outlet, TRUNCATE((IFNULL(regist, 0)/(COUNT(o.outlet_id)) * 100), 2) AS pencapaian FROM ms_head_region AS mhr INNER JOIN ms_pulau_alias AS reg ON reg.head_region_id = mhr.head_region_id INNER JOIN mstr_outlet AS o ON o.region_id = reg.pulau_id_alias INNER JOIN mstr_distributor AS d ON o.distributor_id = d.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN ms_pic AS pic ON pic.kode_pic = dp.ass_id LEFT JOIN (${qr}) AS sub ON sub.ass_id = pic.kode_pic WHERE o.outlet_id IS NOT NULL`
+    );
+    return await db.query(
+      query + ` GROUP BY ass ORDER BY pencapaian ${sort} LIMIT 5`,
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+        replacements: [...pr, ...pocs, ...pocs, ...params],
+      }
+    );
+  }
   async getLastRegistration(req: Request): Promise<any> {
     let q =
       "SELECT fr.outlet_id, fr.tgl_upload, o.outlet_name FROM trx_file_registrasi AS fr INNER JOIN mstr_outlet AS o ON o.outlet_id = fr.outlet_id INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg. pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN ms_periode_registrasi pr ON pr.id = fr. periode_id WHERE fr.tgl_upload BETWEEN pr.tgl_mulai AND pr.tgl_selesai AND fr.type_file = 0";
