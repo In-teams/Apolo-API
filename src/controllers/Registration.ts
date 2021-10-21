@@ -250,7 +250,7 @@ class Registration {
   ): Promise<object | undefined> {
     try {
       let regist: any[] = await Service.getRegistrationSummaryByASM(req);
-      regist = RegistrationHelper(regist, "asm");
+      regist = RegistrationHelper(regist, "nama_pic");
       return response(res, true, regist, null, 200);
     } catch (error) {
       return response(res, false, null, error, 500);
@@ -262,7 +262,7 @@ class Registration {
   ): Promise<object | undefined> {
     try {
       let regist: any[] = await Service.getRegistrationSummaryByASS(req);
-      regist = RegistrationHelper(regist, "ass");
+      regist = RegistrationHelper(regist, "nama_pic");
       return response(res, true, regist, null, 200);
     } catch (error) {
       return response(res, false, null, error, 500);
