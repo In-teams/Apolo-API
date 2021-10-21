@@ -18,10 +18,12 @@ class Redeem {
     try {
       let point = await Service.getPoint(req);
       let pointRedeem = await Service.getPointRedeem(req);
+      let pointDiff = point[0].achieve - pointRedeem[0].redeem
       let result = NumberFormat(
-        { ...point[0], ...pointRedeem[0] },
+        { ...point[0], ...pointRedeem[0], diff: pointDiff },
         false,
         "achieve",
+        "diff",
         "redeem"
       );
       result = {
