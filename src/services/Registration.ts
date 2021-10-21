@@ -241,7 +241,7 @@ class Registration {
 
     let { query, params } = FilterParams.register(req, q);
 
-    return await db.query(query + " order by fr.tgl_upload DESC", {
+    return await db.query(query + " order by fr.tgl_upload DESC LIMIT 5", {
       raw: true,
       type: QueryTypes.SELECT,
       replacements: params,

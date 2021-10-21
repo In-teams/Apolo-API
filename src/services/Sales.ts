@@ -133,7 +133,7 @@ class Sales {
     let { query: qt, params: pt } = filterParams.target(req, qTarget);
     let { query: qa, params: pa } = filterParams.aktual(req, qAktual);
 
-    let query = `SELECT mhr.head_region_name AS wilayah, (${qt}) AS target, (${qa}) AS aktual, (TRUNCATE(((${qa})/(${qt})* 100), 2 )) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE mhr.head_region_id IS NOT NULL`;
+    let query = `SELECT mhr.head_region_name AS wilayah, mhr.head_region_id AS wilayah_id, (${qt}) AS target, (${qa}) AS aktual, (TRUNCATE(((${qa})/(${qt})* 100), 2 )) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE mhr.head_region_id IS NOT NULL`;
 
     let { query: newQuery, params }: { query: string; params: string[] } =
       filterParams.query(req, query);

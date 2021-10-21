@@ -23,10 +23,10 @@ class SalesHelper {
       outlet += e.outlet;
       poin += +e.poin;
     });
-    console.log(totalTarget, target)
     data = data.map((e: any) => ({
       ...e,
       aktual: +e.aktual,
+      diff: (+e.aktual) - e.target,
       poin: e.poin && +e.poin,
       pencapaian: e.pencapaian
         ? e.pencapaian + "%"
@@ -36,7 +36,7 @@ class SalesHelper {
       bobot_outlet: ((e.outlet / totalOutlet) * 100).toFixed(2) + "%",
     }));
     if (isSingle) {
-      data = NumberFormat(data, true, "aktual", "target");
+      data = NumberFormat(data, true, "aktual", "target", "diff");
       data = NumberFormat(data, false, "poin");
       return data;
     }
@@ -54,7 +54,7 @@ class SalesHelper {
         bobot_outlet: ((outlet / totalOutlet) * 100).toFixed(2) + "%",
       },
     ];
-    data = NumberFormat(data, true, "aktual", "target");
+    data = NumberFormat(data, true, "aktual", "target", "diff");
     data = NumberFormat(data, false, "poin");
     return data;
   }
