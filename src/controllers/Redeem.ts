@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import App from "../helpers/App";
 import DateFormat from "../helpers/DateFormat";
 import NumberFormat from "../helpers/NumberFormat";
 import RedeemHelper from "../helpers/RedeemHelper";
@@ -19,7 +20,7 @@ class Redeem {
     try {
       let point = await Service.getPoint(req);
       let pointRedeem = await Service.getPointRedeem(req);
-      let pointDiff = point[0].achieve - pointRedeem[0].redeem
+      let pointDiff = point[0].achieve - pointRedeem[0].redeem;
       let result = NumberFormat(
         { ...point[0], ...pointRedeem[0], diff: pointDiff },
         false,
@@ -43,9 +44,30 @@ class Redeem {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let redeem = await Service.getRedeemLast(req)
-      redeem = DateFormat.index(redeem, "DD MMMM YYYY", "tgl_transaksi")
+      let redeem = await Service.getRedeemLast(req);
+      redeem = DateFormat.index(redeem, "DD MMMM YYYY", "tgl_transaksi");
       return response(res, true, redeem, null, 200);
+    } catch (error) {
+      console.log(error);
+      return response(res, false, null, error, 500);
+    }
+  }
+  async getPointSummaryByMonth(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      const months = App.months;
+      const point: any[] = await Service.getPointPerMonth(req);
+      const pointRedeem: any[] = await Service.getPointRedeemPerMonth(req);
+      let result = months.map((e: any) => ({
+        ...e,
+        achieve: point[e.id] || 0,
+        redeem: pointRedeem[e.id] || 0,
+        diff: parseFloat(point[e.id] || 0) - parseFloat(pointRedeem[e.id] || 0),
+      }));
+      result = NumberFormat(result, false, "achieve", "redeem", "diff");
+      return response(res, true, result, null, 200);
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
@@ -133,7 +155,7 @@ class Redeem {
       //       return obj
       //   }, {})
       // }
-      
+
       // point = arrayToObject1(point, 'distributor_id', 'achieve')
       // pointRedeem = arrayToObject1(pointRedeem, 'distributor_id', 'redeem')
 
