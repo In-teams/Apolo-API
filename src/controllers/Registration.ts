@@ -153,6 +153,7 @@ class Registration {
       let data = await Service.getRegistrationSummaryByMonth(req);
       data = data.map((e: any) => ({
         ...e,
+        regist: e.regist || 0,
         notregist: e.outlet - e.regist,
       }));
       return response(res, true, data, null, 200);
