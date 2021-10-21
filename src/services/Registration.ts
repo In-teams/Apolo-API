@@ -421,10 +421,7 @@ class Registration {
 
     if (file) {
       file = { ...file, periode_id };
-      console.log(file);
       if (file[file.type + "_file"]) {
-        // const fileType = file.type === "npwp" ? file.npwp_file : file.ektp_file;
-        // console.log(fileType)
         const type_file = file.type === "npwp" ? 2 : 1;
 
         await db.query(
