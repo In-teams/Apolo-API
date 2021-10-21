@@ -2,6 +2,7 @@ class RegistrationHelper {
   index(data: any[], type: string): any[] {
     data = data.map((e: any) => ({
       ...e,
+      Level1: e.notregist,
       percentage: e.pencapaian + "%",
       pencapaian: parseFloat(e.pencapaian),
     }));
