@@ -13,6 +13,7 @@ class Redeem implements IRouter {
 
   public routes(): void {
     this.router.get("/", RedeemRequest.get, RedeemController.getPointSummary);
+    this.router.get("/last", RedeemRequest.get, RedeemController.getLastRedeem);
     this.router.get("/summary/hr", RedeemRequest.get, RedeemController.getPointSummaryByHR);
     this.router.get("/summary/region", RedeemRequest.get, RedeemController.getPointSummaryByRegion);
     this.router.get("/summary/area", RedeemRequest.get, RedeemController.getPointSummaryByArea);

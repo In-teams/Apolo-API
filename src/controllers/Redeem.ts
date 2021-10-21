@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import DateFormat from "../helpers/DateFormat";
 import NumberFormat from "../helpers/NumberFormat";
 import RedeemHelper from "../helpers/RedeemHelper";
 import response from "../helpers/Response";
@@ -32,6 +33,19 @@ class Redeem {
         percen: parseFloat(((result.redeem / result.achieve) * 100).toFixed(2)),
       };
       return response(res, true, result, null, 200);
+    } catch (error) {
+      console.log(error);
+      return response(res, false, null, error, 500);
+    }
+  }
+  async getLastRedeem(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      let redeem = await Service.getRedeemLast(req)
+      redeem = DateFormat.index(redeem, "DD MMMM YYYY", "tgl_transaksi")
+      return response(res, true, redeem, null, 200);
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);

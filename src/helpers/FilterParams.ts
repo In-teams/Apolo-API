@@ -163,11 +163,11 @@ class filterParams{
 			params.push(asm_id);
 		}
 		if (month_id) {
-			query += ' AND MONTH(o.register_at) = ?';
+			query += ' AND MONTH(rf.tgl_upload) = ?';
 			params.push(month_id);
 		}
 		if (quarter_id) {
-			query += ' AND MONTH(o.register_at) IN(?)';
+			query += ' AND MONTH(rf.tgl_upload) IN(?)';
 			params.push(quarter_id);
 		}
 

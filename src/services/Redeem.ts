@@ -33,6 +33,17 @@ class Redeem {
       replacements: [...pp, ...prp, ...params],
     });
   }
+  async getRedeemLast(req: Request): Promise<any> {
+    let q =
+      "SELECT DISTINCT o.outlet_id, o.outlet_name, tgl_transaksi FROM trx_transaksi_redeem AS tr INNER JOIN mstr_outlet AS o ON o.outlet_id = tr.no_id INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN ms_head_region AS mhr on mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL";
+    let { query: pq, params: pp } = FilterParams.aktual(req, q);
+
+    return await db.query(pq + " ORDER BY tgl_transaksi DESC LIMIT 5", {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: pp,
+    });
+  }
   async getPoint(req: Request): Promise<any> {
     let { query: pq, params: pp } = FilterParams.aktual(req, getPointQuery);
 
