@@ -1,15 +1,17 @@
+import cryptoRandomString from "crypto-random-string";
 import { NextFunction, Request, Response } from "express";
 import joi from "joi";
 import config from "../config/app";
+import db from "../config/db";
+import appHelper from "../helpers/App";
 import DateFormat from "../helpers/DateFormat";
 import FileSystem from "../helpers/FileSystem";
 import GetFileExtention from "../helpers/GetFileExtention";
+import RandomString from "../helpers/RandomString";
 import response from "../helpers/Response";
 import Outlet from "../services/Outlet";
 import PeriodeService from "../services/Periode";
 import RegistrationService from "../services/Registration";
-import appHelper from "../helpers/App";
-import db from "../config/db";
 
 class Registration {
   getHistory(req: Request, res: Response, next: NextFunction): any {
@@ -116,7 +118,8 @@ class Registration {
         );
       let { periode, id: periode_id } = check[0];
       periode = `p-${periode_id}`;
-      const filename = `f-${periode}-${Date.now()}-${value.outlet_id}${ext}`;
+      const random = RandomString.random
+      const filename = `f-${periode}-${random}${ext}`;
       // const path = "/" + filename;
       const path = config.pathRegistration + "/" + filename;
       req.validated = {
@@ -246,6 +249,7 @@ class Registration {
         req,
         type === "npwp" ? 2 : 1
       );
+
       const bankFile = await RegistrationService.getRegistrationForm(req, 3);
       const deletedFileType = type === "npwp" ? 1 : 2;
 
@@ -274,14 +278,13 @@ class Registration {
           );
 
         const IdType = type === "npwp" ? "n" : "e";
-        const file = `${IdType}-${periode}-${Date.now()}-${
-          value.outlet_id
-        }${extFile}`;
+        const random = RandomString.random
+        const file = `${IdType}-${periode}-${random}${extFile}`;
 
         if (FileId.length > 0 && value[type + "_file"]) {
           const { filename, id } = FileId[0];
           await RegistrationService.deleteRegistrationFile(id);
-          await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
+          // await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
         }
 
         await FileSystem.WriteFile(
@@ -311,13 +314,13 @@ class Registration {
             "only pdf and image extention will be allowed",
             400
           );
-
-        const bank = `b-${periode}-${Date.now()}-${value.outlet_id}${extBank}`;
+        const random = RandomString.random
+        const bank = `b-${periode}-${random}${extBank}`;
 
         if (bankFile.length > 0 && value.bank_file) {
           const { filename, id } = bankFile[0];
           await RegistrationService.deleteRegistrationFile(id);
-          await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
+          // await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
         }
         await FileSystem.WriteFile(
           config.pathRegistration + "/" + bank,
