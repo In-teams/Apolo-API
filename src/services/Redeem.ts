@@ -24,12 +24,21 @@ class Redeem {
   async postRedeemFile(req: Request, t:any): Promise<any> {
     try {
       const {outlet_id, filename, tgl_upload} = req.validated.file
-      await db.query(
+      const id = await db.query(
         "INSERT INTO trx_file_penukaran (outlet_id, filename, tgl_upload) VALUES(?, ?, ?)",
         {
           raw: true,
           type: QueryTypes.INSERT,
           replacements: [outlet_id, filename, tgl_upload],
+          transaction: t
+        }
+      );
+      await db.query(
+        "INSERT INTO trx_history_penukaran (outlet_id, status_penukaran, file_id, created_at) VALUES(?, ?, ?, ?)",
+        {
+          raw: true,
+          type: QueryTypes.INSERT,
+          replacements: [outlet_id, 2, id[0], tgl_upload],
           transaction: t
         }
       );

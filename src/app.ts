@@ -25,6 +25,7 @@ class App {
     this.app.use(express.urlencoded({ limit: "200mb", extended: true }));
     this.app.use(express.json({ limit: "200mb" }));
     this.app.use('/file/registration', express.static(config.pathRegistration))
+    this.app.use('/file/redeem', express.static(config.pathRedeem))
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       next();
     });

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import db from "../config/db";
 import App from "../helpers/App";
 import DateFormat from "../helpers/DateFormat";
+import GetFile from "../helpers/GetFile";
 import NumberFormat from "../helpers/NumberFormat";
 import RedeemHelper from "../helpers/RedeemHelper";
 import response from "../helpers/Response";
@@ -14,15 +15,25 @@ import User from "../services/User";
 import Wilayah from "../services/Wilayah";
 
 class Redeem {
-  async post(req: Request, res: Response){
-    const t = await db.transaction()
+  async getRedeemFile(req: Request, res: Response) {
     try {
-      await Service.postRedeemFile(req, t)
-      t.commit()
+      let file = await Service.getRedeemFile(req);
+      file = GetFile(req, file, "redeem", "filename");
+      file = DateFormat.index(file, "DD MMMM YYYY HH:mm:ss", "tgl_upload")
+      return response(res, true, file, null, 200);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async post(req: Request, res: Response) {
+    const t = await db.transaction();
+    try {
+      await Service.postRedeemFile(req, t);
+      t.commit();
       return response(res, true, "Form successfully uploaded", null, 200);
     } catch (error) {
-      t.rollback()
-      console.log(error)
+      t.rollback();
+      console.log(error);
     }
   }
   async getPointSummary(

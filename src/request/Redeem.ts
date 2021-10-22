@@ -25,6 +25,18 @@ class Redeem {
   // 	req.validated = value;
   // 	next();
   // }
+  getRedeemFile(req: Request, res: Response, next: NextFunction): any {
+    const schema = joi.object({
+      outlet_id: joi.string().required(),
+    });
+
+    const { value, error } = schema.validate(req.params);
+    if (error) {
+      return response(res, false, null, error.message, 400);
+    }
+    req.validated = value
+    next();
+  }
   get(req: Request, res: Response, next: NextFunction): any {
     const schema = joi.object({
       region_id: joi.string(),
