@@ -21,6 +21,43 @@ const getPointRedeemByHirarki = (col: string): string =>
   `SELECT ${col}, CAST(SUM(trrb.point_satuan * trrb.quantity) AS DECIMAL(20,2)) AS redeem FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trrb ON tr.kd_transaksi = trrb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id`;
 
 class Redeem {
+  async postRedeemFile(req: Request, t:any): Promise<any> {
+    try {
+      const {outlet_id, filename, tgl_upload} = req.validated.file
+      await db.query(
+        "INSERT INTO trx_file_penukaran (outlet_id, filename, tgl_upload) VALUES(?, ?, ?)",
+        {
+          raw: true,
+          type: QueryTypes.INSERT,
+          replacements: [outlet_id, filename, tgl_upload],
+          transaction: t
+        }
+      );
+      return await db.query(
+        "INSERT INTO trx_history_file_penukaran (outlet_id, filename, tgl_upload) VALUES(?, ?, ?)",
+        {
+          raw: true,
+          type: QueryTypes.INSERT,
+          replacements: [outlet_id, filename, tgl_upload],
+          transaction: t
+        }
+      );
+    } catch (error) {}
+  }
+  async getRedeemFile(req: Request): Promise<any> {
+    try {
+      const {outlet_id} = req.validated
+      const thisMonth = +DateFormat.getToday("MM")
+      return await db.query(
+        "SELECT * FROM trx_file_penukaran WHERE outlet_id = ? ORDER BY tgl_upload DESC",
+        {
+          raw: true,
+          type: QueryTypes.SELECT,
+          replacements: [outlet_id]
+        }
+      );
+    } catch (error) {}
+  }
   async getPointSummary(req: Request): Promise<any> {
     let { query: pq, params: pp } = FilterParams.aktual(req, getPointQuery);
     let { query: prq, params: prp } = FilterParams.aktual(
@@ -58,10 +95,13 @@ class Redeem {
       replacements: pp,
     });
 
-    return ArrayOfObjToObj(data, 'bulan', 'achieve')
+    return ArrayOfObjToObj(data, "bulan", "achieve");
   }
   async getPointRedeemPerMonth(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(req, getPointRedeemByMonth());
+    let { query: pq, params: pp } = FilterParams.aktual(
+      req,
+      getPointRedeemByMonth()
+    );
 
     const data = await db.query(pq, {
       raw: true,
@@ -69,7 +109,7 @@ class Redeem {
       replacements: pp,
     });
 
-    return ArrayOfObjToObj(data, 'bulan', 'redeem')
+    return ArrayOfObjToObj(data, "bulan", "redeem");
   }
   async getPoint(req: Request): Promise<any> {
     let { query: pq, params: pp } = FilterParams.aktual(req, getPointQuery);

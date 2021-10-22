@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import db from "../config/db";
 import App from "../helpers/App";
 import DateFormat from "../helpers/DateFormat";
 import NumberFormat from "../helpers/NumberFormat";
@@ -13,6 +14,17 @@ import User from "../services/User";
 import Wilayah from "../services/Wilayah";
 
 class Redeem {
+  async post(req: Request, res: Response){
+    const t = await db.transaction()
+    try {
+      await Service.postRedeemFile(req, t)
+      t.commit()
+      return response(res, true, "Form successfully uploaded", null, 200);
+    } catch (error) {
+      t.rollback()
+      console.log(error)
+    }
+  }
   async getPointSummary(
     req: Request,
     res: Response

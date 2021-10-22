@@ -2,7 +2,7 @@ class App {
 	public pathLogger: string = './temp/logger';
 	public pathExcel: string = './temp/excel';
 	public pathRegistration: string = 'temp/file/registration';
-	public pathRedeem: string = './temp/file/redeem';
+	public pathRedeem: string = 'temp/file/redeem';
 	public deleteLogger: number = 1; // day
 	public jwtKey: string = 'inosis111213'; // JWT_KEY
 	public ExpKey = '24h'; // Exp JWT_KEY
