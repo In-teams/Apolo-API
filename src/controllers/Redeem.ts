@@ -15,11 +15,28 @@ import User from "../services/User";
 import Wilayah from "../services/Wilayah";
 
 class Redeem {
+  async getRedeemStatus(req: Request, res: Response) {
+    try {
+      let status = await Service.getRedeemStatus(req);
+      return response(res, true, status, null, 200);
+    } catch (error) {
+      console.log(error);
+    }
+  }
   async getRedeemFile(req: Request, res: Response) {
     try {
       let file = await Service.getRedeemFile(req);
       file = GetFile(req, file, "redeem", "filename");
       file = DateFormat.index(file, "DD MMMM YYYY HH:mm:ss", "tgl_upload")
+      return response(res, true, file, null, 200);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async getHistoryRedeemFile(req: Request, res: Response) {
+    try {
+      let file = await Service.getHistoryRedeemFile(req);
+      file = DateFormat.index(file, "DD MMMM YYYY HH:mm:ss", "created_at")
       return response(res, true, file, null, 200);
     } catch (error) {
       console.log(error);

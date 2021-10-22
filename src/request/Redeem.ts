@@ -37,6 +37,21 @@ class Redeem {
     req.validated = value
     next();
   }
+  async getHistoryRedeemFile(req: Request, res: Response, next: NextFunction): Promise<any> {
+    const schema = joi.object({
+      file_id: joi.string().required(),
+    });
+
+    const { value, error } = schema.validate(req.params);
+    if (error) {
+      return response(res, false, null, error.message, 400);
+    }
+    req.validated = value
+    const isUploaded = await service.getRedeemFileById(req)
+    if(isUploaded.length < 1)
+    return response(res, false, null, "file not found", 404);
+    next();
+  }
   get(req: Request, res: Response, next: NextFunction): any {
     const schema = joi.object({
       region_id: joi.string(),

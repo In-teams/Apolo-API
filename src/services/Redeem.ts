@@ -21,16 +21,16 @@ const getPointRedeemByHirarki = (col: string): string =>
   `SELECT ${col}, CAST(SUM(trrb.point_satuan * trrb.quantity) AS DECIMAL(20,2)) AS redeem FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trrb ON tr.kd_transaksi = trrb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id`;
 
 class Redeem {
-  async postRedeemFile(req: Request, t:any): Promise<any> {
+  async postRedeemFile(req: Request, t: any): Promise<any> {
     try {
-      const {outlet_id, filename, tgl_upload} = req.validated.file
+      const { outlet_id, filename, tgl_upload } = req.validated.file;
       const id = await db.query(
         "INSERT INTO trx_file_penukaran (outlet_id, filename, tgl_upload) VALUES(?, ?, ?)",
         {
           raw: true,
           type: QueryTypes.INSERT,
           replacements: [outlet_id, filename, tgl_upload],
-          transaction: t
+          transaction: t,
         }
       );
       await db.query(
@@ -39,7 +39,7 @@ class Redeem {
           raw: true,
           type: QueryTypes.INSERT,
           replacements: [outlet_id, 2, id[0], tgl_upload],
-          transaction: t
+          transaction: t,
         }
       );
       return await db.query(
@@ -48,21 +48,21 @@ class Redeem {
           raw: true,
           type: QueryTypes.INSERT,
           replacements: [outlet_id, filename, tgl_upload],
-          transaction: t
+          transaction: t,
         }
       );
     } catch (error) {}
   }
-  async updateRedeemFile(req: Request, t:any): Promise<any> {
+  async updateRedeemFile(req: Request, t: any): Promise<any> {
     try {
-      const {outlet_id, filename, tgl_upload} = req.validated.file
+      const { outlet_id, filename, tgl_upload } = req.validated.file;
       await db.query(
         "UPDATE trx_file_penukaran SET filename = ?, tgl_upload = ? WHERE outlet_id = ?",
         {
           raw: true,
           type: QueryTypes.UPDATE,
           replacements: [filename, tgl_upload, outlet_id],
-          transaction: t
+          transaction: t,
         }
       );
       return await db.query(
@@ -71,23 +71,59 @@ class Redeem {
           raw: true,
           type: QueryTypes.INSERT,
           replacements: [outlet_id, filename, tgl_upload],
-          transaction: t
+          transaction: t,
+        }
+      );
+    } catch (error) {}
+  }
+  async getRedeemStatus(req: Request): Promise<any> {
+    try {
+      return await db.query(
+        "SELECT * FROM ms_status_penukaran",
+        {
+          raw: true,
+          type: QueryTypes.SELECT,
         }
       );
     } catch (error) {}
   }
   async getRedeemFile(req: Request): Promise<any> {
     try {
-      const {outlet_id} = req.validated
-      const thisMonth = +DateFormat.getToday("MM")
+      const { outlet_id } = req.validated;
+      const thisMonth = +DateFormat.getToday("MM");
       return await db.query(
         "SELECT * FROM trx_file_penukaran WHERE outlet_id = ? ORDER BY tgl_upload DESC",
         {
           raw: true,
           type: QueryTypes.SELECT,
-          replacements: [outlet_id]
+          replacements: [outlet_id],
         }
       );
+    } catch (error) {}
+  }
+  async getHistoryRedeemFile(req: Request): Promise<any> {
+    try {
+      const { file_id } = req.validated;
+      const thisMonth = +DateFormat.getToday("MM");
+      return await db.query(
+        "SELECT hp.*, sp.status FROM trx_history_penukaran AS hp INNER JOIN ms_status_penukaran AS sp ON sp.id = hp.status_penukaran WHERE file_id = ?",
+        {
+          raw: true,
+          type: QueryTypes.SELECT,
+          replacements: [file_id],
+        }
+      );
+    } catch (error) {}
+  }
+  async getRedeemFileById(req: Request): Promise<any> {
+    try {
+      const { file_id } = req.validated;
+      const thisMonth = +DateFormat.getToday("MM");
+      return await db.query("SELECT * FROM trx_file_penukaran WHERE id = ?", {
+        raw: true,
+        type: QueryTypes.SELECT,
+        replacements: [file_id],
+      });
     } catch (error) {}
   }
   async getPointSummary(req: Request): Promise<any> {
