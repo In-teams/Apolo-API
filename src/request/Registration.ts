@@ -7,7 +7,6 @@ import appHelper from "../helpers/App";
 import DateFormat from "../helpers/DateFormat";
 import FileSystem from "../helpers/FileSystem";
 import GetFileExtention from "../helpers/GetFileExtention";
-import RandomString from "../helpers/RandomString";
 import response from "../helpers/Response";
 import Outlet from "../services/Outlet";
 import PeriodeService from "../services/Periode";
@@ -118,7 +117,7 @@ class Registration {
         );
       let { periode, id: periode_id } = check[0];
       periode = `p-${periode_id}`;
-      const random = RandomString.random
+      const random = cryptoRandomString({ length: 10, type: "alphanumeric" });
       const filename = `f-${periode}-${random}${ext}`;
       // const path = "/" + filename;
       const path = config.pathRegistration + "/" + filename;
@@ -278,7 +277,7 @@ class Registration {
           );
 
         const IdType = type === "npwp" ? "n" : "e";
-        const random = RandomString.random
+        const random = cryptoRandomString({ length: 10, type: "alphanumeric" });
         const file = `${IdType}-${periode}-${random}${extFile}`;
 
         if (FileId.length > 0 && value[type + "_file"]) {
@@ -314,7 +313,7 @@ class Registration {
             "only pdf and image extention will be allowed",
             400
           );
-        const random = RandomString.random
+        const random = cryptoRandomString({ length: 10, type: "alphanumeric" });
         const bank = `b-${periode}-${random}${extBank}`;
 
         if (bankFile.length > 0 && value.bank_file) {

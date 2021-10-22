@@ -1,14 +1,15 @@
+import cryptoRandomString from "crypto-random-string";
 import { NextFunction, Request, Response } from "express";
 import joi from "joi";
+import config from "../config/app";
+import db from "../config/db";
+import appHelper from "../helpers/App";
+import DateFormat from "../helpers/DateFormat";
 import FileSystem from "../helpers/FileSystem";
 import GetFileExtention from "../helpers/GetFileExtention";
 import response from "../helpers/Response";
-import service from "../services/Redeem";
-import appHelper from "../helpers/App";
 import Outlet from "../services/Outlet";
-import RandomString from "../helpers/RandomString";
-import config from "../config/app";
-import DateFormat from "../helpers/DateFormat";
+import service from "../services/Redeem";
 
 class Redeem {
   // getProduct(req: Request, res: Response, next: NextFunction): any {
@@ -132,6 +133,7 @@ class Redeem {
   // 	}
   // }
   async post(req: Request, res: Response, next: NextFunction): Promise<any> {
+    const t = await db.transaction();
     try {
       const schema = joi.object({
         file: joi.string().base64().required(),
@@ -158,10 +160,7 @@ class Redeem {
         return response(res, false, null, msg, 400);
       }
 
-      //   const isUploaded = await service.getRedeemFile(req);
-      //   console.log(isUploaded);
-
-      const random = RandomString.random;
+      const random = cryptoRandomString({ length: 10, type: "alphanumeric" });
       const filename = `${random}${ext}`;
       const path = config.pathRedeem + "/" + filename;
 
@@ -171,8 +170,15 @@ class Redeem {
         filename,
         tgl_upload: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),
       };
+      const isUploaded = await service.getRedeemFile(req);
+      if (isUploaded.length > 0) {
+        await service.updateRedeemFile(req, t);
+        t.commit();
+        return response(res, true, "Form successfully uploaded", null, 200);
+      }
       next();
     } catch (error) {
+      t.rollback();
       console.log(error);
       // throw new Error(JSON.stringify(error));
     }

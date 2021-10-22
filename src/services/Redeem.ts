@@ -44,6 +44,29 @@ class Redeem {
       );
     } catch (error) {}
   }
+  async updateRedeemFile(req: Request, t:any): Promise<any> {
+    try {
+      const {outlet_id, filename, tgl_upload} = req.validated.file
+      await db.query(
+        "UPDATE trx_file_penukaran SET filename = ?, tgl_upload = ? WHERE outlet_id = ?",
+        {
+          raw: true,
+          type: QueryTypes.UPDATE,
+          replacements: [filename, tgl_upload, outlet_id],
+          transaction: t
+        }
+      );
+      return await db.query(
+        "INSERT INTO trx_history_file_penukaran (outlet_id, filename, tgl_upload) VALUES(?, ?, ?)",
+        {
+          raw: true,
+          type: QueryTypes.INSERT,
+          replacements: [outlet_id, filename, tgl_upload],
+          transaction: t
+        }
+      );
+    } catch (error) {}
+  }
   async getRedeemFile(req: Request): Promise<any> {
     try {
       const {outlet_id} = req.validated
