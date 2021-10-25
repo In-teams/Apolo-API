@@ -366,6 +366,7 @@ class Redeem {
     });
   }
   async getProduct(req: Request, point: number): Promise<any> {
+    console.log(point)
     const {category} = req.validated
     let q = "SELECT mp.product_id, mp.product_name, mpb.point FROM ms_product AS mp INNER JOIN ms_program_barang AS mpb ON mp.product_id =  mpb.product_id WHERE point <= ?"
     let params = [point]
