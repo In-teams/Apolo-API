@@ -9,21 +9,23 @@ import FileSystem from "../helpers/FileSystem";
 import GetFileExtention from "../helpers/GetFileExtention";
 import response from "../helpers/Response";
 import Outlet from "../services/Outlet";
+import Periode from "../services/Periode";
 import service from "../services/Redeem";
+import Registration from "../services/Registration";
 
 class Redeem {
   getProduct(req: Request, res: Response, next: NextFunction): any {
-  	const schema = joi.object({
-  		outlet_id: joi.string().required(),
-  		category: joi.string(),
-  	});
+    const schema = joi.object({
+      outlet_id: joi.string().required(),
+      category: joi.string(),
+    });
 
-  	const { value, error } = schema.validate(req.query);
-  	if (error) {
-  		return response(res, false, null, error.message, 400);
-  	}
-  	req.validated = value;
-  	next();
+    const { value, error } = schema.validate(req.query);
+    if (error) {
+      return response(res, false, null, error.message, 400);
+    }
+    req.validated = value;
+    next();
   }
   getRedeemFile(req: Request, res: Response, next: NextFunction): any {
     const schema = joi.object({
@@ -34,10 +36,14 @@ class Redeem {
     if (error) {
       return response(res, false, null, error.message, 400);
     }
-    req.validated = value
+    req.validated = value;
     next();
   }
-  async getHistoryRedeemFile(req: Request, res: Response, next: NextFunction): Promise<any> {
+  async getHistoryRedeemFile(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
     const schema = joi.object({
       file_id: joi.string().required(),
     });
@@ -46,10 +52,10 @@ class Redeem {
     if (error) {
       return response(res, false, null, error.message, 400);
     }
-    req.validated = value
-    const isUploaded = await service.getRedeemFileById(req)
-    if(isUploaded.length < 1)
-    return response(res, false, null, "file not found", 404);
+    req.validated = value;
+    const isUploaded = await service.getRedeemFileById(req);
+    if (isUploaded.length < 1)
+      return response(res, false, null, "file not found", 404);
     next();
   }
   get(req: Request, res: Response, next: NextFunction): any {
@@ -90,46 +96,45 @@ class Redeem {
     };
     next();
   }
-  // async checkout(
-  // 	req: Request,
-  // 	res: Response,
-  // 	next: NextFunction
-  // ): Promise<any> {
-  // 	try {
-  // 		const schema = joi.object({
-  // 			product: joi
-  // 				.array()
-  // 				.items(
-  // 					joi.object({
-  // 						product_id: joi.string().required(),
-  // 						quantity: joi.number().required(),
-  // 					})
-  // 				)
-  // 				.required(),
-  // 			outlet_id: joi.string().required(),
-  // 		});
+  async checkout(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      const schema = joi.object({
+        product: joi
+          .array()
+          .items(
+            joi.object({
+              product_id: joi.string().required(),
+              quantity: joi.number().required(),
+            })
+          )
+          .required(),
+        outlet_id: joi.string().required(),
+      });
 
-  // 		const { value, error } = schema.validate(req.body);
-  // 		if (error) {
-  // 			return response(res, false, null, error.message, 400);
-  // 		}
+      const { value, error } = schema.validate(req.body);
+      if (error) {
+        return response(res, false, null, error.message, 400);
+      }
 
-  // 		if (value.product.length < 1)
-  // 			return response(res, false, null, 'must be value at least 1', 400);
+      if (value.product.length < 1)
+        return response(res, false, null, "must be value at least 1", 400);
 
-  // 		req.validated = value;
-  // 		const isUploaded = await service.getRedeemForm(req);
-  // 		if (isUploaded.length < 1)
-  // 			return response(res, false, null, 'reedemption is not uploaded', 400);
-  // 		const { status_penukaran: status, id } = isUploaded[0];
-  // 		if (status !== 7 && status !== 8)
-  // 			return response(res, false, null, 'reedemption is not validated', 400);
-  // 		req.validated.id = id;
-  // 		next();
-  // 	} catch (error) {
-  // 		console.log(error, 'error request');
-  // 	}
-  // }
+      req.validated = value;
+      req.validated.tgl_mulai = DateFormat.getToday("YYYY-MM-DD HH:mm:ss")
+      const getPeriode = await Periode.checkData(req)
+      req.validated.periode_id = getPeriode[0].id
+      const getFormRegist = await Registration.getRegistrationForm(req);
+      if(getFormRegist.length < 1) return response(res, false, null, "Belum regist", 400);
+      if(getFormRegist[0]?.level !== "Level 4") return response(res, false, null, "Belum tervalidasi", 400);
+      next();
+    } catch (error) {
+      console.log(error, "error request");
+    }
+  }
   // async validation(
   // 	req: Request,
   // 	res: Response,

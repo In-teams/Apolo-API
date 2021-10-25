@@ -15,11 +15,47 @@ import User from "../services/User";
 import Wilayah from "../services/Wilayah";
 
 class Redeem {
+  async checkout(req: Request, res: Response) {
+    try {
+      let outletPoint = await Service.getPointByOutlet(req);
+      let outletPointRedeem = await Service.getPointRedeemByOutlet(req);
+      let diff =
+        outletPoint[0]?.achieve || 0 - outletPointRedeem[0]?.redeem || 0;
+      let product = await Service.getProduct(req, diff);
+      let temp: any[] = [];
+      let total: number = 0;
+      req.validated.product
+        .map((e: any) => ({
+          ...e,
+          category: product.find((x: any) => x.product_id === e.product_id)
+            .category,
+          nama_produk: product.find((x: any) => x.product_id === e.product_id)
+            .product_name,
+          point: product.find((x: any) => x.product_id === e.product_id).point,
+        }))
+        .map((e: any) => {
+          total += e.point * e.quantity;
+          if (e.category === "PULSA" || e.category === "EWALLET") {
+            for (let i = 0; i < e.quantity; i++) {
+              temp.push({ ...e, quantity: 1 });
+            }
+          } else {
+            temp.push(e);
+          }
+        });
+      if (total > diff)
+        return response(res, false, null, "poin tidak cukup", 400);
+      return response(res, true, temp, null, 200);
+    } catch (error) {
+      console.log(error);
+    }
+  }
   async getProductCategory(req: Request, res: Response) {
     try {
-      let outletPoint = await Service.getPointByOutlet(req)
-      let outletPointRedeem = await Service.getPointRedeemByOutlet(req)
-      let diff = outletPoint[0]?.achieve || 0 - outletPointRedeem[0]?.redeem || 0
+      let outletPoint = await Service.getPointByOutlet(req);
+      let outletPointRedeem = await Service.getPointRedeemByOutlet(req);
+      let diff =
+        outletPoint[0]?.achieve || 0 - outletPointRedeem[0]?.redeem || 0;
       let product = await Service.getProductCategory(req, diff);
       return response(res, true, product, null, 200);
     } catch (error) {
@@ -28,9 +64,11 @@ class Redeem {
   }
   async getProduct(req: Request, res: Response) {
     try {
-      let outletPoint = await Service.getPointByOutlet(req)
-      let outletPointRedeem = await Service.getPointRedeemByOutlet(req)
-      let diff = parseFloat(outletPoint[0]?.achieve || 0) - parseFloat(outletPointRedeem[0]?.redeem || 0)
+      let outletPoint = await Service.getPointByOutlet(req);
+      let outletPointRedeem = await Service.getPointRedeemByOutlet(req);
+      let diff =
+        parseFloat(outletPoint[0]?.achieve || 0) -
+        parseFloat(outletPointRedeem[0]?.redeem || 0);
       let product = await Service.getProduct(req, diff);
       return response(res, true, product, null, 200);
     } catch (error) {
@@ -49,7 +87,7 @@ class Redeem {
     try {
       let file = await Service.getRedeemFile(req);
       file = GetFile(req, file, "redeem", "filename");
-      file = DateFormat.index(file, "DD MMMM YYYY HH:mm:ss", "tgl_upload")
+      file = DateFormat.index(file, "DD MMMM YYYY HH:mm:ss", "tgl_upload");
       return response(res, true, file, null, 200);
     } catch (error) {
       console.log(error);
@@ -58,7 +96,7 @@ class Redeem {
   async getHistoryRedeemFile(req: Request, res: Response) {
     try {
       let file = await Service.getHistoryRedeemFile(req);
-      file = DateFormat.index(file, "DD MMMM YYYY HH:mm:ss", "created_at")
+      file = DateFormat.index(file, "DD MMMM YYYY HH:mm:ss", "created_at");
       return response(res, true, file, null, 200);
     } catch (error) {
       console.log(error);
