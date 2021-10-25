@@ -274,7 +274,7 @@ class Registration {
     if (!type_file) type_file = 0;
     const { outlet_id, periode_id, file_id } = req.validated;
     let query =
-      "SELECT * FROM trx_file_registrasi WHERE outlet_id = ? AND (periode_id = ? OR id = ?) AND type_file = ?";
+      "SELECT fr.*, s.level FROM trx_file_registrasi AS fr INNER JOIN ms_status_registrasi AS s ON s.id = fr.status_registrasi WHERE outlet_id = ? AND (periode_id = ? OR fr.id = ?) AND type_file = ?";
 
     return await db.query(query, {
       raw: true,
