@@ -12,19 +12,19 @@ import Outlet from "../services/Outlet";
 import service from "../services/Redeem";
 
 class Redeem {
-  // getProduct(req: Request, res: Response, next: NextFunction): any {
-  // 	const schema = joi.object({
-  // 		outlet_id: joi.string().required(),
-  // 		category: joi.string(),
-  // 	});
+  getProduct(req: Request, res: Response, next: NextFunction): any {
+  	const schema = joi.object({
+  		outlet_id: joi.string().required(),
+  		category: joi.string(),
+  	});
 
-  // 	const { value, error } = schema.validate(req.query);
-  // 	if (error) {
-  // 		return response(res, false, null, error.message, 400);
-  // 	}
-  // 	req.validated = value;
-  // 	next();
-  // }
+  	const { value, error } = schema.validate(req.query);
+  	if (error) {
+  		return response(res, false, null, error.message, 400);
+  	}
+  	req.validated = value;
+  	next();
+  }
   getRedeemFile(req: Request, res: Response, next: NextFunction): any {
     const schema = joi.object({
       outlet_id: joi.string().required(),

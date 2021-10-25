@@ -15,6 +15,24 @@ import User from "../services/User";
 import Wilayah from "../services/Wilayah";
 
 class Redeem {
+  async getProductCategory(req: Request, res: Response) {
+    try {
+      let outletPoint = await Service.getPointByOutlet(req)
+      let product = await Service.getProductCategory(req, outletPoint[0].achieve);
+      return response(res, true, product, null, 200);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async getProduct(req: Request, res: Response) {
+    try {
+      let outletPoint = await Service.getPointByOutlet(req)
+      let product = await Service.getProduct(req, outletPoint[0].achieve);
+      return response(res, true, product, null, 200);
+    } catch (error) {
+      console.log(error);
+    }
+  }
   async getRedeemStatus(req: Request, res: Response) {
     try {
       let status = await Service.getRedeemStatus(req);

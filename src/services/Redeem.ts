@@ -78,13 +78,10 @@ class Redeem {
   }
   async getRedeemStatus(req: Request): Promise<any> {
     try {
-      return await db.query(
-        "SELECT * FROM ms_status_penukaran",
-        {
-          raw: true,
-          type: QueryTypes.SELECT,
-        }
-      );
+      return await db.query("SELECT * FROM ms_status_penukaran", {
+        raw: true,
+        type: QueryTypes.SELECT,
+      });
     } catch (error) {}
   }
   async getRedeemFile(req: Request): Promise<any> {
@@ -367,6 +364,33 @@ class Redeem {
       type: QueryTypes.SELECT,
       replacements: pp,
     });
+  }
+  async getProduct(req: Request, point: number): Promise<any> {
+    const {category} = req.validated
+    let q = "SELECT mp.product_id, mp.product_name, mpb.point FROM ms_product AS mp INNER JOIN ms_program_barang AS mpb ON mp.product_id =  mpb.product_id WHERE point <= ?"
+    let params = [point]
+    if(category){
+      q += " AND category = ?"
+      params.push(category)
+    }
+    return await db.query(
+      q,
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+        replacements: [...params]
+      }
+    );
+  }
+  async getProductCategory(req: Request, point: number): Promise<any> {
+    return await db.query(
+      "SELECT DISTINCT category FROM ms_product AS mp INNER JOIN ms_program_barang AS mpb ON mp.product_id =  mpb.product_id WHERE point <= ?",
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+        replacements: [point]
+      }
+    );
   }
 }
 
