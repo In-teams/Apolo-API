@@ -3,6 +3,7 @@ import db from "../config/db";
 import App from "../helpers/App";
 import DateFormat from "../helpers/DateFormat";
 import GetFile from "../helpers/GetFile";
+import IncrementNumber from "../helpers/IncrementNumber";
 import NumberFormat from "../helpers/NumberFormat";
 import RedeemHelper from "../helpers/RedeemHelper";
 import response from "../helpers/Response";
@@ -16,14 +17,31 @@ import Wilayah from "../services/Wilayah";
 
 class Redeem {
   async checkout(req: Request, res: Response) {
+    const t = await db.transaction();
     try {
       let outletPoint = await Service.getPointByOutlet(req);
       let outletPointRedeem = await Service.getPointRedeemByOutlet(req);
       let diff =
-        outletPoint[0]?.achieve || 0 - outletPointRedeem[0]?.redeem || 0;
-      let product = await Service.getProduct(req, diff);
+        parseInt(outletPoint[0]?.achieve || 0) -
+        parseInt(outletPointRedeem[0]?.redeem || 0);
+      let product: any[] = await Service.getProduct(req, diff);
       let temp: any[] = [];
       let total: number = 0;
+      let trCode = await Service.getLastTrRedeemCode();
+      const today = DateFormat.getToday("YYYY-MM-DD");
+      trCode = IncrementNumber(trCode);
+      const product_id: any[] = req.validated.product.map(
+        (e: any) => e.product_id
+      );
+      let filtered: any[] = [];
+      product_id.map((p: any) => {
+        const result = product.filter((e: any) => e.product_id === p);
+        if (result.length > 0) {
+          filtered = [...filtered, ...result];
+        }
+      });
+      if (filtered.length < 1)
+        return response(res, false, null, "something wrong", 400);
       req.validated.product
         .map((e: any) => ({
           ...e,
@@ -32,21 +50,46 @@ class Redeem {
           nama_produk: product.find((x: any) => x.product_id === e.product_id)
             .product_name,
           point: product.find((x: any) => x.product_id === e.product_id).point,
+          no_id: req.validated.outlet_id,
+          tgl_transaksi: today,
+          status: "R",
+          no_batch: "MS",
+          program_id: "MON-001",
         }))
         .map((e: any) => {
           total += e.point * e.quantity;
           if (e.category === "PULSA" || e.category === "EWALLET") {
             for (let i = 0; i < e.quantity; i++) {
-              temp.push({ ...e, quantity: 1 });
+              temp.push({ ...e, quantity: 1, kd_transaksi: trCode });
+              trCode = IncrementNumber(trCode);
             }
           } else {
-            temp.push(e);
+            temp.push({ ...e, kd_transaksi: trCode });
           }
+          trCode = IncrementNumber(trCode);
         });
+      const data = temp.map((e: any) => ({
+        kd_transaksi: e.kd_transaksi,
+        tgl_transaksi: e.tgl_transaksi,
+        no_batch: e.no_batch,
+        program_id: e.program_id,
+        no_id: e.no_id,
+        status: e.status,
+      }));
+      const detail = temp.map((e: any) => ({
+        kd_transaksi: e.kd_transaksi,
+        kd_produk: e.product_id,
+        nama_produk: e.nama_produk,
+        quantity: e.quantity,
+        point_satuan: e.point,
+      }));
       if (total > diff)
         return response(res, false, null, "poin tidak cukup", 400);
-      return response(res, true, temp, null, 200);
+      await Service.insert(data, detail, t);
+      t.commit();
+      return response(res, true, "Redeem sukses", null, 200);
     } catch (error) {
+      t.rollback();
       console.log(error);
     }
   }

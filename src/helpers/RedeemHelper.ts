@@ -17,7 +17,7 @@ class RedeemHelper {
               achieve: achieve,
               redeem: redeem,
               diff: parseFloat((achieve - redeem).toFixed(2)),
-              percentage: parseFloat(((redeem / achieve) * 100).toFixed(2)),
+              percentage: parseFloat(((redeem / achieve) * 100).toFixed(2)) || 0,
               pencapaian: ((redeem / achieve) * 100).toFixed(2) + "%",
             };
           })

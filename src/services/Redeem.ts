@@ -366,21 +366,19 @@ class Redeem {
     });
   }
   async getProduct(req: Request, point: number): Promise<any> {
-    const {category} = req.validated
-    let q = "SELECT mp.product_id, mp.product_name, mpb.point, category FROM ms_product AS mp INNER JOIN ms_program_barang AS mpb ON mp.product_id =  mpb.product_id WHERE point <= ?"
-    let params = [point]
-    if(category){
-      q += " AND category = ?"
-      params.push(category)
+    const { category } = req.validated;
+    let q =
+      "SELECT mp.product_id, mp.product_name, mpb.point, category FROM ms_product AS mp INNER JOIN ms_program_barang AS mpb ON mp.product_id =  mpb.product_id WHERE point <= ?";
+    let params = [point];
+    if (category) {
+      q += " AND category = ?";
+      params.push(category);
     }
-    return await db.query(
-      q,
-      {
-        raw: true,
-        type: QueryTypes.SELECT,
-        replacements: [...params]
-      }
-    );
+    return await db.query(q, {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: [...params],
+    });
   }
   async getProductCategory(req: Request, point: number): Promise<any> {
     return await db.query(
@@ -388,9 +386,38 @@ class Redeem {
       {
         raw: true,
         type: QueryTypes.SELECT,
-        replacements: [point]
+        replacements: [point],
       }
     );
+  }
+  async getLastTrRedeemCode(): Promise<any> {
+    const data: any = await db.query(
+      "SELECT MAX(kd_transaksi) AS trCode FROM trx_transaksi_redeem",
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+      }
+    );
+
+    return data[0]?.trCode || "MV2021-1-00000001";
+  }
+  async insert(data: any[], detail: any[], t: any): Promise<any> {
+    const dataVal = data.map((e: any) => Object.values(e));
+    const dataDetail = detail.map((e: any) => Object.values(e));
+
+    await db.query("INSERT INTO trx_transaksi_redeem VALUES ?", {
+      raw: true,
+      type: QueryTypes.INSERT,
+      transaction: t,
+      replacements: [dataVal],
+    });
+
+    return await db.query("INSERT INTO trx_transaksi_redeem_barang (kd_transaksi, kd_produk, nama_produk, quantity, point_satuan) VALUES ?", {
+      raw: true,
+      type: QueryTypes.INSERT,
+      transaction: t,
+      replacements: [dataDetail],
+    });
   }
 }
 
