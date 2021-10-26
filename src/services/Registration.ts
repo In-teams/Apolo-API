@@ -237,7 +237,7 @@ class Registration {
   }
   async getLastRegistration(req: Request): Promise<any> {
     let q =
-      "SELECT fr.outlet_id, fr.tgl_upload, o.outlet_name FROM trx_file_registrasi AS fr INNER JOIN mstr_outlet AS o ON o.outlet_id = fr.outlet_id INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg. pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN ms_periode_registrasi pr ON pr.id = fr. periode_id WHERE fr.tgl_upload BETWEEN pr.tgl_mulai AND pr.tgl_selesai AND fr.type_file = 0";
+      "SELECT fr.outlet_id, fr.tgl_upload, o.outlet_name FROM trx_file_registrasi AS fr INNER JOIN mstr_outlet AS o ON o.outlet_id = fr.outlet_id INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg. pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE fr.type_file = 0";
 
     let { query, params } = FilterParams.register(req, q);
 
