@@ -57,6 +57,15 @@ class Outlet {
       replacements: ["No", null, "100000-ANA047"],
     });
   }
+  async outletIsRegist(outlet_id: string): Promise<any> {
+    const get: any = await db.query("SELECT valid FROM mstr_outlet WHERE outlet_id = ?", {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: [outlet_id],
+    });
+
+    return get[0]?.valid
+  }
 }
 
 export default new Outlet();

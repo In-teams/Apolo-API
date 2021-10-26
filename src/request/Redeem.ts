@@ -124,12 +124,9 @@ class Redeem {
         return response(res, false, null, "must be value at least 1", 400);
 
       req.validated = value;
-      req.validated.tgl_mulai = DateFormat.getToday("YYYY-MM-DD HH:mm:ss")
-      const getPeriode = await Periode.checkData(req)
-      req.validated.periode_id = getPeriode[0].id
-      const getFormRegist = await Registration.getRegistrationForm(req);
-      if(getFormRegist.length < 1) return response(res, false, null, "Belum regist", 400);
-      if(getFormRegist[0]?.level !== "Level 4") return response(res, false, null, "Belum tervalidasi", 400);
+      const isRegis = await Outlet.outletIsRegist(value.outlet_id);
+      if (!["Yes+", "Yes"].includes(isRegis))
+        return response(res, false, null, "Belum registrasi", 400);
       next();
     } catch (error) {
       console.log(error, "error request");
@@ -191,6 +188,10 @@ class Redeem {
         const msg = "only pdf and image extention will be allowed";
         return response(res, false, null, msg, 400);
       }
+
+      const isRegis = await Outlet.outletIsRegist(value.outlet_id);
+      if (!["Yes+", "Yes"].includes(isRegis))
+        return response(res, false, null, "Belum registrasi", 400);
 
       const random = cryptoRandomString({ length: 10, type: "alphanumeric" });
       const filename = `${random}${ext}`;
