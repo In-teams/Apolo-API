@@ -405,7 +405,7 @@ class Redeem {
   }
   async getProductCategory(req: Request, point: number): Promise<any> {
     return await db.query(
-      "SELECT DISTINCT category FROM ms_product AS mp INNER JOIN ms_program_barang AS mpb ON mp.product_id =  mpb.product_id WHERE point <= ?",
+      "SELECT DISTINCT mpc.* FROM ms_product AS mp INNER JOIN ms_program_barang AS mpb ON mp.product_id =  mpb.product_id INNER JOIN ms_product_category AS mpc ON mp.category = mpc.kd_category WHERE point <= ?",
       {
         raw: true,
         type: QueryTypes.SELECT,
