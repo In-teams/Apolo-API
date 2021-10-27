@@ -208,14 +208,14 @@ class Sales {
       let data: any = await Service.getSummary(req);
       let dataOutletActive: any = await Outlet.getOutletActive(req);
       let dataRegist: any = await Registration.getRegistrationSummary(req);
-      const { total, total_outlet } = dataRegist[0];
+      const { regist } = dataRegist[0];
       const result: object = {
         ...dataOutletActive[0],
-        regist: dataRegist[0].total,
-        percentage_regist: ((total / total_outlet) * 100).toFixed(2) + "%",
-        percen_regist: ((total / total_outlet) * 100).toFixed(2),
-        notregist: total_outlet - total,
-        aoro: ((dataOutletActive[0].aktif/dataRegist[0].total) * 100).toFixed(2)
+        regist: regist || 0,
+        percentage_regist: ((regist / dataOutletActive[0].total_outlet) * 100).toFixed(2) + "%",
+        percen_regist: ((regist / dataOutletActive[0].total_outlet) * 100).toFixed(2) + "%",
+        notregist: dataOutletActive[0].total_outlet - regist,
+        aoro: ((regist/dataOutletActive[0].aktif) * 100).toFixed(2) + "%"
       };
       let point = await Redeem.getPoint(req);
       let pointRedeem = await Redeem.getPointRedeem(req);
