@@ -118,9 +118,20 @@ class Redeem {
       console.log(error);
     }
   }
+  async validation(req: Request, res: Response) {
+    const t = await db.transaction();
+    try {
+      await Service.validation(req.validated, t);
+      t.commit();
+      return response(res, true, "berhasil divalidasi", null, 200);
+    } catch (error) {
+      t.rollback();
+      console.log(error);
+    }
+  }
   async getRedeemStatus(req: Request, res: Response) {
     try {
-      let status = await Service.getRedeemStatus(req);
+      let status = await Service.getRedeemStatus();
       return response(res, true, status, null, 200);
     } catch (error) {
       console.log(error);

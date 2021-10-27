@@ -21,6 +21,29 @@ const getPointRedeemByHirarki = (col: string): string =>
   `SELECT ${col}, CAST(SUM(trrb.point_satuan * trrb.quantity) AS DECIMAL(20,2)) AS redeem FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trrb ON tr.kd_transaksi = trrb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id`;
 
 class Redeem {
+  async validation(data: any, t: any): Promise<any> {
+    try {
+      const { status_penukaran, validated_at, file_id, outlet_id } = data;
+      await db.query(
+        "UPDATE trx_file_penukaran SET status_penukaran = ?, validated_at = ? WHERE id = ?",
+        {
+          raw: true,
+          type: QueryTypes.UPDATE,
+          transaction: t,
+          replacements: [status_penukaran, validated_at, file_id],
+        }
+      );
+      return await db.query(
+        "INSERT INTO trx_history_penukaran (outlet_id, status_penukaran, file_id, created_at) VALUES(?, ?, ?, ?)",
+        {
+          raw: true,
+          type: QueryTypes.INSERT,
+          transaction: t,
+          replacements: [outlet_id, status_penukaran, file_id, validated_at],
+        }
+      );
+    } catch (error) {}
+  }
   async postRedeemFile(req: Request, t: any): Promise<any> {
     try {
       const { outlet_id, filename, tgl_upload } = req.validated.file;
@@ -76,7 +99,7 @@ class Redeem {
       );
     } catch (error) {}
   }
-  async getRedeemStatus(req: Request): Promise<any> {
+  async getRedeemStatus(): Promise<any> {
     try {
       return await db.query("SELECT * FROM ms_status_penukaran", {
         raw: true,
@@ -114,7 +137,7 @@ class Redeem {
   }
   async getRedeemFileById(req: Request): Promise<any> {
     try {
-      const { file_id } = req.validated;
+      const { file_id, outlet_id } = req.validated;
       const thisMonth = +DateFormat.getToday("MM");
       return await db.query("SELECT * FROM trx_file_penukaran WHERE id = ?", {
         raw: true,
@@ -412,12 +435,15 @@ class Redeem {
       replacements: [dataVal],
     });
 
-    return await db.query("INSERT INTO trx_transaksi_redeem_barang (kd_transaksi, kd_produk, nama_produk, quantity, point_satuan) VALUES ?", {
-      raw: true,
-      type: QueryTypes.INSERT,
-      transaction: t,
-      replacements: [dataDetail],
-    });
+    return await db.query(
+      "INSERT INTO trx_transaksi_redeem_barang (kd_transaksi, kd_produk, nama_produk, quantity, point_satuan) VALUES ?",
+      {
+        raw: true,
+        type: QueryTypes.INSERT,
+        transaction: t,
+        replacements: [dataDetail],
+      }
+    );
   }
 }
 

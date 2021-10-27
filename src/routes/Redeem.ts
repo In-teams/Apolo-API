@@ -29,7 +29,7 @@ class Redeem implements IRouter {
     this.router.get("/history/:file_id", RedeemRequest.getHistoryRedeemFile, RedeemController.getHistoryRedeemFile);
     this.router.get("/status-penukaran", RedeemController.getRedeemStatus);
     this.router.post("/checkout", RedeemRequest.checkout, RedeemController.checkout);
-    // this.router.post("/validation", RedeemRequest.validation, RedeemController.validation);
+    this.router.post("/validation", RedeemRequest.validation, RedeemController.validation);
   }
 }
 

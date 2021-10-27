@@ -132,35 +132,42 @@ class Redeem {
       console.log(error, "error request");
     }
   }
-  // async validation(
-  // 	req: Request,
-  // 	res: Response,
-  // 	next: NextFunction
-  // ): Promise<any> {
-  // 	try {
-  // 		const schema = joi.object({
-  // 			status_penukaran: joi.number().required(),
-  // 			outlet_id: joi.string().required(),
-  // 		});
+  async validation(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      let statusList: any[] = await service.getRedeemStatus()
+      statusList = statusList.map((e: any) => e.id)
+      const schema = joi.object({
+        status_penukaran: joi.number().valid(...statusList).required(),
+        outlet_id: joi.string().required(),
+        file_id: joi.number().required(),
+      });
 
-  // 		const { value, error } = schema.validate(req.body);
-  // 		if (error) {
-  // 			return response(res, false, null, error.message, 400);
-  // 		}
+      const { value, error } = schema.validate(req.body);
+      if (error) {
+        return response(res, false, null, error.message, 400);
+      }
 
-  // 		req.validated = value;
-  // 		const isUploaded = await service.getRedeemForm(req);
-  // 		if (isUploaded.length < 1)
-  // 			return response(res, false, null, 'reedemption is not uploaded', 400);
-  // 		const { status_penukaran: status, id } = isUploaded[0];
-  // 		if (status === 7 || status === 8)
-  // 			return response(res, false, null, 'reedemption was validated', 400);
-  // 		req.validated.id = id;
-  // 		next();
-  // 	} catch (error) {
-  // 		console.log(error, 'error request');
-  // 	}
-  // }
+      req.validated = value;
+      const isRegis = await Outlet.outletIsRegist(value.outlet_id);
+      if (!["Yes+", "Yes"].includes(isRegis))
+        return response(res, false, null, "Belum registrasi", 400);
+      const isUploaded = await service.getRedeemFileById(req);
+      if (isUploaded.length < 1)
+        return response(res, false, null, "file not found", 404);
+      if ([7, 8].includes(isUploaded[0]?.status_penukaran))
+        return response(res, false, null, "File sudah tervalidasi", 400);
+      if (isUploaded[0]?.outlet_id !== value.outlet_id)
+        return response(res, false, null, "Something wrong!", 400);
+      req.validated = {...req.validated, validated_at: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),}
+      next();
+    } catch (error) {
+      console.log(error, "error request");
+    }
+  }
   async post(req: Request, res: Response, next: NextFunction): Promise<any> {
     const t = await db.transaction();
     try {
