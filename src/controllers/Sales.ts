@@ -102,8 +102,22 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
+      let regists = await Registration.getRegistrationSummaryByHR(req);
       let data: any = await Service.getSalesByHR(req);
       data = await SalesHelper(req, data, "wilayah");
+      data = data.map((e: any) => {
+        const regist = regists.find(
+          (r: any) => r.wilayah === e.wilayah
+        )?.regist;
+        const notregist = regists.find(
+          (r: any) => r.wilayah === e.wilayah
+        )?.notregist;
+        return {
+          ...e,
+          regist: regist,
+          notregist: notregist?.notregist,
+        };
+      });
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
@@ -212,10 +226,12 @@ class Sales {
       const result: object = {
         ...dataOutletActive[0],
         regist: regist || 0,
-        percentage_regist: ((regist / dataOutletActive[0].total_outlet) * 100).toFixed(2) + "%",
-        percen_regist: ((regist / dataOutletActive[0].total_outlet) * 100).toFixed(2) + "%",
+        percentage_regist:
+          ((regist / dataOutletActive[0].total_outlet) * 100).toFixed(2) + "%",
+        percen_regist:
+          ((regist / dataOutletActive[0].total_outlet) * 100).toFixed(2) + "%",
         notregist: dataOutletActive[0].total_outlet - regist,
-        aoro: ((regist/dataOutletActive[0].aktif) * 100).toFixed(2) + "%"
+        aoro: ((regist / dataOutletActive[0].aktif) * 100).toFixed(2) + "%",
       };
       let point = await Redeem.getPoint(req);
       let pointRedeem = await Redeem.getPointRedeem(req);
@@ -227,8 +243,11 @@ class Sales {
       );
       resultPoin = {
         ...resultPoin,
-        percentage_poin: ((resultPoin.redeem / resultPoin.achieve) * 100).toFixed(2) + "%",
-        percen_poin: ((resultPoin.redeem / resultPoin.achieve) * 100).toFixed(2),
+        percentage_poin:
+          ((resultPoin.redeem / resultPoin.achieve) * 100).toFixed(2) + "%",
+        percen_poin: ((resultPoin.redeem / resultPoin.achieve) * 100).toFixed(
+          2
+        ),
         diff_poin: resultPoin.achieve - resultPoin.redeem,
       };
       data = data.map((val: any) => ({

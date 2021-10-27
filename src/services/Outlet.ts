@@ -40,7 +40,7 @@ class Outlet {
   async getOutletActive(req: Request): Promise<any> {
     let { query: qoc, params: poc } = FilterParams.query(req, queryOutletCount);
 
-    let q = `SELECT (${qoc}) AS total_outlet, COUNT(DISTINCT tr.no_id) AS aktif FROM trx_transaksi AS tr INNER JOIN mstr_outlet AS o ON tr.no_id = o.outlet_id INNER JOIN ms_pulau_alias AS r ON o.region_id = r. pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL`;
+    let q = `SELECT (${qoc}) AS total_outlet, COUNT(DISTINCT tr.no_id) AS aktif FROM trx_transaksi AS tr INNER JOIN mstr_outlet AS o ON tr.no_id = o.outlet_id INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL`;
 
     let { query, params } = FilterParams.query(req, q);
 

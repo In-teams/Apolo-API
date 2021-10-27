@@ -323,7 +323,7 @@ class Sales {
     let { query: qa, params: pa } = filterParams.aktual(req, queryAktual);
     let { query: qo, params: po } = filterParams.count(req, queryOutletCount);
 
-    let query = `SELECT DISTINCT (${qa}) AS aktual, (${qt}) AS target, (${qo}) AS total_outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL`;
+    let query = `SELECT DISTINCT (${qa}) AS aktual, (${qt}) AS target, (${qo}) AS total_outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL`;
 
     let { query: newQuery, params } = filterParams.query(req, query);
 
