@@ -113,6 +113,7 @@ class Redeem {
           )
           .required(),
         outlet_id: joi.string().required(),
+        file_id: joi.number().required(),
       });
 
       const { value, error } = schema.validate(req.body);
@@ -127,6 +128,9 @@ class Redeem {
       const isRegis = await Outlet.outletIsRegist(value.outlet_id);
       if (!["Yes+", "Yes"].includes(isRegis))
         return response(res, false, null, "Belum registrasi", 400);
+      const isUploaded = await service.getRedeemFileById(req);
+      if (isUploaded.length < 1)
+        return response(res, false, null, "Belum upload form redeem", 400);
       next();
     } catch (error) {
       console.log(error, "error request");
@@ -138,10 +142,13 @@ class Redeem {
     next: NextFunction
   ): Promise<any> {
     try {
-      let statusList: any[] = await service.getRedeemStatus()
-      statusList = statusList.map((e: any) => e.id)
+      let statusList: any[] = await service.getRedeemStatus();
+      statusList = statusList.map((e: any) => e.id);
       const schema = joi.object({
-        status_penukaran: joi.number().valid(...statusList).required(),
+        status_penukaran: joi
+          .number()
+          .valid(...statusList)
+          .required(),
         outlet_id: joi.string().required(),
         file_id: joi.number().required(),
       });
@@ -162,7 +169,10 @@ class Redeem {
         return response(res, false, null, "File sudah tervalidasi", 400);
       if (isUploaded[0]?.outlet_id !== value.outlet_id)
         return response(res, false, null, "Something wrong!", 400);
-      req.validated = {...req.validated, validated_at: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),}
+      req.validated = {
+        ...req.validated,
+        validated_at: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),
+      };
       next();
     } catch (error) {
       console.log(error, "error request");
