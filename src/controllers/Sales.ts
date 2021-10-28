@@ -81,23 +81,36 @@ class Sales {
         _.sumBy(data, (o) => o[key]);
       const { sort } = req.validated;
       const outlet: any[] = await Outlet.get(req);
-      const totalOutlet: any = await Outlet.getOutletCount(req);
+      let totalOutlet: any = await Outlet.getOutletCount(req);
+      totalOutlet = totalOutlet[0].total
       let targets: any = await Service.getTargetByOutlet(req);
       const totalTarget: number = sumDataBy(targets, "target");
       targets = ArrayOfObjToObj(targets, "outlet_id", "target", "outlet");
       let aktuals: any = await Service.getAktualByOutlet(req);
       aktuals = ArrayOfObjToObj(aktuals, "no_id", "aktual");
+      let points : any[] = await Redeem.getPointByOutlet(req)
+      points = ArrayOfObjToObj(points, "outlet_id", "achieve")
+      let pointRedeems : any[] = await Redeem.getPointRedeemByOutlet(req)
+      pointRedeems = ArrayOfObjToObj(pointRedeems, "outlet_id", "redeem")
+      let regists = ArrayOfObjToObj(outlet, "outlet_id", "valid")
       let result: any[] = outlet
         .map((e: any) => {
           const target = targets[e.outlet_id]?.target;
           const outlet = targets[e.outlet_id]?.outlet;
           const aktual = +aktuals[e.outlet_id]?.aktual;
+          const achieve = parseFloat(points[e.outlet_id]?.achieve || 0);
+          const redeem = parseFloat(pointRedeems[e.outlet_id]?.redeem || 0);
+          const regist = ['Yes', 'Yes+'].includes(regists[e.outlet_id]?.valid || '')
           const pencapaian =
             parseFloat(((aktual / target) * 100).toFixed(2)) || 0;
           return {
             ...e,
             target,
             aktual,
+            achieve,
+            redeem,
+            regist,
+            diff_point: achieve - redeem,
             outlet,
             diff: aktual - target,
             pencapaian: pencapaian,
@@ -138,6 +151,7 @@ class Sales {
         },
       ];
       result = NumberFormat(result, true, "aktual", "target", "diff");
+      result = NumberFormat(result, false, "achieve", "redeem", "diff_point");
       return response(res, true, result, null, 200);
     } catch (error) {
       console.log(error);

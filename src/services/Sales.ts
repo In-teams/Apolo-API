@@ -39,6 +39,7 @@ class Sales {
       replacements: [...p],
     });
 
+    return data
     return data[0].target
   }
   async getSalesByDistributor(req: Request): Promise<salesByHirarki[]> {
