@@ -33,11 +33,13 @@ class Sales {
       "SELECT SUM(st.target_sales) AS target FROM ( SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS st INNER JOIN mstr_outlet AS ou ON ou.outlet_id = st.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id INNER JOIN ms_bulan AS b ON b.bulan = st.month_target WHERE st.outlet_id IS NOT NULL";
     let { query: q, params: p } = filterParams.target(req, query);
 
-    return await db.query(q, {
+    const data: any = await db.query(q, {
       raw: true,
       type: QueryTypes.SELECT,
       replacements: [...p],
     });
+
+    return data[0].target
   }
   async getSalesByDistributor(req: Request): Promise<salesByHirarki[]> {
     const { sort } = req.validated;

@@ -7,6 +7,7 @@ import _ from "lodash";
 import Registration from "../services/Registration";
 import Outlet from "../services/Outlet";
 import Redeem from "../services/Redeem";
+import ArrayOfObjToObj from "../helpers/ArrayOfObjToObj";
 
 const getCluster = (aktual: number, target: number): string => {
   const data = +((aktual / target) * 100).toFixed(2);
@@ -76,9 +77,68 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let data: any = await Service.getSalesByOutlet(req);
-      data = await SalesHelper(req, data, "outlet_name");
-      return response(res, true, data, null, 200);
+      const sumDataBy = (data: any[], key: string) =>
+        _.sumBy(data, (o) => o[key]);
+      const { sort } = req.validated;
+      const outlet: any[] = await Outlet.get(req);
+      const totalOutlet: any = await Outlet.getOutletCount(req);
+      let targets: any = await Service.getTargetByOutlet(req);
+      const totalTarget: number = sumDataBy(targets, "target");
+      targets = ArrayOfObjToObj(targets, "outlet_id", "target", "outlet");
+      let aktuals: any = await Service.getAktualByOutlet(req);
+      aktuals = ArrayOfObjToObj(aktuals, "no_id", "aktual");
+      let result: any[] = outlet
+        .map((e: any) => {
+          const target = targets[e.outlet_id]?.target;
+          const outlet = targets[e.outlet_id]?.outlet;
+          const aktual = +aktuals[e.outlet_id]?.aktual;
+          const pencapaian =
+            parseFloat(((aktual / target) * 100).toFixed(2)) || 0;
+          return {
+            ...e,
+            target,
+            aktual,
+            outlet,
+            diff: aktual - target,
+            pencapaian: pencapaian,
+            percentage: pencapaian + "%",
+            kontribusi: ((aktual / totalTarget) * 100).toFixed(2) + "%",
+            bobot_target: ((target / totalTarget) * 100).toFixed(2) + "%",
+            bobot_outlet: ((outlet / totalOutlet) * 100).toFixed(2) + "%",
+          };
+        })
+        .sort((a: any, b: any) => {
+          return sort.toUpperCase() === "DESC"
+            ? b.pencapaian - a.pencapaian
+            : a.pencapaian - b.pencapaian;
+        })
+        .slice(0, 5);
+      const sumData = (data: any[], key: string) =>
+        _.reduce(data, (prev: any, curr: any) => prev + curr[key], 0);
+      result = [
+        ...result,
+        {
+          outlet_name: "Total Pencapaian",
+          target: sumData(result, "target"),
+          aktual: sumData(result, "aktual"),
+          diff: sumData(result, "diff"),
+          percentage:
+            parseFloat(
+              (
+                (sumData(result, "aktual") / sumData(result, "target")) *
+                100
+              ).toFixed(2)
+            ) + "%",
+          kontribusi:
+            ((sumData(result, "aktual") / totalTarget) * 100).toFixed(2) + "%",
+          bobot_target:
+            ((sumData(result, "target") / totalTarget) * 100).toFixed(2) + "%",
+          bobot_outlet:
+            ((sumData(result, "outlet") / totalOutlet) * 100).toFixed(2) + "%",
+        },
+      ];
+      result = NumberFormat(result, true, "aktual", "target", "diff");
+      return response(res, true, result, null, 200);
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
