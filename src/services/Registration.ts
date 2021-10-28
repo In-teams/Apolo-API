@@ -561,9 +561,9 @@ class Registration {
     if (type === "outlet") {
       select = "o.outlet_id, o.outlet_name";
       groupBy = "o.outlet_id";
-    } else if (type === "region") {
-      groupBy = "o.outlet_id";
-      select = "o.outlet_id, o.outlet_name";
+    } else if (type === "hr") {
+      select = "hr.head_region_id, hr.head_region_name";
+      groupBy = "hr.head_region_id";
     }
     const q = `SELECT DISTINCT ${select}, COUNT(fr.id) AS registrasi FROM mstr_outlet AS o INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON dp.distributor_id = d.distributor_id INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN ms_head_region AS hr ON hr.head_region_id = reg.head_region_id LEFT JOIN trx_file_registrasi AS fr ON fr.outlet_id = o.outlet_id AND fr.type_file = 0 WHERE o.outlet_id IS NOT NULL`;
 

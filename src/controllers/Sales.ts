@@ -8,6 +8,7 @@ import Registration from "../services/Registration";
 import Outlet from "../services/Outlet";
 import Redeem from "../services/Redeem";
 import ArrayOfObjToObj from "../helpers/ArrayOfObjToObj";
+import Wilayah from "../services/Wilayah";
 
 const getCluster = (aktual: number, target: number): string => {
   const data = +((aktual / target) * 100).toFixed(2);
@@ -83,11 +84,11 @@ class Sales {
       const outlet: any[] = await Outlet.get(req);
       let totalOutlet: any = await Outlet.getOutletCount(req);
       totalOutlet = totalOutlet[0].total
-      let targets: any = await Service.getTargetByOutlet(req);
+      let targets: any = await Service.getTargetByHirarki(req, "outlet");
       const totalTarget: number = sumDataBy(targets, "target");
       targets = ArrayOfObjToObj(targets, "outlet_id", "target", "outlet");
-      let aktuals: any = await Service.getAktualByOutlet(req);
-      aktuals = ArrayOfObjToObj(aktuals, "no_id", "aktual");
+      let aktuals: any = await Service.getAktualByHirarki(req, "outlet");
+      aktuals = ArrayOfObjToObj(aktuals, "outlet_id", "aktual");
       let points : any[] = await Redeem.getPointByOutlet(req)
       points = ArrayOfObjToObj(points, "outlet_id", "achieve")
       let pointRedeems : any[] = await Redeem.getPointRedeemByOutlet(req)
@@ -177,23 +178,23 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let regists = await Registration.getRegistrationSummaryByHR(req);
-      let data: any = await Service.getSalesByHR(req);
-      data = await SalesHelper(req, data, "wilayah");
-      data = data.map((e: any) => {
-        const regist = regists.find(
-          (r: any) => r.wilayah === e.wilayah
-        )?.regist;
-        const notregist = regists.find(
-          (r: any) => r.wilayah === e.wilayah
-        )?.notregist;
-        return {
-          ...e,
-          regist: regist,
-          notregist: notregist?.notregist,
-        };
-      });
-      return response(res, true, data, null, 200);
+      const sumDataBy = (data: any[], key: string) =>
+        _.sumBy(data, (o) => o[key]);
+      let hr: any[] = await Wilayah.get(req)
+      // let totalOutlet: any = await Outlet.getOutletCount(req);
+      // totalOutlet = totalOutlet[0].total
+      let targets: any = await Service.getTargetByHirarki(req, "hr");
+      const totalTarget: number = sumDataBy(targets, "target");
+      targets = ArrayOfObjToObj(targets, "head_region_id", "target", "outlet");
+      // let aktuals: any = await Service.getAktualByOutlet(req);
+      // aktuals = ArrayOfObjToObj(aktuals, "no_id", "aktual");
+      // let points : any[] = await Redeem.getPointByOutlet(req)
+      // points = ArrayOfObjToObj(points, "outlet_id", "achieve")
+      // let pointRedeems : any[] = await Redeem.getPointRedeemByOutlet(req)
+      // pointRedeems = ArrayOfObjToObj(pointRedeems, "outlet_id", "redeem")
+      let regists: any[] = await Registration.getRegistrationCount(req, "hr")
+      regists = ArrayOfObjToObj(regists, "head_region_id", "registrasi")
+      return response(res, true, hr, null, 200);
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
@@ -344,8 +345,8 @@ class Sales {
   }
   async coba(req: Request, res: Response): Promise<object | undefined> {
     try {
-      const target = await Service.getTargetByOutlet(req);
-      const aktual = await Service.getAktualByOutlet(req);
+      const target = await Service.getTargetByHirarki(req, "outlet");
+      const aktual = await Service.getAktualByHirarki(req, "outlet");
 
       const sumData = (data: any[], key: string) =>
         _.reduce(data, (prev: any, curr: any) => prev + curr[key], 0);

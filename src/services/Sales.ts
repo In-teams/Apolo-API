@@ -39,8 +39,8 @@ class Sales {
       replacements: [...p],
     });
 
-    return data
-    return data[0].target
+    return data;
+    return data[0].target;
   }
   async getSalesByDistributor(req: Request): Promise<salesByHirarki[]> {
     const { sort } = req.validated;
@@ -261,8 +261,8 @@ class Sales {
 
     let query = `SELECT CASE WHEN b.id = 1 OR b.id = 2 OR b.id = 3 THEN '1' WHEN b.id = 4 OR b.id = 5 OR b.id = 6 THEN '2' WHEN b.id = 7 OR b.id = 8 OR b.id = 9 THEN '3' WHEN b.id = 10 OR b.id = 11 OR b.id = 12 THEN '4' END AS kuartal, SUM(aktual) AS aktual, SUM(poin) AS poin, SUM(target) AS target FROM mstr_outlet AS o LEFT JOIN(${qt}) AS mst ON mst.outlet_id = o.outlet_id LEFT JOIN(${qap}) AS trb ON trb.bulan = mst.bulan INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN ms_bulan AS b ON b.id = mst.bulan WHERE o.outlet_id IS NOT NULL`;
 
-    if(semester_id){
-      query += ` AND b.id IN (${semester_id})`
+    if (semester_id) {
+      query += ` AND b.id IN (${semester_id})`;
     }
 
     let { query: newQuery, params } = filterParams.query(req, query);
@@ -336,27 +336,44 @@ class Sales {
       replacements: [...pt, ...pa, ...po, ...params],
     });
   }
-  async getTargetByOutlet(req: Request) {
-    let q =
-      "SELECT SUM(mst.target_sales) AS target, mst.outlet_id, COUNT(DISTINCT mst.outlet_id) AS outlet FROM ( SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS mst INNER JOIN ms_bulan AS b ON b.bulan = mst.month_target INNER JOIN mstr_outlet as ou ON ou.outlet_id = mst.outlet_id INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id INNER JOIN ms_pulau_alias AS r ON ou. region_id = r.pulau_id_alias WHERE mst.outlet_id IS NOT NULL";
+  async getTargetByHirarki(req: Request, type?: string) {
+    let select = "";
+    let groupBy = "";
+    if (type === "outlet") {
+      select = "ou.outlet_id, ou.outlet_name";
+      groupBy = "ou.outlet_id";
+    } else if (type === "hr") {
+      select = "hr.head_region_id, hr.head_region_name";
+      groupBy = "hr.head_region_id";
+    }
+    let q = `SELECT SUM(mst.target_sales) AS target, ${select}, COUNT(DISTINCT mst.outlet_id) AS outlet FROM ( SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS mst INNER JOIN ms_bulan AS b ON b.bulan = mst.month_target INNER JOIN mstr_outlet as ou ON ou.outlet_id = mst.outlet_id INNER JOIN mstr_distributor AS d ON d.distributor_id = ou.distributor_id INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id INNER JOIN ms_pulau_alias AS r ON ou. region_id = r.pulau_id_alias INNER JOIN ms_head_region AS hr ON hr.head_region_id = r.head_region_id WHERE mst.outlet_id IS NOT NULL`;
 
     let { query, params } = filterParams.target(req, q);
 
-    return await db.query(query + " GROUP BY mst.outlet_id", {
+    return await db.query(query + ` GROUP BY ${groupBy}`, {
       raw: true,
       type: QueryTypes.SELECT,
       replacements: [...params],
     });
   }
-  async getAktualByOutlet(
-    req: Request
+  async getAktualByHirarki(
+    req: Request,
+    type?: string
   ): Promise<{ aktual: string; no_id: string }[]> {
-    let q =
-      "SELECT SUM(trb.sales) AS aktual, tr.no_id, COUNT(DISTINCT tr.no_id) AS outlet FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet AS ou ON ou.outlet_id = tr.no_id INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id INNER JOIN ms_pulau_alias AS r ON ou. region_id = r.pulau_id_alias WHERE tr.no_id IS NOT NULL";
+    let select = "";
+    let groupBy = "";
+    if (type === "outlet") {
+      select = "ou.outlet_id, ou.outlet_name";
+      groupBy = "ou.outlet_id";
+    } else if (type === "hr") {
+      select = "hr.head_region_id, hr.head_region_name";
+      groupBy = "hr.head_region_id";
+    }
+    let q = `SELECT SUM(trb.sales) AS aktual, ${select}, COUNT(DISTINCT tr.no_id) AS outlet FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet AS ou ON ou.outlet_id = tr.no_id INNER JOIN mstr_distributor AS d ON d.distributor_id = ou.distributor_id INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id INNER JOIN ms_pulau_alias AS r ON ou. region_id = r.pulau_id_alias INNER JOIN ms_head_region AS hr ON hr.head_region_id = r.head_region_id WHERE tr.no_id IS NOT NULL`;
 
     let { query, params } = filterParams.aktual(req, q);
 
-    return await db.query(query + " GROUP BY tr.no_id", {
+    return await db.query(query + ` GROUP BY ${groupBy}`, {
       raw: true,
       type: QueryTypes.SELECT,
       replacements: [...params],
