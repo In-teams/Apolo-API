@@ -219,9 +219,9 @@ class Redeem {
       const pointRedeem: any[] = await Service.getPointRedeemPerMonth(req);
       let result = months.map((e: any) => ({
         ...e,
-        achieve: point[e.id] || 0,
-        redeem: pointRedeem[e.id] || 0,
-        diff: parseFloat(point[e.id] || 0) - parseFloat(pointRedeem[e.id] || 0),
+        achieve: point[e.id]?.achieve || 0,
+        redeem: pointRedeem[e.id]?.redeem || 0,
+        diff: parseFloat(point[e.id]?.achieve || 0) - parseFloat(pointRedeem[e.id]?.redeem || 0),
       }));
       result = NumberFormat(result, false, "achieve", "redeem", "diff");
       return response(res, true, result, null, 200);
