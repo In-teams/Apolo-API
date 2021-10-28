@@ -92,7 +92,8 @@ class Sales {
       points = ArrayOfObjToObj(points, "outlet_id", "achieve")
       let pointRedeems : any[] = await Redeem.getPointRedeemByOutlet(req)
       pointRedeems = ArrayOfObjToObj(pointRedeems, "outlet_id", "redeem")
-      let regists = ArrayOfObjToObj(outlet, "outlet_id", "valid")
+      let regists: any[] = await Registration.getRegistrationCount(req, "outlet")
+      regists = ArrayOfObjToObj(regists, "outlet_id", "registrasi")
       let result: any[] = outlet
         .map((e: any) => {
           const target = targets[e.outlet_id]?.target;
@@ -100,7 +101,7 @@ class Sales {
           const aktual = +aktuals[e.outlet_id]?.aktual;
           const achieve = parseFloat(points[e.outlet_id]?.achieve || 0);
           const redeem = parseFloat(pointRedeems[e.outlet_id]?.redeem || 0);
-          const regist = ['Yes', 'Yes+'].includes(regists[e.outlet_id]?.valid || '')
+          const regist = regists[e.outlet_id]?.registrasi || 0
           const pencapaian =
             parseFloat(((aktual / target) * 100).toFixed(2)) || 0;
           return {
