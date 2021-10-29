@@ -32,10 +32,10 @@ class SalesHelper2 {
     regists = ArrayOfObjToObj(regists, key2, "registrasi");
     let result: any[] = data
       .map((e: any) => {
-        const target = targets[e[key2]]?.target;
-        const outlet = targets[e[key2]]?.outlet;
-        const ao = aktuals[e[key2]]?.outlet;
-        const aktual = +aktuals[e[key2]]?.aktual;
+        const target = targets[e[key2]]?.target || 0;
+        const outlet = targets[e[key2]]?.outlet || 0;
+        const ao = aktuals[e[key2]]?.outlet || 0;
+        const aktual = +aktuals[e[key2]]?.aktual || 0;
         const achieve = parseFloat(points[e[key2]]?.achieve || 0);
         const redeem = parseFloat(pointRedeems[e[key2]]?.redeem || 0);
         const regist: number = regists[e[key2]]?.registrasi || 0;

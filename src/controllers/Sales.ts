@@ -280,28 +280,35 @@ class Sales {
   }
   async coba(req: Request, res: Response): Promise<object | undefined> {
     try {
-      const target = await Service.getTargetByHirarki(req, "outlet");
-      const aktual = await Service.getAktualByHirarki(req, "outlet");
-
       const sumData = (data: any[], key: string) =>
         _.reduce(data, (prev: any, curr: any) => prev + curr[key], 0);
       const sumDataBy = (data: any[], key: string) =>
         _.sumBy(data, (o) => o[key]);
+      const outlet: any[] = await Outlet.get(req);
+      let targets: any[] = await Service.getTargetByHirarki(req, "outlet");
+      let totalOutlet: number = sumDataBy(targets, "outlet");
+      let totalTarget = sumData(targets, "target");
+      targets = ArrayOfObjToObj(targets, "outlet_id", "target", "outlet");
+      let aktuals: any = await Service.getAktualByHirarki(req, "outlet");
+      aktuals = ArrayOfObjToObj(aktuals, "outlet_id", "aktual", "outlet");
+
       const getPercentage = (val1: number, val2: number): string =>
         ((val1 / val2) * 100).toFixed(2) + "%";
 
-      const match = target.map((e: any) => {
-        const act = parseInt(
-          aktual.find((a: any) => a.no_id === e.outlet_id)?.aktual || "0"
-        );
+      const match = outlet.map((e: any) => {
+        const target = targets[e.outlet_id]?.target || 0;
+        const aktual = +aktuals[e.outlet_id]?.aktual || 0;
+        const outlet = targets[e.outlet_id]?.outlet || 0;
         return {
           ...e,
-          bobot_outlet: getPercentage(e.outlet, sumData(target, "outlet")),
-          bobot_target: getPercentage(e.target, sumData(target, "target")),
-          kontribusi: getPercentage(act, sumData(target, "target")),
-          aktual: act,
-          pencapaian: ((act / e.target) * 100).toFixed(2) + "%",
-          cluster: getCluster(act, e.target),
+          bobot_outlet: getPercentage(outlet, totalOutlet),
+          bobot_target: getPercentage(target, totalTarget),
+          kontribusi: getPercentage(aktual, totalTarget),
+          aktual,
+          target,
+          outlet,
+          pencapaian: ((aktual / target) * 100).toFixed(2) + "%",
+          cluster: getCluster(aktual, target),
         };
       });
 
@@ -314,15 +321,15 @@ class Sales {
           outlet: sumDataBy(items, "outlet"),
           bobot_outlet: getPercentage(
             sumDataBy(items, "outlet"),
-            sumData(target, "outlet")
+            totalOutlet
           ),
           bobot_target: getPercentage(
             sumDataBy(items, "target"),
-            sumData(target, "target")
+            totalTarget
           ),
           kontribusi: getPercentage(
             sumDataBy(items, "aktual"),
-            sumData(target, "target")
+            totalTarget
           ),
           pencapaian: getPercentage(
             sumDataBy(items, "aktual"),
