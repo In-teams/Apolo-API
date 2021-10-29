@@ -348,6 +348,9 @@ class Sales {
     }else if (type === "region") {
       select = "r.pulau_id_alias AS region_id, r.nama_pulau_alias AS region";
       groupBy = "r.pulau_id_alias";
+    }else if (type === "distributor") {
+      select = "d.distributor_id, d.distributor_name AS distributor";
+      groupBy = "d.distributor_id";
     }
     let q = `SELECT SUM(mst.target_sales) AS target, ${select}, COUNT(DISTINCT mst.outlet_id) AS outlet FROM ( SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS mst INNER JOIN ms_bulan AS b ON b.bulan = mst.month_target INNER JOIN mstr_outlet as ou ON ou.outlet_id = mst.outlet_id INNER JOIN mstr_distributor AS d ON d.distributor_id = ou.distributor_id INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id INNER JOIN ms_pulau_alias AS r ON ou. region_id = r.pulau_id_alias INNER JOIN ms_head_region AS hr ON hr.head_region_id = r.head_region_id WHERE mst.outlet_id IS NOT NULL`;
 
@@ -374,6 +377,9 @@ class Sales {
     } else if (type === "region") {
       select = "r.pulau_id_alias AS region_id, r.nama_pulau_alias AS region";
       groupBy = "r.pulau_id_alias";
+    }else if (type === "distributor") {
+      select = "d.distributor_id, d.distributor_name AS distributor";
+      groupBy = "d.distributor_id";
     }
     let q = `SELECT SUM(trb.sales) AS aktual, ${select}, COUNT(DISTINCT tr.no_id) AS outlet FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet AS ou ON ou.outlet_id = tr.no_id INNER JOIN mstr_distributor AS d ON d.distributor_id = ou.distributor_id INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_head_region AS hr ON hr.head_region_id = r.head_region_id WHERE tr.no_id IS NOT NULL`;
 

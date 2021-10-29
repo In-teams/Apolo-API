@@ -11,6 +11,7 @@ import ArrayOfObjToObj from "../helpers/ArrayOfObjToObj";
 import Wilayah from "../services/Wilayah";
 import SalesHelper2 from "../helpers/SalesHelper2";
 import Region from "../services/Region";
+import Distributor from "../services/Distributor";
 
 const getCluster = (aktual: number, target: number): string => {
   const data = +((aktual / target) * 100).toFixed(2);
@@ -28,9 +29,16 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let data: any = await Service.getSalesByDistributor(req);
-      data = await SalesHelper(req, data, "distributor");
-      return response(res, true, data, null, 200);
+      const distributors = await Distributor.get(req);
+      const result = await SalesHelper2(
+        req,
+        distributors,
+        "distributor",
+        "distributor_id",
+        "distributor",
+        "distributor_name"
+      );
+      return response(res, true, result, null, 200);
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
@@ -319,18 +327,9 @@ class Sales {
           aktual: sumDataBy(items, "aktual"),
           target: sumDataBy(items, "target"),
           outlet: sumDataBy(items, "outlet"),
-          bobot_outlet: getPercentage(
-            sumDataBy(items, "outlet"),
-            totalOutlet
-          ),
-          bobot_target: getPercentage(
-            sumDataBy(items, "target"),
-            totalTarget
-          ),
-          kontribusi: getPercentage(
-            sumDataBy(items, "aktual"),
-            totalTarget
-          ),
+          bobot_outlet: getPercentage(sumDataBy(items, "outlet"), totalOutlet),
+          bobot_target: getPercentage(sumDataBy(items, "target"), totalTarget),
+          kontribusi: getPercentage(sumDataBy(items, "aktual"), totalTarget),
           pencapaian: getPercentage(
             sumDataBy(items, "aktual"),
             sumDataBy(items, "target")
