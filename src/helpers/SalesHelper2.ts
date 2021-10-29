@@ -1,0 +1,96 @@
+import { Request } from "express";
+import Redeem from "../services/Redeem";
+import Registration from "../services/Registration";
+import Sales from "../services/Sales";
+import ArrayOfObjToObj from "./ArrayOfObjToObj";
+import NumberFormat from "./NumberFormat";
+import _ from "lodash";
+
+class SalesHelper2 {
+  async index(req: Request, data: any[], key: string, key2: any, hirarki: string, hirarkiName: string) {
+    const { sort } = req.validated;
+    const sumDataBy = (data: any[], key: string) =>
+      _.sumBy(data, (o) => o[key]);
+    let targets: any = await Sales.getTargetByHirarki(req, key);
+    let totalOutlet: number = sumDataBy(targets, "outlet");
+    const totalTarget: number = sumDataBy(targets, "target");
+    targets = ArrayOfObjToObj(targets, key2, "target", "outlet");
+    let aktuals: any = await Sales.getAktualByHirarki(req, key);
+    aktuals = ArrayOfObjToObj(aktuals, key2, "aktual", "outlet");
+    let points: any[] = await Redeem.getPointByHR(req);
+    points = ArrayOfObjToObj(points, key2, "achieve");
+    let pointRedeems: any[] = await Redeem.getPointRedeemByHR(req);
+    pointRedeems = ArrayOfObjToObj(pointRedeems, key2, "redeem");
+    let regists: any[] = await Registration.getRegistrationCount(req, key);
+    regists = ArrayOfObjToObj(regists, key2, "registrasi");
+    let result: any[] = data
+      .map((e: any) => {const abc = key2
+        const target = targets[e[key2]]?.target;
+        const outlet = targets[e[key2]]?.outlet;
+        const ao = aktuals[e[key2]]?.outlet;
+        const aktual = +aktuals[e[key2]]?.aktual;
+        const achieve = parseFloat(points[e[key2]]?.achieve || 0);
+        const redeem = parseFloat(pointRedeems[e[key2]]?.redeem || 0);
+        const regist: number = regists[e[key2]]?.registrasi || 0;
+        const aoro: string = ((regist / ao) * 100).toFixed(2) + "%";
+        const percen = ((aktual / target) * 100).toFixed(2);
+        const pencapaian = parseFloat(percen) || 0;
+        return {
+          ...e,
+          [hirarki]: e[hirarkiName],
+          target,
+          aktual,
+          achieve,
+          redeem,
+          regist,
+          ao,
+          aoro,
+          diff_point: achieve - redeem,
+          outlet,
+          diff: aktual - target,
+          pencapaian: pencapaian,
+          percentage: percen + "%",
+          kontribusi: ((aktual / totalTarget) * 100).toFixed(2) + "%",
+          bobot_target: ((target / totalTarget) * 100).toFixed(2) + "%",
+          bobot_outlet: ((outlet / totalOutlet) * 100).toFixed(2) + "%",
+        };
+      })
+      .sort((a: any, b: any) => {
+        return sort.toUpperCase() === "DESC"
+          ? b.pencapaian - a.pencapaian
+          : a.pencapaian - b.pencapaian;
+      })
+      .slice(0, 5);
+    const sumData = (data: any[], key: string) =>
+      _.reduce(data, (prev: any, curr: any) => prev + curr[key], 0);
+    result = [
+      ...result,
+      {
+        outlet_name: "Total Pencapaian",
+        target: sumData(result, "target"),
+        achieve: sumData(result, "achieve"),
+        aktual: sumData(result, "aktual"),
+        redeem: sumData(result, "redeem"),
+        diff: sumData(result, "diff"),
+        diff_point: sumData(result, "diff_point"),
+        percentage:
+          (
+            (sumData(result, "aktual") / sumData(result, "target")) *
+            100
+          ).toFixed(2) + "%",
+        kontribusi:
+          ((sumData(result, "aktual") / totalTarget) * 100).toFixed(2) + "%",
+        bobot_target:
+          ((sumData(result, "target") / totalTarget) * 100).toFixed(2) + "%",
+        bobot_outlet:
+          ((sumData(result, "outlet") / totalOutlet) * 100).toFixed(2) + "%",
+      },
+    ];
+    result = NumberFormat(result, true, "aktual", "target", "diff");
+    result = NumberFormat(result, false, "achieve", "redeem", "diff_point");
+
+    return result
+  }
+}
+
+export default new SalesHelper2().index

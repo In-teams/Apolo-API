@@ -9,6 +9,7 @@ import Outlet from "../services/Outlet";
 import Redeem from "../services/Redeem";
 import ArrayOfObjToObj from "../helpers/ArrayOfObjToObj";
 import Wilayah from "../services/Wilayah";
+import SalesHelper2 from "../helpers/SalesHelper2";
 
 const getCluster = (aktual: number, target: number): string => {
   const data = +((aktual / target) * 100).toFixed(2);
@@ -78,82 +79,15 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
-      const sumDataBy = (data: any[], key: string) =>
-        _.sumBy(data, (o) => o[key]);
-      const { sort } = req.validated;
       const outlet: any[] = await Outlet.get(req);
-      let totalOutlet: any = await Outlet.getOutletCount(req);
-      totalOutlet = totalOutlet[0].total
-      let targets: any = await Service.getTargetByHirarki(req, "outlet");
-      const totalTarget: number = sumDataBy(targets, "target");
-      targets = ArrayOfObjToObj(targets, "outlet_id", "target", "outlet");
-      let aktuals: any = await Service.getAktualByHirarki(req, "outlet");
-      aktuals = ArrayOfObjToObj(aktuals, "outlet_id", "aktual");
-      let points : any[] = await Redeem.getPointByOutlet(req)
-      points = ArrayOfObjToObj(points, "outlet_id", "achieve")
-      let pointRedeems : any[] = await Redeem.getPointRedeemByOutlet(req)
-      pointRedeems = ArrayOfObjToObj(pointRedeems, "outlet_id", "redeem")
-      let regists: any[] = await Registration.getRegistrationCount(req, "outlet")
-      regists = ArrayOfObjToObj(regists, "outlet_id", "registrasi")
-      let result: any[] = outlet
-        .map((e: any) => {
-          const target = targets[e.outlet_id]?.target;
-          const outlet = targets[e.outlet_id]?.outlet;
-          const aktual = +aktuals[e.outlet_id]?.aktual;
-          const achieve = parseFloat(points[e.outlet_id]?.achieve || 0);
-          const redeem = parseFloat(pointRedeems[e.outlet_id]?.redeem || 0);
-          const regist = regists[e.outlet_id]?.registrasi || 0
-          const pencapaian =
-            parseFloat(((aktual / target) * 100).toFixed(2)) || 0;
-          return {
-            ...e,
-            target,
-            aktual,
-            achieve,
-            redeem,
-            regist,
-            diff_point: achieve - redeem,
-            outlet,
-            diff: aktual - target,
-            pencapaian: pencapaian,
-            percentage: pencapaian + "%",
-            kontribusi: ((aktual / totalTarget) * 100).toFixed(2) + "%",
-            bobot_target: ((target / totalTarget) * 100).toFixed(2) + "%",
-            bobot_outlet: ((outlet / totalOutlet) * 100).toFixed(2) + "%",
-          };
-        })
-        .sort((a: any, b: any) => {
-          return sort.toUpperCase() === "DESC"
-            ? b.pencapaian - a.pencapaian
-            : a.pencapaian - b.pencapaian;
-        })
-        .slice(0, 5);
-      const sumData = (data: any[], key: string) =>
-        _.reduce(data, (prev: any, curr: any) => prev + curr[key], 0);
-      result = [
-        ...result,
-        {
-          outlet_name: "Total Pencapaian",
-          target: sumData(result, "target"),
-          aktual: sumData(result, "aktual"),
-          diff: sumData(result, "diff"),
-          percentage:
-            parseFloat(
-              (
-                (sumData(result, "aktual") / sumData(result, "target")) *
-                100
-              ).toFixed(2)
-            ) + "%",
-          kontribusi:
-            ((sumData(result, "aktual") / totalTarget) * 100).toFixed(2) + "%",
-          bobot_target:
-            ((sumData(result, "target") / totalTarget) * 100).toFixed(2) + "%",
-          bobot_outlet:
-            ((sumData(result, "outlet") / totalOutlet) * 100).toFixed(2) + "%",
-        },
-      ];
-      result = NumberFormat(result, true, "aktual", "target", "diff");
-      result = NumberFormat(result, false, "achieve", "redeem", "diff_point");
+      let result: any[] = await SalesHelper2(
+        req,
+        outlet,
+        "outlet",
+        "outlet_id",
+        "outlet_name",
+        "outlet_name"
+      );
       return response(res, true, result, null, 200);
     } catch (error) {
       console.log(error);
@@ -178,23 +112,16 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
-      const sumDataBy = (data: any[], key: string) =>
-        _.sumBy(data, (o) => o[key]);
-      let hr: any[] = await Wilayah.get(req)
-      // let totalOutlet: any = await Outlet.getOutletCount(req);
-      // totalOutlet = totalOutlet[0].total
-      let targets: any = await Service.getTargetByHirarki(req, "hr");
-      const totalTarget: number = sumDataBy(targets, "target");
-      targets = ArrayOfObjToObj(targets, "head_region_id", "target", "outlet");
-      // let aktuals: any = await Service.getAktualByOutlet(req);
-      // aktuals = ArrayOfObjToObj(aktuals, "no_id", "aktual");
-      // let points : any[] = await Redeem.getPointByOutlet(req)
-      // points = ArrayOfObjToObj(points, "outlet_id", "achieve")
-      // let pointRedeems : any[] = await Redeem.getPointRedeemByOutlet(req)
-      // pointRedeems = ArrayOfObjToObj(pointRedeems, "outlet_id", "redeem")
-      let regists: any[] = await Registration.getRegistrationCount(req, "hr")
-      regists = ArrayOfObjToObj(regists, "head_region_id", "registrasi")
-      return response(res, true, hr, null, 200);
+      let hr: any[] = await Wilayah.get(req);
+      let result = await SalesHelper2(
+        req,
+        hr,
+        "hr",
+        "head_region_id",
+        "wilayah",
+        "head_region_name"
+      );
+      return response(res, true, result, null, 200);
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
