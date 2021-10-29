@@ -12,6 +12,7 @@ import Wilayah from "../services/Wilayah";
 import SalesHelper2 from "../helpers/SalesHelper2";
 import Region from "../services/Region";
 import Distributor from "../services/Distributor";
+import Area from "../services/Area";
 
 const getCluster = (aktual: number, target: number): string => {
   const data = +((aktual / target) * 100).toFixed(2);
@@ -49,9 +50,9 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let data: any = await Service.getSalesByArea(req);
-      data = await SalesHelper(req, data, "city");
-      return response(res, true, data, null, 200);
+      const cities = await Area.get(req)
+      const result = await SalesHelper2(req, cities, "area", "area_id", "city", "city_name_alias")
+      return response(res, true, result, null, 200);
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);

@@ -570,8 +570,11 @@ class Registration {
     }else if (type === "distributor") {
       select = "d.distributor_id, d.distributor_name AS distributor";
       groupBy = "d.distributor_id";
+    }else if (type === "area") {
+      select = "c.city_id_alias AS area_id, c.city_name_alias AS city";
+      groupBy = "c.city_id_alias";
     }
-    const q = `SELECT DISTINCT ${select}, COUNT(fr.id) AS registrasi FROM mstr_outlet AS o INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON dp.distributor_id = d.distributor_id INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN ms_head_region AS hr ON hr.head_region_id = reg.head_region_id LEFT JOIN trx_file_registrasi AS fr ON fr.outlet_id = o.outlet_id AND fr.type_file = 0 WHERE o.outlet_id IS NOT NULL`;
+    const q = `SELECT DISTINCT ${select}, COUNT(fr.id) AS registrasi FROM mstr_outlet AS o INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON dp.distributor_id = d.distributor_id INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN ms_city_alias AS c ON c.city_id_alias = o.city_id_alias INNER JOIN ms_head_region AS hr ON hr.head_region_id = reg.head_region_id LEFT JOIN trx_file_registrasi AS fr ON fr.outlet_id = o.outlet_id AND fr.type_file = 0 WHERE o.outlet_id IS NOT NULL`;
 
     let { query, params } = FilterParams.query(req, q);
     return await db.query(query + ` GROUP BY ${groupBy}`, {
