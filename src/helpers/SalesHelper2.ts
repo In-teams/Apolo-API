@@ -7,7 +7,14 @@ import NumberFormat from "./NumberFormat";
 import _ from "lodash";
 
 class SalesHelper2 {
-  async index(req: Request, data: any[], key: string, key2: any, hirarki: string, hirarkiName: string) {
+  async index(
+    req: Request,
+    data: any[],
+    key: string,
+    key2: any,
+    hirarki: string,
+    hirarkiName: string
+  ) {
     const { sort } = req.validated;
     const sumDataBy = (data: any[], key: string) =>
       _.sumBy(data, (o) => o[key]);
@@ -24,7 +31,7 @@ class SalesHelper2 {
     let regists: any[] = await Registration.getRegistrationCount(req, key);
     regists = ArrayOfObjToObj(regists, key2, "registrasi");
     let result: any[] = data
-      .map((e: any) => {const abc = key2
+      .map((e: any) => {
         const target = targets[e[key2]]?.target;
         const outlet = targets[e[key2]]?.outlet;
         const ao = aktuals[e[key2]]?.outlet;
@@ -32,7 +39,7 @@ class SalesHelper2 {
         const achieve = parseFloat(points[e[key2]]?.achieve || 0);
         const redeem = parseFloat(pointRedeems[e[key2]]?.redeem || 0);
         const regist: number = regists[e[key2]]?.registrasi || 0;
-        const aoro: string = ((ao/outlet) * 100).toFixed(2) + "%";
+        const aoro: string = ((ao / outlet) * 100).toFixed(2) + "%";
         const percen = ((aktual / target) * 100).toFixed(2);
         const pencapaian = parseFloat(percen) || 0;
         return {
@@ -43,6 +50,7 @@ class SalesHelper2 {
           achieve,
           redeem,
           regist,
+          regist_progress: ((regist / outlet) * 100).toFixed(2) + "%",
           ao,
           aoro,
           diff_point: achieve - redeem,
@@ -89,8 +97,8 @@ class SalesHelper2 {
     result = NumberFormat(result, true, "aktual", "target", "diff");
     result = NumberFormat(result, false, "achieve", "redeem", "diff_point");
 
-    return result
+    return result;
   }
 }
 
-export default new SalesHelper2().index
+export default new SalesHelper2().index;
