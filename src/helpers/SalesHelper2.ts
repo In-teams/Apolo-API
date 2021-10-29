@@ -32,7 +32,7 @@ class SalesHelper2 {
         const achieve = parseFloat(points[e[key2]]?.achieve || 0);
         const redeem = parseFloat(pointRedeems[e[key2]]?.redeem || 0);
         const regist: number = regists[e[key2]]?.registrasi || 0;
-        const aoro: string = ((regist / ao) * 100).toFixed(2) + "%";
+        const aoro: string = ((ao/outlet) * 100).toFixed(2) + "%";
         const percen = ((aktual / target) * 100).toFixed(2);
         const pencapaian = parseFloat(percen) || 0;
         return {
