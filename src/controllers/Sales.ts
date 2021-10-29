@@ -10,6 +10,7 @@ import Redeem from "../services/Redeem";
 import ArrayOfObjToObj from "../helpers/ArrayOfObjToObj";
 import Wilayah from "../services/Wilayah";
 import SalesHelper2 from "../helpers/SalesHelper2";
+import Region from "../services/Region";
 
 const getCluster = (aktual: number, target: number): string => {
   const data = +((aktual / target) * 100).toFixed(2);
@@ -99,9 +100,16 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let data: any = await Service.getSalesByRegion(req);
-      data = await SalesHelper(req, data, "region");
-      return response(res, true, data, null, 200);
+      const regions = await Region.get(req);
+      const result = await SalesHelper2(
+        req,
+        regions,
+        "region",
+        "region_id",
+        "region",
+        "region_name"
+      );
+      return response(res, true, result, null, 200);
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);

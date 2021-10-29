@@ -24,9 +24,9 @@ class SalesHelper2 {
     targets = ArrayOfObjToObj(targets, key2, "target", "outlet");
     let aktuals: any = await Sales.getAktualByHirarki(req, key);
     aktuals = ArrayOfObjToObj(aktuals, key2, "aktual", "outlet");
-    let points: any[] = await Redeem.getPointByHR(req);
+    let points: any[] = await Redeem.getPointByHirarki(req, key);
     points = ArrayOfObjToObj(points, key2, "achieve");
-    let pointRedeems: any[] = await Redeem.getPointRedeemByHR(req);
+    let pointRedeems: any[] = await Redeem.getPointRedeemByHirarki(req, key);
     pointRedeems = ArrayOfObjToObj(pointRedeems, key2, "redeem");
     let regists: any[] = await Registration.getRegistrationCount(req, key);
     regists = ArrayOfObjToObj(regists, key2, "registrasi");
@@ -39,6 +39,7 @@ class SalesHelper2 {
         const achieve = parseFloat(points[e[key2]]?.achieve || 0);
         const redeem = parseFloat(pointRedeems[e[key2]]?.redeem || 0);
         const regist: number = regists[e[key2]]?.registrasi || 0;
+        const notregist: number = outlet - regist;
         const aoro: string = ((ao / outlet) * 100).toFixed(2) + "%";
         const percen = ((aktual / target) * 100).toFixed(2);
         const pencapaian = parseFloat(percen) || 0;
@@ -50,6 +51,7 @@ class SalesHelper2 {
           achieve,
           redeem,
           regist,
+          notregist,
           regist_progress: ((regist / outlet) * 100).toFixed(2) + "%",
           ao,
           aoro,
@@ -74,7 +76,7 @@ class SalesHelper2 {
     result = [
       ...result,
       {
-        outlet_name: "Total Pencapaian",
+        [hirarki]: "Total Pencapaian",
         target: sumData(result, "target"),
         achieve: sumData(result, "achieve"),
         aktual: sumData(result, "aktual"),

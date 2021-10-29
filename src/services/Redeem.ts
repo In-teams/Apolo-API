@@ -12,13 +12,13 @@ let getPointRedeemQuery =
   "SELECT CAST(SUM(trrb.point_satuan * trrb.quantity) AS DECIMAL(20,2)) AS redeem FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trrb ON tr.kd_transaksi = trrb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id";
 
 const getPointByHirarki = (col: string): string =>
-  `SELECT ${col}, CAST(SUM(trb.point_satuan) AS DECIMAL(20,2)) AS achieve FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id`;
+  `SELECT ${col}, CAST(SUM(trb.point_satuan) AS DECIMAL(20,2)) AS achieve FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id INNER JOIN ms_head_region AS hr ON hr.head_region_id = r.head_region_id`;
 const getPointByMonth = (): string =>
   `SELECT CAST(SUM(trb.point_satuan) AS DECIMAL(20,2)) AS achieve, MONTH(tr.tgl_transaksi) AS bulan FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id GROUP BY bulan`;
 const getPointRedeemByMonth = (): string =>
   `SELECT CAST(SUM(trrb.point_satuan * trrb.quantity) AS DECIMAL(20,2)) AS redeem, MONTH(tr.tgl_transaksi) AS bulan FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trrb ON tr.kd_transaksi = trrb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id GROUP BY bulan`;
 const getPointRedeemByHirarki = (col: string): string =>
-  `SELECT ${col}, CAST(SUM(trrb.point_satuan * trrb.quantity) AS DECIMAL(20,2)) AS redeem FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trrb ON tr.kd_transaksi = trrb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id`;
+  `SELECT ${col}, CAST(SUM(trrb.point_satuan * trrb.quantity) AS DECIMAL(20,2)) AS redeem FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trrb ON tr.kd_transaksi = trrb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id INNER JOIN ms_head_region AS hr ON hr.head_region_id = r.head_region_id`;
 
 class Redeem {
   async validation(data: any, t: any): Promise<any> {
@@ -263,6 +263,54 @@ class Redeem {
     );
 
     return await db.query(pq + " GROUP BY ou.outlet_id", {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: pp,
+    });
+  }
+  async getPointByHirarki(req: Request, type?: string): Promise<any> {
+    let select = "";
+    let groupBy = "";
+    if (type === "outlet") {
+      select = "ou.outlet_id, ou.outlet_name";
+      groupBy = "ou.outlet_id";
+    } else if (type === "hr") {
+      select = "hr.head_region_id, hr.head_region_name";
+      groupBy = "hr.head_region_id";
+    } else if (type === "region") {
+      select = "r.pulau_id_alias AS region_id, r.nama_pulau_alias AS region";
+      groupBy = "r.pulau_id_alias";
+    }
+    let { query: pq, params: pp } = FilterParams.aktual(
+      req,
+      getPointByHirarki(select)
+    );
+
+    return await db.query(pq + ` GROUP BY ${groupBy}`, {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: pp,
+    });
+  }
+  async getPointRedeemByHirarki(req: Request, type?: string): Promise<any> {
+    let select = "";
+    let groupBy = "";
+    if (type === "outlet") {
+      select = "ou.outlet_id, ou.outlet_name";
+      groupBy = "ou.outlet_id";
+    } else if (type === "hr") {
+      select = "hr.head_region_id, hr.head_region_name";
+      groupBy = "hr.head_region_id";
+    } else if (type === "region") {
+      select = "r.pulau_id_alias AS region_id, r.nama_pulau_alias AS region";
+      groupBy = "r.pulau_id_alias";
+    }
+    let { query: pq, params: pp } = FilterParams.aktual(
+      req,
+      getPointRedeemByHirarki(select)
+    );
+
+    return await db.query(pq + ` GROUP BY ${groupBy}`, {
       raw: true,
       type: QueryTypes.SELECT,
       replacements: pp,
