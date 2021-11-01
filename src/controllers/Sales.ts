@@ -308,11 +308,15 @@ class Sales {
         const target = targets[e.outlet_id]?.target || 0;
         const aktual = +aktuals[e.outlet_id]?.aktual || 0;
         const outlet = targets[e.outlet_id]?.outlet || 0;
+        const ao = aktuals[e.outlet_id]?.outlet || 0
+        const aoro = ((ao/outlet) * 100).toFixed(2) + "%"
         return {
           ...e,
           bobot_outlet: getPercentage(outlet, totalOutlet),
           bobot_target: getPercentage(target, totalTarget),
           kontribusi: getPercentage(aktual, totalTarget),
+          ao,
+          aoro,
           aktual,
           target,
           outlet,
@@ -328,6 +332,8 @@ class Sales {
           aktual: sumDataBy(items, "aktual"),
           target: sumDataBy(items, "target"),
           outlet: sumDataBy(items, "outlet"),
+          ao: sumDataBy(items, "ao"),
+          aoro: getPercentage(sumDataBy(items, "ao"), sumDataBy(items, "outlet")),
           bobot_outlet: getPercentage(sumDataBy(items, "outlet"), totalOutlet),
           bobot_target: getPercentage(sumDataBy(items, "target"), totalTarget),
           kontribusi: getPercentage(sumDataBy(items, "aktual"), totalTarget),
@@ -342,6 +348,8 @@ class Sales {
           aktual: sumData(match, "aktual"),
           target: sumData(match, "target"),
           outlet: sumData(match, "outlet"),
+          ao: sumData(match, "ao"),
+          aoro: getPercentage(sumData(match, "ao"), sumData(match, "outlet")),
           bobot_outlet: getPercentage(
             sumData(match, "outlet"),
             sumData(match, "outlet")

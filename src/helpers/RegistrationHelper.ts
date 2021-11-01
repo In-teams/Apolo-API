@@ -3,6 +3,7 @@ class RegistrationHelper {
     data = data.map((e: any) => ({
       ...e,
       Level1: e.notregist,
+      Level1percent: ((e.notregist/e.total) * 100).toFixed(2) + '%',
       percentage: e.pencapaian + "%",
       pencapaian: parseFloat(e.pencapaian),
     }));
