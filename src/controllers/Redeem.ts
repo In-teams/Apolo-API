@@ -216,20 +216,33 @@ class Redeem {
     res: Response
   ): Promise<object | undefined> {
     try {
+      const sumDataBy = (data: any[], key: string) =>
+        _.sumBy(data, (o) => o[key]);
       const months = App.months;
-      const aktual = await Sales.getAktualByMonth(req)
-      const target = await Sales.getTargetByMonth(req)
+      const aktual = await Sales.getAktualByMonth(req);
+      const target = await Sales.getTargetByMonth(req);
       const point: any[] = await Service.getPointPerMonth(req);
       const pointRedeem: any[] = await Service.getPointRedeemPerMonth(req);
-      let result = months.map((e: any) => ({
+      let result: any[] = months.map((e: any) => ({
         ...e,
-        achieve: point[e.id]?.achieve || 0,
+        achieve: parseFloat(point[e.id]?.achieve || 0),
         aktual: +aktual[e.id]?.aktual || 0,
-        target: target[e.month]?.target || 0,
-        redeem: pointRedeem[e.id]?.redeem || 0,
-        diff: parseFloat(point[e.id]?.achieve || 0) - parseFloat(pointRedeem[e.id]?.redeem || 0),
+        target: +target[e.month]?.target || 0,
+        redeem: parseFloat(pointRedeem[e.id]?.redeem || 0),
+        diff:
+          parseFloat(point[e.id]?.achieve || 0) -
+          parseFloat(pointRedeem[e.id]?.redeem || 0),
       }));
-      result = NumberFormat(result, true, "aktual", "target")
+
+      result.push({
+        month: "Total",
+        achieve: sumDataBy(result, "achieve"),
+        target: sumDataBy(result, "target"),
+        redeem: sumDataBy(result, "redeem"),
+        diff: sumDataBy(result, "diff"),
+        aktual: sumDataBy(result, "aktual"),
+      });
+      result = NumberFormat(result, true, "aktual", "target");
       result = NumberFormat(result, false, "achieve", "redeem", "diff");
       return response(res, true, result, null, 200);
     } catch (error) {
@@ -245,8 +258,8 @@ class Redeem {
       const sumDataBy = (data: any[], key: string) =>
         _.sumBy(data, (o) => o[key]);
       const months = App.months;
-      const aktual = await Sales.getAktualByMonth(req)
-      const target = await Sales.getTargetByMonth(req)
+      const aktual = await Sales.getAktualByMonth(req);
+      const target = await Sales.getTargetByMonth(req);
       const point: any[] = await Service.getPointPerMonth(req);
       const pointRedeem: any[] = await Service.getPointRedeemPerMonth(req);
       let result = months.map((e: any) => ({
@@ -256,16 +269,29 @@ class Redeem {
         target: target[e.month]?.target || 0,
         redeem: parseFloat(pointRedeem[e.id]?.redeem || 0),
         achieve: parseFloat(point[e.id]?.achieve || 0),
-        diff: parseFloat(point[e.id]?.achieve || 0) - parseFloat(pointRedeem[e.id]?.redeem || 0),
+        diff:
+          parseFloat(point[e.id]?.achieve || 0) -
+          parseFloat(pointRedeem[e.id]?.redeem || 0),
       }));
-      let grouping = _(result).groupBy("quarter").map((q: any) => ({
-        quarter: q[0].quarter,
-        achieve: sumDataBy(q, 'achieve'),
-        redeem: sumDataBy(q, 'redeem'),
-        target: sumDataBy(q, 'target'),
-        aktual: sumDataBy(q, 'aktual'),
-        diff: sumDataBy(q, 'diff'),
-      })).value()
+      let grouping: any[] = _(result)
+        .groupBy("quarter")
+        .map((q: any) => ({
+          quarter: q[0].quarter,
+          achieve: sumDataBy(q, "achieve"),
+          redeem: sumDataBy(q, "redeem"),
+          target: sumDataBy(q, "target"),
+          aktual: sumDataBy(q, "aktual"),
+          diff: sumDataBy(q, "diff"),
+        }))
+        .push({
+          quarter: "Total",
+          achieve: sumDataBy(result, "achieve"),
+          target: sumDataBy(result, "target"),
+          redeem: sumDataBy(result, "redeem"),
+          diff: sumDataBy(result, "diff"),
+          aktual: sumDataBy(result, "aktual"),
+        })
+        .value();
       grouping = NumberFormat(grouping, true, "target", "aktual");
       grouping = NumberFormat(grouping, false, "achieve", "redeem", "diff");
       return response(res, true, grouping, null, 200);
