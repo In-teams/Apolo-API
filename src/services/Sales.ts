@@ -1,6 +1,7 @@
 import { Request } from "express";
 import { QueryTypes } from "sequelize";
 import db from "../config/db";
+import ArrayOfObjToObj from "../helpers/ArrayOfObjToObj";
 import filterParams from "../helpers/FilterParams";
 import salesByHirarki from "../types/SalesInterface";
 
@@ -396,6 +397,34 @@ class Sales {
       type: QueryTypes.SELECT,
       replacements: [...params],
     });
+  }
+  async getAktualByMonth(
+    req: Request
+  ): Promise<any> {
+    let q = `SELECT SUM(trb.sales) AS aktual, COUNT(DISTINCT tr.no_id) AS outlet, MONTH(tr.tgl_transaksi) AS bulan FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet AS ou ON ou.outlet_id = tr.no_id INNER JOIN mstr_distributor AS d ON d.distributor_id = ou.distributor_id INNER JOIN ms_city_alias AS c ON c.city_id_alias = ou.city_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_head_region AS hr ON hr.head_region_id = r.head_region_id WHERE tr.no_id IS NOT NULL`;
+
+    let { query, params } = filterParams.aktual(req, q);
+
+    const data = await db.query(query + ` GROUP BY bulan`, {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: [...params],
+    });
+
+    return ArrayOfObjToObj(data, "bulan", "aktual", "outlet")
+  }
+  async getTargetByMonth(req: Request) {
+    let q = `SELECT SUM(mst.target_sales) AS target, COUNT(DISTINCT mst.outlet_id) AS outlet, mst.month_target AS bulan FROM ( SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS mst INNER JOIN ms_bulan AS b ON b.bulan = mst.month_target INNER JOIN mstr_outlet as ou ON ou.outlet_id = mst.outlet_id INNER JOIN mstr_distributor AS d ON d.distributor_id = ou.distributor_id INNER JOIN ms_city_alias AS c ON c.city_id_alias = ou.city_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id INNER JOIN ms_pulau_alias AS r ON ou. region_id = r.pulau_id_alias INNER JOIN ms_head_region AS hr ON hr.head_region_id = r.head_region_id WHERE mst.outlet_id IS NOT NULL`;
+
+    let { query, params } = filterParams.target(req, q);
+
+    const data = await db.query(query + ` GROUP BY bulan`, {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: [...params],
+    });
+
+    return ArrayOfObjToObj(data, "bulan", "target", "outlet")
   }
 }
 

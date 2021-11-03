@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import _ from "lodash";
 import db from "../config/db";
 import App from "../helpers/App";
 import DateFormat from "../helpers/DateFormat";
@@ -12,6 +13,7 @@ import Distributor from "../services/Distributor";
 import Outlet from "../services/Outlet";
 import Service from "../services/Redeem";
 import Region from "../services/Region";
+import Sales from "../services/Sales";
 import User from "../services/User";
 import Wilayah from "../services/Wilayah";
 
@@ -215,16 +217,58 @@ class Redeem {
   ): Promise<object | undefined> {
     try {
       const months = App.months;
+      const aktual = await Sales.getAktualByMonth(req)
+      const target = await Sales.getTargetByMonth(req)
       const point: any[] = await Service.getPointPerMonth(req);
       const pointRedeem: any[] = await Service.getPointRedeemPerMonth(req);
       let result = months.map((e: any) => ({
         ...e,
         achieve: point[e.id]?.achieve || 0,
+        aktual: +aktual[e.id]?.aktual || 0,
+        target: target[e.month]?.target || 0,
         redeem: pointRedeem[e.id]?.redeem || 0,
         diff: parseFloat(point[e.id]?.achieve || 0) - parseFloat(pointRedeem[e.id]?.redeem || 0),
       }));
+      result = NumberFormat(result, true, "aktual", "target")
       result = NumberFormat(result, false, "achieve", "redeem", "diff");
       return response(res, true, result, null, 200);
+    } catch (error) {
+      console.log(error);
+      return response(res, false, null, error, 500);
+    }
+  }
+  async getPointSummaryByQuarter(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      const sumDataBy = (data: any[], key: string) =>
+        _.sumBy(data, (o) => o[key]);
+      const months = App.months;
+      const aktual = await Sales.getAktualByMonth(req)
+      const target = await Sales.getTargetByMonth(req)
+      const point: any[] = await Service.getPointPerMonth(req);
+      const pointRedeem: any[] = await Service.getPointRedeemPerMonth(req);
+      let result = months.map((e: any) => ({
+        ...e,
+        quarter: App.getQuarter(e.id)[0].quarter,
+        aktual: +aktual[e.id]?.aktual || 0,
+        target: target[e.month]?.target || 0,
+        redeem: parseFloat(pointRedeem[e.id]?.redeem || 0),
+        achieve: parseFloat(point[e.id]?.achieve || 0),
+        diff: parseFloat(point[e.id]?.achieve || 0) - parseFloat(pointRedeem[e.id]?.redeem || 0),
+      }));
+      let grouping = _(result).groupBy("quarter").map((q: any) => ({
+        quarter: q[0].quarter,
+        achieve: sumDataBy(q, 'achieve'),
+        redeem: sumDataBy(q, 'redeem'),
+        target: sumDataBy(q, 'target'),
+        aktual: sumDataBy(q, 'aktual'),
+        diff: sumDataBy(q, 'diff'),
+      })).value()
+      grouping = NumberFormat(grouping, true, "target", "aktual");
+      grouping = NumberFormat(grouping, false, "achieve", "redeem", "diff");
+      return response(res, true, grouping, null, 200);
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
