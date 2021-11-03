@@ -13,6 +13,7 @@ import SalesHelper2 from "../helpers/SalesHelper2";
 import Region from "../services/Region";
 import Distributor from "../services/Distributor";
 import Area from "../services/Area";
+import User from "../services/User";
 
 const getCluster = (aktual: number, target: number): string => {
   const data = +((aktual / target) * 100).toFixed(2);
@@ -50,8 +51,15 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
-      const cities = await Area.get(req)
-      const result = await SalesHelper2(req, cities, "area", "area_id", "city", "city_name_alias")
+      const cities = await Area.get(req);
+      const result = await SalesHelper2(
+        req,
+        cities,
+        "area",
+        "area_id",
+        "area_name",
+        "area_name"
+      );
       return response(res, true, result, null, 200);
     } catch (error) {
       console.log(error);
@@ -63,9 +71,16 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let data: any = await Service.getSalesByASM(req);
-      data = await SalesHelper(req, data, "nama_pic");
-      return response(res, true, data, null, 200);
+      const asm: any[] = await User.getAsm(req);
+      const result = await SalesHelper2(
+        req,
+        asm,
+        "asm",
+        "asm_id",
+        "nama_pic",
+        "nama_pic"
+      );
+      return response(res, true, result, null, 200);
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
@@ -76,9 +91,16 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let data: any = await Service.getSalesByASS(req);
-      data = await SalesHelper(req, data, "nama_pic");
-      return response(res, true, data, null, 200);
+      const ass: any[] = await User.getAss(req);
+      const result = await SalesHelper2(
+        req,
+        ass,
+        "ass",
+        "ass_id",
+        "nama_pic",
+        "nama_pic"
+      );
+      return response(res, true, result, null, 200);
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
@@ -308,8 +330,8 @@ class Sales {
         const target = targets[e.outlet_id]?.target || 0;
         const aktual = +aktuals[e.outlet_id]?.aktual || 0;
         const outlet = targets[e.outlet_id]?.outlet || 0;
-        const ao = aktuals[e.outlet_id]?.outlet || 0
-        const aoro = ((ao/outlet) * 100).toFixed(2) + "%"
+        const ao = aktuals[e.outlet_id]?.outlet || 0;
+        const aoro = ((ao / outlet) * 100).toFixed(2) + "%";
         return {
           ...e,
           bobot_outlet: getPercentage(outlet, totalOutlet),
@@ -333,7 +355,10 @@ class Sales {
           target: sumDataBy(items, "target"),
           outlet: sumDataBy(items, "outlet"),
           ao: sumDataBy(items, "ao"),
-          aoro: getPercentage(sumDataBy(items, "ao"), sumDataBy(items, "outlet")),
+          aoro: getPercentage(
+            sumDataBy(items, "ao"),
+            sumDataBy(items, "outlet")
+          ),
           bobot_outlet: getPercentage(sumDataBy(items, "outlet"), totalOutlet),
           bobot_target: getPercentage(sumDataBy(items, "target"), totalTarget),
           kontribusi: getPercentage(sumDataBy(items, "aktual"), totalTarget),
