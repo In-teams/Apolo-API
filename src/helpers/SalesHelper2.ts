@@ -80,9 +80,13 @@ class SalesHelper2 {
         target: sumData(result, "target"),
         achieve: sumData(result, "achieve"),
         aktual: sumData(result, "aktual"),
+        ao: sumData(result, "ao"),
+        outlet: sumData(result, "outlet"),
+        aoro: ((sumData(result, "ao")/sumData(result, "outlet"))* 100).toFixed(2) + '%',
         redeem: sumData(result, "redeem"),
         diff: sumData(result, "diff"),
         diff_point: sumData(result, "diff_point"),
+        pencapaian: ((sumData(result, "aktual")/sumData(result, "target") * 100)).toFixed(2),
         percentage:
           (
             (sumData(result, "aktual") / sumData(result, "target")) *
