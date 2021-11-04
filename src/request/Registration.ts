@@ -115,6 +115,7 @@ class Registration {
           "only pdf and image extention will be allowed",
           400
         );
+      const {level} = req.decoded
       let { periode, id: periode_id } = check[0];
       periode = `p-${periode_id}`;
       const random = cryptoRandomString({ length: 10, type: "alphanumeric" });
@@ -142,6 +143,7 @@ class Registration {
           );
         } else {
           const { id, filename } = uploaded[0];
+          if(level !== "1") return response(res, false, null, "Upload hanya bisa sekali", 400)
           // await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
           await FileSystem.WriteFile(path, value.file, true, ext);
           req.validated.id = id;
