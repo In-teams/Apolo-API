@@ -314,7 +314,8 @@ class Redeem {
         pointRedeem,
         req.validated,
         "head_region_id",
-        "head_region_id"
+        "head_region_id",
+        "head_region_name"
       );
       return response(res, true, hr, null, 200);
     } catch (error) {
@@ -336,7 +337,8 @@ class Redeem {
         pointRedeem,
         req.validated,
         "pulau_id_alias",
-        "region_id"
+        "region_id",
+        "region_name"
       );
       return response(res, true, region, null, 200);
     } catch (error) {
@@ -359,7 +361,8 @@ class Redeem {
         pointRedeem,
         req.validated,
         "city_id_alias",
-        "area_id"
+        "area_id",
+        "area_name"
       );
       return response(res, true, area, null, 200);
     } catch (error) {
@@ -375,29 +378,14 @@ class Redeem {
       let point: any[] = await Service.getPointByDistributor(req);
       let pointRedeem: any[] = await Service.getPointRedeemByDistributor(req);
       let distributor: any[] = await Distributor.get(req);
-
-      // const arrayToObject1 = (arr: any[], key: string, key2: string) => {
-      //   return arr.reduce((obj: any, item: any) => {
-      //       obj[item[key]] = item[key2]
-      //       return obj
-      //   }, {})
-      // }
-
-      // point = arrayToObject1(point, 'distributor_id', 'achieve')
-      // pointRedeem = arrayToObject1(pointRedeem, 'distributor_id', 'redeem')
-
-      // distributor = distributor.map((e: any) => ({
-      //   ...e,
-      //   achieve: point[e.distributor_id],
-      //   redeem: pointRedeem[e.distributor_id]
-      // }))
       distributor = RedeemHelper(
         distributor,
         point,
         pointRedeem,
         req.validated,
         "distributor_id",
-        "distributor_id"
+        "distributor_id",
+        "distributor_name"
       );
       return response(res, true, distributor, null, 200);
     } catch (error) {
@@ -419,7 +407,8 @@ class Redeem {
         pointRedeem,
         req.validated,
         "outlet_id",
-        "outlet_id"
+        "outlet_id",
+        "outlet_name"
       );
       return response(res, true, outlet, null, 200);
     } catch (error) {
