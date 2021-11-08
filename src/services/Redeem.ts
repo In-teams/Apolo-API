@@ -112,11 +112,11 @@ class Redeem {
       const { outlet_id } = req.validated;
       const thisMonth = +DateFormat.getToday("MM");
       return await db.query(
-        "SELECT * FROM trx_file_penukaran WHERE outlet_id = ? ORDER BY tgl_upload DESC",
+        "SELECT * FROM trx_file_penukaran WHERE outlet_id = ? AND MONTH(tgl_upload) = ? ORDER BY tgl_upload DESC",
         {
           raw: true,
           type: QueryTypes.SELECT,
-          replacements: [outlet_id],
+          replacements: [outlet_id, thisMonth],
         }
       );
     } catch (error) {}

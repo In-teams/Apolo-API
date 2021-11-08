@@ -213,6 +213,7 @@ class Redeem {
       const random = cryptoRandomString({ length: 10, type: "alphanumeric" });
       const filename = `${random}${ext}`;
       const path = config.pathRedeem + "/" + filename;
+      const {level : levelUser} = req.decoded
 
       await FileSystem.WriteFile(path, value.file, true, ext);
       req.validated.file = {
@@ -222,7 +223,8 @@ class Redeem {
       };
       const isUploaded = await service.getRedeemFile(req);
       if (isUploaded.length > 0) {
-        await service.updateRedeemFile(req, t);
+        if(levelUser !== "1") return response(res, false, null, "Upload hanya bisa sekali", 400)
+        await service.updateRedeemFile(req, t); 
         t.commit();
         return response(res, true, "Form successfully uploaded", null, 200);
       }
