@@ -99,8 +99,12 @@ class Redeem {
     try {
       let outletPoint = await Service.getPointByOutlet(req);
       let outletPointRedeem = await Service.getPointRedeemByOutlet(req);
-      let diff =
-        outletPoint[0]?.achieve || 0 - outletPointRedeem[0]?.redeem || 0;
+      let diff = parseFloat(
+        (
+          parseFloat(outletPoint[0]?.achieve || 0) -
+          parseFloat(outletPointRedeem[0]?.redeem || 0)
+        ).toFixed(2)
+      );
       let product = await Service.getProductCategory(req, diff);
       return response(res, true, product, null, 200);
     } catch (error) {
