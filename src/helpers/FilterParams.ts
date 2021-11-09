@@ -299,6 +299,34 @@ class filterParams{
 
         return {query, params}
     }
+    alamat(data: any, query: string){
+        let {
+			provinsi_id,
+			city_id,
+			district_id,
+			subdistrict_id,
+		} = data;
+		let params: string[] = [];
+
+		if (provinsi_id) {
+			query += ' AND p.id = ?';
+			params.push(provinsi_id);
+		}
+		if (city_id) {
+			query += ' AND c.id = ?';
+			params.push(city_id);
+		}
+		if (district_id) {
+			query += ' AND d.id = ?';
+			params.push(district_id);
+		}
+		if (subdistrict_id) {
+			query += ' AND sd.id = ?';
+			params.push(subdistrict_id);
+		}
+
+        return {query, params}
+    }
 }
 
 export default new filterParams()
