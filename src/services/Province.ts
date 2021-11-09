@@ -1,4 +1,3 @@
-import { Request } from "express";
 import { QueryTypes } from "sequelize";
 import db from "../config/db";
 import FilterParams from "../helpers/FilterParams";

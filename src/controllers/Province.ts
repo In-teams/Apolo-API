@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import response from "../helpers/Response";
-import Service from "../services/Provinsi";
+import Service from "../services/Province";
 
 class Provinsi {
   async get(req: Request, res: Response): Promise<object | undefined> {

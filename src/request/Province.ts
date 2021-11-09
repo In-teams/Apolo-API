@@ -2,10 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import joi from "joi";
 import response from "../helpers/Response";
 
-class Provinsi {
+class Province {
   get(req: Request, res: Response, next: NextFunction): any {
     const schema = joi.object({
-      provinsi_id: joi.string(),
+      province_id: joi.string(),
       city_id: joi.string(),
       district_id: joi.string(),
       subdistrict_id: joi.string(),
@@ -20,4 +20,4 @@ class Provinsi {
   }
 }
 
-export default new Provinsi();
+export default new Province();

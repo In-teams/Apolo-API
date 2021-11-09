@@ -5,7 +5,7 @@ import AuthRoute from "./Auth";
 import SalesRoute from "./Sales";
 import AreaRoute from "./Area";
 import RegionRoute from "./Region";
-import ProvinsiRoute from "./Provinsi";
+import ProvinsiRoute from "./Province";
 import WilayahRoute from "./Wilayah";
 import DistributorRoute from "./Distributor";
 import OutletRoute from "./Outlet";
@@ -29,7 +29,7 @@ class Index implements IRouter {
     route.use("/sales", Token.checkToken, SalesRoute);
     route.use("/area", Token.checkToken, AreaRoute);
     route.use("/region", Token.checkToken, RegionRoute);
-    route.use("/provinsi", Token.checkToken, ProvinsiRoute);
+    route.use("/provinces", Token.checkToken, ProvinsiRoute);
     route.use("/wilayah", Token.checkToken, WilayahRoute);
     route.use("/outlet", Token.checkToken, OutletRoute);
     route.use("/redeem", Token.checkToken, RedeemRoute);
