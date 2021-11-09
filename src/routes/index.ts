@@ -7,6 +7,7 @@ import AreaRoute from "./Area";
 import RegionRoute from "./Region";
 import ProvinceRoute from "./Province";
 import CityRoute from "./City";
+import DistrictRoute from "./District";
 import WilayahRoute from "./Wilayah";
 import DistributorRoute from "./Distributor";
 import OutletRoute from "./Outlet";
@@ -32,6 +33,7 @@ class Index implements IRouter {
     route.use("/region", Token.checkToken, RegionRoute);
     route.use("/provinces", Token.checkToken, ProvinceRoute);
     route.use("/cities", Token.checkToken, CityRoute);
+    route.use("/districts", Token.checkToken, DistrictRoute);
     route.use("/wilayah", Token.checkToken, WilayahRoute);
     route.use("/outlet", Token.checkToken, OutletRoute);
     route.use("/redeem", Token.checkToken, RedeemRoute);
