@@ -301,16 +301,16 @@ class filterParams{
     }
     alamat(data: any, query: string){
         let {
-			provinsi_id,
+			province_id,
 			city_id,
 			district_id,
 			subdistrict_id,
 		} = data;
 		let params: string[] = [];
 
-		if (provinsi_id) {
+		if (province_id) {
 			query += ' AND p.id = ?';
-			params.push(provinsi_id);
+			params.push(province_id);
 		}
 		if (city_id) {
 			query += ' AND c.id = ?';
