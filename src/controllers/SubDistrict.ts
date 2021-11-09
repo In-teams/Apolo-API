@@ -5,7 +5,7 @@ import Service from "../services/SubDistrict";
 class SubDistrict {
   async get(req: Request, res: Response): Promise<object | undefined> {
     try {
-      let data: any[] = await Service.get(req.validated);
+      let data: any[] = Object.keys(req.validated).length > 0 ? await Service.get(req.validated) : [];
       return response(res, true, data, null, 200);
     } catch (error) {
       return response(res, false, null, error, 500);
