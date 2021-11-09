@@ -476,13 +476,22 @@ class Redeem {
     });
   }
   async getProductCategory(req: Request, point: number): Promise<any> {
-    console.log(point)
     return await db.query(
       "SELECT DISTINCT mpc.* FROM ms_product AS mp INNER JOIN ms_program_barang AS mpb ON mp.product_id =  mpb.product_id INNER JOIN ms_product_category AS mpc ON mp.category = mpc.kd_category WHERE point <= ?",
       {
         raw: true,
         type: QueryTypes.SELECT,
         replacements: [point],
+      }
+    );
+  }
+  async getRedeemHistory(outlet_id: string): Promise<any> {
+    return await db.query(
+      "SELECT tgl_transaksi, kd_produk, nama_produk, quantity FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trb ON tr.`kd_transaksi` = trb.`kd_transaksi` WHERE no_id = ?",
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+        replacements: [outlet_id],
       }
     );
   }

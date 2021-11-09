@@ -27,7 +27,11 @@ class Redeem {
     req.validated = value;
     next();
   }
-  getRedeemFile(req: Request, res: Response, next: NextFunction): any {
+  async getRedeemFile(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
     const schema = joi.object({
       outlet_id: joi.string().required(),
     });
@@ -37,6 +41,9 @@ class Redeem {
       return response(res, false, null, error.message, 400);
     }
     req.validated = value;
+    const outletCheck = await Outlet.getOutlet(req);
+    if (outletCheck.length < 1)
+      return response(res, false, null, "outlet not found", 404);
     next();
   }
   async getHistoryRedeemFile(
@@ -213,7 +220,7 @@ class Redeem {
       const random = cryptoRandomString({ length: 10, type: "alphanumeric" });
       const filename = `${random}${ext}`;
       const path = config.pathRedeem + "/" + filename;
-      const {level : levelUser} = req.decoded
+      const { level: levelUser } = req.decoded;
 
       await FileSystem.WriteFile(path, value.file, true, ext);
       req.validated.file = {
@@ -223,8 +230,9 @@ class Redeem {
       };
       const isUploaded = await service.getRedeemFile(req);
       if (isUploaded.length > 0) {
-        if(levelUser !== "1") return response(res, false, null, "Upload hanya bisa sekali", 400)
-        await service.updateRedeemFile(req, t); 
+        if (levelUser !== "1")
+          return response(res, false, null, "Upload hanya bisa sekali", 400);
+        await service.updateRedeemFile(req, t);
         t.commit();
         return response(res, true, "Form successfully uploaded", null, 200);
       }

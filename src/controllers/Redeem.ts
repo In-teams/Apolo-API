@@ -156,6 +156,16 @@ class Redeem {
       console.log(error);
     }
   }
+  async getRedeemHistory(req: Request, res: Response) {
+    try {
+      let history = await Service.getRedeemHistory(req.validated.outlet_id);
+      // file = GetFile(req, file, "redeem", "filename");
+      // file = DateFormat.index(file, "DD MMMM YYYY HH:mm:ss", "tgl_upload");
+      return response(res, true, history, null, 200);
+    } catch (error) {
+      console.log(error);
+    }
+  }
   async getHistoryRedeemFile(req: Request, res: Response) {
     try {
       let file = await Service.getHistoryRedeemFile(req);
