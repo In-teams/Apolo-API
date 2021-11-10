@@ -348,28 +348,28 @@ class Registration {
         };
       }
 
-      const kelurahan = await SubDistrict.getNameById(req.validated.kelurahan);
-      if (!kelurahan)
-        return response(res, false, null, "kelurahan not found", 404);
-      const kecamatan = await District.getNameById(req.validated.kecamatan);
-      if (!kecamatan)
-        return response(res, false, null, "kecamatan not found", 404);
-      const propinsi = await Province.getNameById(req.validated.propinsi);
-      if (!propinsi)
-        return response(res, false, null, "propinsi not found", 404);
-      const kabupaten = await City.getNameById(req.validated.kabupaten);
-      if (!kabupaten)
-        return response(res, false, null, "kota/kabupaten not found", 404);
+      // const kelurahan = await SubDistrict.getNameById(req.validated.kelurahan);
+      // if (!kelurahan)
+      //   return response(res, false, null, "kelurahan not found", 404);
+      // const kecamatan = await District.getNameById(req.validated.kecamatan);
+      // if (!kecamatan)
+      //   return response(res, false, null, "kecamatan not found", 404);
+      // const propinsi = await Province.getNameById(req.validated.propinsi);
+      // if (!propinsi)
+      //   return response(res, false, null, "propinsi not found", 404);
+      // const kabupaten = await City.getNameById(req.validated.kabupaten);
+      // if (!kabupaten)
+      //   return response(res, false, null, "kota/kabupaten not found", 404);
       req.validated.file.tgl_upload = DateFormat.getToday(
         "YYYY-MM-DD HH:mm:ss"
       );
-      req.validated = {
-        ...req.validated,
-        propinsi,
-        kabupaten,
-        kecamatan,
-        kelurahan
-      };
+      // req.validated = {
+      //   ...req.validated,
+      //   propinsi,
+      //   kabupaten,
+      //   kecamatan,
+      //   kelurahan
+      // };
       next();
     } catch (error) {
       console.log(error);

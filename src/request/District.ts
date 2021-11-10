@@ -5,10 +5,10 @@ import response from "../helpers/Response";
 class District {
   get(req: Request, res: Response, next: NextFunction): any {
     const schema = joi.object({
-      province_id: joi.string(),
-      city_id: joi.string(),
-      district_id: joi.string(),
-      subdistrict_id: joi.string(),
+      province: joi.string(),
+      city: joi.string(),
+      district: joi.string(),
+      subdistrict: joi.string(),
     });
 
     const { value, error } = schema.validate(req.query);

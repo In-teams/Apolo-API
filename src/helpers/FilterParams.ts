@@ -301,28 +301,28 @@ class filterParams{
     }
     alamat(data: any, query: string){
         let {
-			province_id,
-			city_id,
-			district_id,
-			subdistrict_id,
+			province,
+			city,
+			district,
+			subdistrict,
 		} = data;
 		let params: string[] = [];
 
-		if (province_id) {
-			query += ' AND p.id = ?';
-			params.push(province_id);
+		if (province) {
+			query += ' AND p.name = ?';
+			params.push(province);
 		}
-		if (city_id) {
-			query += ' AND c.id = ?';
-			params.push(city_id);
+		if (city) {
+			query += ' AND c.name = ?';
+			params.push(city);
 		}
-		if (district_id) {
-			query += ' AND d.id = ?';
-			params.push(district_id);
+		if (district) {
+			query += ' AND d.name = ?';
+			params.push(district);
 		}
-		if (subdistrict_id) {
-			query += ' AND sd.id = ?';
-			params.push(subdistrict_id);
+		if (subdistrict) {
+			query += ' AND sd.name = ?';
+			params.push(subdistrict);
 		}
 
         return {query, params}
