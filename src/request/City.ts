@@ -6,9 +6,9 @@ class City {
   get(req: Request, res: Response, next: NextFunction): any {
     const schema = joi.object({
       province: joi.string(),
-      city: joi.string(),
-      district: joi.string(),
-      subdistrict: joi.string(),
+      // city: joi.string(),
+      // district: joi.string(),
+      // subdistrict: joi.string(),
     });
 
     const { value, error } = schema.validate(req.query);
