@@ -8,9 +8,13 @@ import DateFormat from "../helpers/DateFormat";
 import FileSystem from "../helpers/FileSystem";
 import GetFileExtention from "../helpers/GetFileExtention";
 import response from "../helpers/Response";
+import City from "../services/City";
+import District from "../services/District";
 import Outlet from "../services/Outlet";
 import PeriodeService from "../services/Periode";
+import Province from "../services/Province";
 import RegistrationService from "../services/Registration";
+import SubDistrict from "../services/SubDistrict";
 
 class Registration {
   getHistory(req: Request, res: Response, next: NextFunction): any {
@@ -115,7 +119,7 @@ class Registration {
           "only pdf and image extention will be allowed",
           400
         );
-      const {level : levelUser} = req.decoded
+      const { level: levelUser } = req.decoded;
       let { periode, id: periode_id } = check[0];
       periode = `p-${periode_id}`;
       const random = cryptoRandomString({ length: 10, type: "alphanumeric" });
@@ -143,7 +147,14 @@ class Registration {
           );
         } else {
           const { id, filename } = uploaded[0];
-          if(levelUser !== "1") return response(res, false, null, "Upload hanya bisa sekali perbulan", 400)
+          if (levelUser !== "1")
+            return response(
+              res,
+              false,
+              null,
+              "Upload hanya bisa sekali perbulan",
+              400
+            );
           // await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
           await FileSystem.WriteFile(path, value.file, true, ext);
           req.validated.id = id;
@@ -337,10 +348,29 @@ class Registration {
         };
       }
 
-      (req.validated.file.tgl_upload = DateFormat.getToday(
+      const kelurahan = await SubDistrict.getNameById(req.validated.kelurahan);
+      if (!kelurahan)
+        return response(res, false, null, "kelurahan not found", 404);
+      const kecamatan = await District.getNameById(req.validated.kecamatan);
+      if (!kecamatan)
+        return response(res, false, null, "kecamatan not found", 404);
+      const propinsi = await Province.getNameById(req.validated.propinsi);
+      if (!propinsi)
+        return response(res, false, null, "propinsi not found", 404);
+      const kabupaten = await City.getNameById(req.validated.kabupaten);
+      if (!kabupaten)
+        return response(res, false, null, "kota/kabupaten not found", 404);
+      req.validated.file.tgl_upload = DateFormat.getToday(
         "YYYY-MM-DD HH:mm:ss"
-      )),
-        next();
+      );
+      req.validated = {
+        ...req.validated,
+        propinsi,
+        kabupaten,
+        kecamatan,
+        kelurahan
+      };
+      next();
     } catch (error) {
       console.log(error);
       // FileSystem.DeleteFile(req.validated.path)
