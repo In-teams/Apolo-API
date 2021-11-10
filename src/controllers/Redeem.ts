@@ -128,7 +128,22 @@ class Redeem {
         ).toFixed(2)
       );
       let product = await Service.getProduct(req, diff);
-      return response(res, true, { point: diff, product }, null, 200);
+      return response(res, true, product, null, 200);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async getOutletPoin(req: Request, res: Response) {
+    try {
+      let outletPoint = await Service.getPointByOutlet(req);
+      let outletPointRedeem = await Service.getPointRedeemByOutlet(req);
+      let diff = parseFloat(
+        (
+          parseFloat(outletPoint[0]?.achieve || 0) -
+          parseFloat(outletPointRedeem[0]?.redeem || 0)
+        ).toFixed(2)
+      );
+      return response(res, true, { point: diff }, null, 200);
     } catch (error) {
       console.log(error);
     }
