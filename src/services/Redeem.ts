@@ -146,6 +146,20 @@ class Redeem {
       });
     } catch (error) {}
   }
+  async getRedeemFileByIdAndOutlet(req: Request): Promise<any> {
+    try {
+      const { file_id, outlet_id } = req.validated;
+      const thisMonth = +DateFormat.getToday("MM");
+      return await db.query(
+        "SELECT * FROM trx_file_penukaran WHERE id = ? AND outlet_id = ?",
+        {
+          raw: true,
+          type: QueryTypes.SELECT,
+          replacements: [file_id, outlet_id],
+        }
+      );
+    } catch (error) {}
+  }
   async getPointSummary(req: Request): Promise<any> {
     let { query: pq, params: pp } = FilterParams.aktual(req, getPointQuery);
     let { query: prq, params: prp } = FilterParams.aktual(
@@ -283,13 +297,13 @@ class Redeem {
     } else if (type === "distributor") {
       select = "d.distributor_id, d.distributor_name AS distributor";
       groupBy = "d.distributor_id";
-    }else if (type === "area") {
+    } else if (type === "area") {
       select = "c.city_id_alias AS area_id, c.city_name_alias AS city";
       groupBy = "c.city_id_alias";
-    }else if (type === "asm") {
+    } else if (type === "asm") {
       select = "p.kode_pic AS asm_id, p.nama_pic";
       groupBy = "asm_id";
-    }else if (type === "ass") {
+    } else if (type === "ass") {
       select = "ass.kode_pic AS ass_id, ass.nama_pic";
       groupBy = "ass_id";
     }
@@ -319,13 +333,13 @@ class Redeem {
     } else if (type === "distributor") {
       select = "d.distributor_id, d.distributor_name AS distributor";
       groupBy = "d.distributor_id";
-    }else if (type === "area") {
+    } else if (type === "area") {
       select = "c.city_id_alias AS area_id, c.city_name_alias AS city";
       groupBy = "c.city_id_alias";
-    }else if (type === "asm") {
+    } else if (type === "asm") {
       select = "p.kode_pic AS asm_id, p.nama_pic";
       groupBy = "asm_id";
-    }else if (type === "ass") {
+    } else if (type === "ass") {
       select = "ass.kode_pic AS ass_id, ass.nama_pic";
       groupBy = "ass_id";
     }
@@ -485,6 +499,18 @@ class Redeem {
       }
     );
   }
+  async getProductCategoryByProduct(products: string | string[]): Promise<any> {
+    const find: any = await db.query(
+      "SELECT category FROM ms_product WHERE product_id IN(?)",
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+        replacements: [products],
+      }
+    );
+
+    return find ? find.map((e: any) => e.category) : null;
+  }
   async getRedeemHistory(outlet_id: string): Promise<any> {
     return await db.query(
       "SELECT tgl_transaksi, kd_produk, nama_produk, quantity FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trb ON tr.`kd_transaksi` = trb.`kd_transaksi` WHERE no_id = ?",
@@ -506,7 +532,12 @@ class Redeem {
 
     return data[0]?.trCode || "MV2021-1-00000001";
   }
-  async insert(data: any[], detail: any[], t: any): Promise<any> {
+  async insert(
+    data: any[],
+    detail: any[],
+    pulsaEwallet: any[],
+    t: any
+  ): Promise<any> {
     const dataVal = data.map((e: any) => Object.values(e));
     const dataDetail = detail.map((e: any) => Object.values(e));
 
@@ -516,6 +547,16 @@ class Redeem {
       transaction: t,
       replacements: [dataVal],
     });
+
+    if (pulsaEwallet.length > 0) {
+      const dataPulsaEwallet = pulsaEwallet.map((e: any) => Object.values(e))
+      await db.query("INSERT INTO trx_transaksi_pulsa (kd_transaksi, no_handphone) VALUES ?", {
+        raw: true,
+        type: QueryTypes.INSERT,
+        transaction: t,
+        replacements: [dataPulsaEwallet],
+      });
+    }
 
     return await db.query(
       "INSERT INTO trx_transaksi_redeem_barang (kd_transaksi, kd_produk, nama_produk, quantity, point_satuan) VALUES ?",

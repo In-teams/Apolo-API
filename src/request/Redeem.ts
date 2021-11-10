@@ -109,6 +109,12 @@ class Redeem {
     next: NextFunction
   ): Promise<any> {
     try {
+      // const isPulsaOrEwallet = async (product: string) => {
+      //   const check = await service.getProductCategoryByProduct(product);
+      // };
+      const check = await service.getProductCategoryByProduct(
+        req.body?.product.map((e: any) => e.product_id)
+      );
       const schema = joi.object({
         product: joi
           .array()
@@ -116,6 +122,9 @@ class Redeem {
             joi.object({
               product_id: joi.string().required(),
               quantity: joi.number().required(),
+              ...((check.includes("PULSA") || check.includes("EWALLET")) && {
+                no_handphone: joi.string().min(11).max(13),
+              }),
             })
           )
           .required(),
@@ -135,9 +144,11 @@ class Redeem {
       const isRegis = await Outlet.outletIsRegist(value.outlet_id);
       if (!["Yes+", "Yes"].includes(isRegis))
         return response(res, false, null, "Belum registrasi", 400);
-      const isUploaded = await service.getRedeemFileById(req);
+      const isUploaded = await service.getRedeemFileByIdAndOutlet(req);
       if (isUploaded.length < 1)
         return response(res, false, null, "Belum upload form redeem", 400);
+      // if (isUploaded[0].outlet_id === value.outlet_id)
+      //   return response(res, false, null, "form unknown", 400);
       next();
     } catch (error) {
       console.log(error, "error request");

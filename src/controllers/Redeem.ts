@@ -85,9 +85,15 @@ class Redeem {
         quantity: e.quantity,
         point_satuan: e.point,
       }));
+      const pulsaEwallet = temp
+        .filter((e: any) => ["PULSA", "EWALLET"].includes(e.category))
+        .map((e: any) => ({
+          kd_transaksi: e.kd_transaksi,
+          no_handphone: e.no_handphone,
+        }));
       if (total > diff)
         return response(res, false, null, "poin tidak cukup", 400);
-      await Service.insert(data, detail, t);
+      await Service.insert(data, detail, pulsaEwallet, t);
       t.commit();
       return response(res, true, "Redeem sukses", null, 200);
     } catch (error) {
