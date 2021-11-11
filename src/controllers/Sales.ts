@@ -112,7 +112,7 @@ class Sales {
   ): Promise<object | undefined> {
     try {
       const outlet: any[] = await Outlet.get(req);
-      let result: any[] = await SalesHelper2(
+      const result: any = await SalesHelper2(
         req,
         outlet,
         "outlet",
