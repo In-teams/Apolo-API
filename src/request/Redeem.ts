@@ -53,9 +53,10 @@ class Redeem {
   ): Promise<any> {
     const schema = joi.object({
       file_id: joi.string().required(),
+      outlet_id: joi.string().required(),
     });
 
-    const { value, error } = schema.validate(req.params);
+    const { value, error } = schema.validate({...req.params, ...req.query});
     if (error) {
       return response(res, false, null, error.message, 400);
     }
@@ -144,7 +145,7 @@ class Redeem {
       const isRegis = await Outlet.outletIsRegist(value.outlet_id);
       if (!["Yes+", "Yes"].includes(isRegis))
         return response(res, false, null, "Belum registrasi", 400);
-      const isUploaded = await service.getRedeemFileByIdAndOutlet(req);
+      const isUploaded = await service.getRedeemFileById(req);
       if (isUploaded.length < 1)
         return response(res, false, null, "Belum upload form redeem", 400);
       // if (isUploaded[0].outlet_id === value.outlet_id)
@@ -224,9 +225,9 @@ class Redeem {
         return response(res, false, null, msg, 400);
       }
 
-      const isRegis = await Outlet.outletIsRegist(value.outlet_id);
-      if (!["Yes+", "Yes"].includes(isRegis))
-        return response(res, false, null, "Belum registrasi", 400);
+      // const isRegis = await Outlet.outletIsRegist(value.outlet_id);
+      // if (!["Yes+", "Yes"].includes(isRegis))
+      //   return response(res, false, null, "Belum registrasi", 400);
 
       const random = cryptoRandomString({ length: 10, type: "alphanumeric" });
       const filename = `${random}${ext}`;

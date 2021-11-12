@@ -139,25 +139,11 @@ class Redeem {
     try {
       const { file_id, outlet_id } = req.validated;
       const thisMonth = +DateFormat.getToday("MM");
-      return await db.query("SELECT * FROM trx_file_penukaran WHERE id = ?", {
+      return await db.query("SELECT * FROM trx_file_penukaran WHERE id = ? AND outlet_id = ?", {
         raw: true,
         type: QueryTypes.SELECT,
-        replacements: [file_id],
+        replacements: [file_id, outlet_id],
       });
-    } catch (error) {}
-  }
-  async getRedeemFileByIdAndOutlet(req: Request): Promise<any> {
-    try {
-      const { file_id, outlet_id } = req.validated;
-      const thisMonth = +DateFormat.getToday("MM");
-      return await db.query(
-        "SELECT * FROM trx_file_penukaran WHERE id = ? AND outlet_id = ?",
-        {
-          raw: true,
-          type: QueryTypes.SELECT,
-          replacements: [file_id, outlet_id],
-        }
-      );
     } catch (error) {}
   }
   async getPointSummary(req: Request): Promise<any> {
