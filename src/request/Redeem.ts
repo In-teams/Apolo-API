@@ -147,6 +147,14 @@ class Redeem {
       const isUploaded = await service.getRedeemFileById(req);
       if (!isUploaded)
         return response(res, false, null, "Belum upload form redeem", 400);
+      if (!["Level 4"].includes(isUploaded?.level))
+        return response(
+          res,
+          false,
+          null,
+          "File belum tervalidasi success",
+          400
+        );
       // if (isUploaded[0].outlet_id === value.outlet_id)
       //   return response(res, false, null, "form unknown", 400);
       next();
@@ -182,7 +190,7 @@ class Redeem {
         return response(res, false, null, "Belum registrasi", 400);
       const isUploaded = await service.getRedeemFileById(req);
       if (!isUploaded) return response(res, false, null, "file not found", 404);
-      if (['Level 4'].includes(isUploaded?.level))
+      if (["Level 4"].includes(isUploaded?.level))
         return response(res, false, null, "File sudah tervalidasi", 400);
       req.validated = {
         ...req.validated,
