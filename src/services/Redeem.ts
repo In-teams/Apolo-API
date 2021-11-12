@@ -140,15 +140,14 @@ class Redeem {
       const { file_id, outlet_id } = req.validated;
       const thisMonth = new Date().getMonth() + 1;
       const findOne = await db.query(
-        "SELECT * FROM trx_file_penukaran WHERE id = ? AND outlet_id = ? AND MONTH(tgl_upload) = ? LIMIT 1",
+        "SELECT fp.*, sp.level FROM trx_file_penukaran AS fp INNER JOIN ms_status_penukaran AS sp ON fp.`status_penukaran` = sp.`id` WHERE fp.id = ? AND outlet_id = ? AND MONTH(tgl_upload) = ? LIMIT 1",
         {
           raw: true,
           type: QueryTypes.SELECT,
           replacements: [file_id, outlet_id, thisMonth],
         }
-
-        );
-        return findOne ? findOne[0] : null
+      );
+      return findOne ? findOne[0] : null;
     } catch (error) {}
   }
   async getPointSummary(req: Request): Promise<any> {

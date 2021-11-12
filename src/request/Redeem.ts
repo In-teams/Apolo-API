@@ -182,7 +182,7 @@ class Redeem {
         return response(res, false, null, "Belum registrasi", 400);
       const isUploaded = await service.getRedeemFileById(req);
       if (!isUploaded) return response(res, false, null, "file not found", 404);
-      if ([7, 8].includes(isUploaded?.status_penukaran))
+      if (['Level 4'].includes(isUploaded?.level))
         return response(res, false, null, "File sudah tervalidasi", 400);
       req.validated = {
         ...req.validated,

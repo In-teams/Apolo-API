@@ -193,7 +193,7 @@ class Redeem {
       let isRegis = await Outlet.outletIsRegist(req.validated.outlet_id);
       isRegis = ["Yes+", "Yes"].includes(isRegis);
       let isAllowCheckout = await Service.getRedeemFileById(req);
-      isAllowCheckout = [7, 8].includes(isAllowCheckout.status_penukaran);
+      isAllowCheckout = ['level 4'].includes(isAllowCheckout.level);
       file = DateFormat.index(file, "DD MMMM YYYY HH:mm:ss", "created_at");
       return response(res, true, { isRegis, isAllowCheckout, data: file }, null, 200);
     } catch (error) {
