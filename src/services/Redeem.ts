@@ -138,12 +138,17 @@ class Redeem {
   async getRedeemFileById(req: Request): Promise<any> {
     try {
       const { file_id, outlet_id } = req.validated;
-      const thisMonth = +DateFormat.getToday("MM");
-      return await db.query("SELECT * FROM trx_file_penukaran WHERE id = ? AND outlet_id = ?", {
-        raw: true,
-        type: QueryTypes.SELECT,
-        replacements: [file_id, outlet_id],
-      });
+      const thisMonth = new Date().getMonth() + 1;
+      const findOne = await db.query(
+        "SELECT * FROM trx_file_penukaran WHERE id = ? AND outlet_id = ? AND MONTH(tgl_upload) = ? LIMIT 1",
+        {
+          raw: true,
+          type: QueryTypes.SELECT,
+          replacements: [file_id, outlet_id, thisMonth],
+        }
+
+        );
+        return findOne ? findOne[0] : null
     } catch (error) {}
   }
   async getPointSummary(req: Request): Promise<any> {
@@ -535,13 +540,16 @@ class Redeem {
     });
 
     if (pulsaEwallet.length > 0) {
-      const dataPulsaEwallet = pulsaEwallet.map((e: any) => Object.values(e))
-      await db.query("INSERT INTO trx_transaksi_pulsa (kd_transaksi, no_handphone) VALUES ?", {
-        raw: true,
-        type: QueryTypes.INSERT,
-        transaction: t,
-        replacements: [dataPulsaEwallet],
-      });
+      const dataPulsaEwallet = pulsaEwallet.map((e: any) => Object.values(e));
+      await db.query(
+        "INSERT INTO trx_transaksi_pulsa (kd_transaksi, no_handphone) VALUES ?",
+        {
+          raw: true,
+          type: QueryTypes.INSERT,
+          transaction: t,
+          replacements: [dataPulsaEwallet],
+        }
+      );
     }
 
     return await db.query(

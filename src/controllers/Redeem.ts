@@ -190,10 +190,12 @@ class Redeem {
   async getHistoryRedeemFile(req: Request, res: Response) {
     try {
       let file = await Service.getHistoryRedeemFile(req);
-      let isRegis = await Outlet.outletIsRegist(req.validated.outlet_id)
-      isRegis = ["Yes+", "Yes"].includes(isRegis)
+      let isRegis = await Outlet.outletIsRegist(req.validated.outlet_id);
+      isRegis = ["Yes+", "Yes"].includes(isRegis);
+      let isAllowCheckout = await Service.getRedeemFileById(req);
+      isAllowCheckout = [7, 8].includes(isAllowCheckout.status_penukaran);
       file = DateFormat.index(file, "DD MMMM YYYY HH:mm:ss", "created_at");
-      return response(res, true, {isRegis ,data: file}, null, 200);
+      return response(res, true, { isRegis, isAllowCheckout, data: file }, null, 200);
     } catch (error) {
       console.log(error);
     }

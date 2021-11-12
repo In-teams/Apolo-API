@@ -56,14 +56,13 @@ class Redeem {
       outlet_id: joi.string().required(),
     });
 
-    const { value, error } = schema.validate({...req.params, ...req.query});
+    const { value, error } = schema.validate({ ...req.params, ...req.query });
     if (error) {
       return response(res, false, null, error.message, 400);
     }
     req.validated = value;
     const isUploaded = await service.getRedeemFileById(req);
-    if (isUploaded.length < 1)
-      return response(res, false, null, "file not found", 404);
+    if (!isUploaded) return response(res, false, null, "file not found", 404);
     next();
   }
   get(req: Request, res: Response, next: NextFunction): any {
@@ -146,7 +145,7 @@ class Redeem {
       if (!["Yes+", "Yes"].includes(isRegis))
         return response(res, false, null, "Belum registrasi", 400);
       const isUploaded = await service.getRedeemFileById(req);
-      if (isUploaded.length < 1)
+      if (!isUploaded)
         return response(res, false, null, "Belum upload form redeem", 400);
       // if (isUploaded[0].outlet_id === value.outlet_id)
       //   return response(res, false, null, "form unknown", 400);
@@ -182,12 +181,9 @@ class Redeem {
       if (!["Yes+", "Yes"].includes(isRegis))
         return response(res, false, null, "Belum registrasi", 400);
       const isUploaded = await service.getRedeemFileById(req);
-      if (isUploaded.length < 1)
-        return response(res, false, null, "file not found", 404);
-      if ([7, 8].includes(isUploaded[0]?.status_penukaran))
+      if (!isUploaded) return response(res, false, null, "file not found", 404);
+      if ([7, 8].includes(isUploaded?.status_penukaran))
         return response(res, false, null, "File sudah tervalidasi", 400);
-      if (isUploaded[0]?.outlet_id !== value.outlet_id)
-        return response(res, false, null, "Something wrong!", 400);
       req.validated = {
         ...req.validated,
         validated_at: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),
