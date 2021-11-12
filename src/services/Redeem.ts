@@ -503,13 +503,37 @@ class Redeem {
   }
   async getRedeemHistory(outlet_id: string): Promise<any> {
     return await db.query(
-      "SELECT tgl_transaksi, kd_produk, nama_produk, quantity FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trb ON tr.`kd_transaksi` = trb.`kd_transaksi` WHERE no_id = ?",
+      "SELECT tgl_confirm, tgl_confirm, tr.kd_transaksi, tgl_transaksi, kd_produk, nama_produk, quantity, point_satuan FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trb ON tr.`kd_transaksi` = trb.`kd_transaksi` LEFT JOIN trx_status s ON tr.`kd_transaksi` = s.`kd_transaksi`  LEFT JOIN trx_pr_barang i ON i.kd_transaksi = tr.`kd_transaksi` LEFT JOIN trx_pr j ON j.kode_pr = i.kode_pr LEFT JOIN trx_confirm_detail k ON k.kd_transaksi = tr.kd_transaksi LEFT JOIN trx_confirm l ON l.id_confirm = k.id_confirm LEFT JOIN trx_valid_redeemp n ON n.kd_transaksi = tr.kd_transaksi WHERE no_id = ?",
       {
         raw: true,
         type: QueryTypes.SELECT,
         replacements: [outlet_id],
       }
     );
+  }
+  async getRedeemHistoryDetail(kd_transaksi: string, outlet_id: string): Promise<any> {
+    const find: any[] = await db.query(
+      "SELECT tp.no_handphone, tgl_transaksi,kd_produk,nama_produk,quantity,tgl_confirm,`tanggal_terima`,`nama_penerima`,tr.kd_transaksi,point_satuan, tgl_confirm, o.*  FROM trx_transaksi_redeem tr INNER JOIN trx_transaksi_redeem_barang trb ON tr.`kd_transaksi` = trb.`kd_transaksi` LEFT JOIN trx_status s ON trb.`kd_transaksi` = s.`kd_transaksi`  LEFT JOIN trx_pr_barang i ON i.kd_transaksi = trb.`kd_transaksi` LEFT JOIN trx_pr j ON j.kode_pr = i.kode_pr LEFT JOIN trx_confirm_detail k ON k.kd_transaksi = trb.kd_transaksi LEFT JOIN trx_confirm l ON l.id_confirm = k.id_confirm LEFT JOIN trx_valid_redeemp n ON n.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet o ON o.outlet_id = tr.no_id LEFT JOIN trx_transaksi_pulsa tp ON tp.kd_transaksi = tr.kd_transaksi WHERE trb.kd_transaksi = ? AND o.outlet_id = ?",
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+        replacements: [kd_transaksi, outlet_id],
+      }
+    );
+
+    return find ? find[0] : null
+  }
+  async getTransactionCode(kd_transaksi: string): Promise<any> {
+    const find: any = await db.query(
+      "SELECT kd_transaksi FROM trx_transaksi_redeem WHERE kd_transaksi = ?",
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+        replacements: [kd_transaksi],
+      }
+    );
+
+    return find ? find[0] : null;
   }
   async getLastTrRedeemCode(): Promise<any> {
     const data: any = await db.query(

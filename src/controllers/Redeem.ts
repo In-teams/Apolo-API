@@ -179,10 +179,38 @@ class Redeem {
   }
   async getRedeemHistory(req: Request, res: Response) {
     try {
-      let history = await Service.getRedeemHistory(req.validated.outlet_id);
-      // file = GetFile(req, file, "redeem", "filename");
-      // file = DateFormat.index(file, "DD MMMM YYYY HH:mm:ss", "tgl_upload");
-      return response(res, true, history, null, 200);
+      let histories = await Service.getRedeemHistory(req.validated.outlet_id);
+      histories = histories.map((history: any) => ({
+        ...history,
+        status:
+          history.status_terima === "TELAH DITERIMA"
+            ? "Sukses"
+            : history.status_terima !== "TELAH DITERIMA" && !history.tgl_confirm
+            ? "Otorisasi"
+            : "Proses",
+      }));
+      return response(res, true, histories, null, 200);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async getRedeemHistoryDetail(req: Request, res: Response) {
+    try {
+      const { kd_transaksi, outlet_id } = req.validated;
+      const detail = await Service.getRedeemHistoryDetail(
+        kd_transaksi,
+        outlet_id
+      );
+      if (!detail) return response(res, false, null, "not found", 404);
+      const { status_terima, tgl_confirm } = detail;
+      if (status_terima === "TELAH DITERIMA") {
+        detail.status = "Sukses";
+      } else if (status_terima !== "TELAH DITERIMA" && !tgl_confirm) {
+        detail.status = "Otorisasi";
+      } else {
+        detail.status = "Proses";
+      }
+      return response(res, true, detail, null, 200);
     } catch (error) {
       console.log(error);
     }
@@ -193,9 +221,15 @@ class Redeem {
       let isRegis = await Outlet.outletIsRegist(req.validated.outlet_id);
       isRegis = ["Yes+", "Yes"].includes(isRegis);
       let isAllowCheckout = await Service.getRedeemFileById(req);
-      isAllowCheckout = ['level 4'].includes(isAllowCheckout.level);
+      isAllowCheckout = ["level 4"].includes(isAllowCheckout.level);
       file = DateFormat.index(file, "DD MMMM YYYY HH:mm:ss", "created_at");
-      return response(res, true, { isRegis, isAllowCheckout, data: file }, null, 200);
+      return response(
+        res,
+        true,
+        { isRegis, isAllowCheckout, data: file },
+        null,
+        200
+      );
     } catch (error) {
       console.log(error);
     }

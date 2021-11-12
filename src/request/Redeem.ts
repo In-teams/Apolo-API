@@ -46,6 +46,31 @@ class Redeem {
       return response(res, false, null, "outlet not found", 404);
     next();
   }
+  async getTransactionDetail(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const schema = joi.object({
+      outlet_id: joi.string().required(),
+      kd_transaksi: joi.string().required(),
+    });
+
+    const { value, error } = schema.validate(req.params);
+    if (error) {
+      return response(res, false, null, error.message, 400);
+    }
+    req.validated = value;
+    const outletCheck = await Outlet.getOutlet(req);
+    if (outletCheck.length < 1)
+      return response(res, false, null, "outlet not found", 404);
+    const transactionCodeCheck = await service.getTransactionCode(
+      value.kd_transaksi
+    );
+    if (!transactionCodeCheck)
+      return response(res, false, null, "kd transaksi not found", 404);
+    next();
+  }
   async getHistoryRedeemFile(
     req: Request,
     res: Response,
