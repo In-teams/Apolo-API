@@ -46,6 +46,26 @@ class Redeem {
       return response(res, false, null, "outlet not found", 404);
     next();
   }
+  async getRedeemHistory(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const schema = joi.object({
+      outlet_id: joi.string().required(),
+      category: joi.string(),
+    });
+
+    const { value, error } = schema.validate({...req.params, ...req.query});
+    if (error) {
+      return response(res, false, null, error.message, 400);
+    }
+    req.validated = value;
+    const outletCheck = await Outlet.getOutlet(req);
+    if (outletCheck.length < 1)
+      return response(res, false, null, "outlet not found", 404);
+    next();
+  }
   async getTransactionDetail(
     req: Request,
     res: Response,

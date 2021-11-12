@@ -28,7 +28,7 @@ class Redeem implements IRouter {
     this.router.get("/product-category", RedeemRequest.getProduct,RedeemController.getProductCategory);
     this.router.post("/", RedeemRequest.post, RedeemController.post);
     this.router.get("/file/:outlet_id", RedeemRequest.getRedeemFile, RedeemController.getRedeemFile);
-    this.router.get("/redeem-history/:outlet_id", RedeemRequest.getRedeemFile, RedeemController.getRedeemHistory);
+    this.router.get("/redeem-history/:outlet_id", RedeemRequest.getRedeemHistory, RedeemController.getRedeemHistory);
     this.router.get("/redeem-history/:outlet_id/:kd_transaksi", RedeemRequest.getTransactionDetail, RedeemController.getRedeemHistoryDetail);
     this.router.get("/history/:file_id", RedeemRequest.getHistoryRedeemFile, RedeemController.getHistoryRedeemFile);
     this.router.get("/status-penukaran", RedeemController.getRedeemStatus);

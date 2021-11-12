@@ -501,13 +501,20 @@ class Redeem {
 
     return find ? find.map((e: any) => e.category) : null;
   }
-  async getRedeemHistory(outlet_id: string): Promise<any> {
+  async getRedeemHistory(data: any): Promise<any> {
+    const {outlet_id, category} = data
+    const params = [outlet_id]
+    let query = "SELECT tgl_confirm, tgl_confirm, tr.kd_transaksi, tgl_transaksi, kd_produk, nama_produk, quantity, point_satuan, p.category FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trb ON tr.`kd_transaksi` = trb.`kd_transaksi` INNER JOIN ms_product p ON p.product_id = trb.kd_produk LEFT JOIN trx_status s ON tr.`kd_transaksi` = s.`kd_transaksi` LEFT JOIN trx_pr_barang i ON i.kd_transaksi = tr.`kd_transaksi` LEFT JOIN trx_pr j ON j.kode_pr = i.kode_pr LEFT JOIN trx_confirm_detail k ON k.kd_transaksi = tr.kd_transaksi LEFT JOIN trx_confirm l ON l.id_confirm = k.id_confirm LEFT JOIN trx_valid_redeemp n ON n.kd_transaksi = tr.kd_transaksi WHERE no_id = ?"
+    if(category){
+      query += " AND p.category = ?"
+      params.push(category)
+    }
     return await db.query(
-      "SELECT tgl_confirm, tgl_confirm, tr.kd_transaksi, tgl_transaksi, kd_produk, nama_produk, quantity, point_satuan FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trb ON tr.`kd_transaksi` = trb.`kd_transaksi` LEFT JOIN trx_status s ON tr.`kd_transaksi` = s.`kd_transaksi`  LEFT JOIN trx_pr_barang i ON i.kd_transaksi = tr.`kd_transaksi` LEFT JOIN trx_pr j ON j.kode_pr = i.kode_pr LEFT JOIN trx_confirm_detail k ON k.kd_transaksi = tr.kd_transaksi LEFT JOIN trx_confirm l ON l.id_confirm = k.id_confirm LEFT JOIN trx_valid_redeemp n ON n.kd_transaksi = tr.kd_transaksi WHERE no_id = ?",
+      query + " ORDER BY tgl_transaksi DESC",
       {
         raw: true,
         type: QueryTypes.SELECT,
-        replacements: [outlet_id],
+        replacements: params,
       }
     );
   }

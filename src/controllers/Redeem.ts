@@ -179,7 +179,7 @@ class Redeem {
   }
   async getRedeemHistory(req: Request, res: Response) {
     try {
-      let histories = await Service.getRedeemHistory(req.validated.outlet_id);
+      let histories = await Service.getRedeemHistory(req.validated);
       histories = histories.map((history: any) => ({
         ...history,
         status:
