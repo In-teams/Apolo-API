@@ -15,14 +15,18 @@ import Distributor from "../services/Distributor";
 import Area from "../services/Area";
 import User from "../services/User";
 
-const getCluster = (aktual: number, target: number): string => {
+const getCluster = (
+  aktual: number,
+  target: number
+): { cluster: string; id: number } => {
   const data = +((aktual / target) * 100).toFixed(2);
-  if (data < 25) return "0% - 25%";
-  if (data >= 25 && data < 50) return "25% - 50%";
-  if (data >= 50 && data < 70) return "50% - 70%";
-  if (data >= 70 && data < 95) return "70% - 95%";
-  if (data >= 95 && data < 100) return "95% - 100%";
-  return ">= 100";
+  if (data <= 0) return { cluster: "ZERO ACHIEVER <= 0% ", id: 1 };
+  if (data > 0 && data < 70) return { cluster: "LOW ACHIEVER > 0%", id: 2 };
+  if (data >= 70 && data < 90)
+    return { cluster: "NEAR ACHIEVER >= 70%", id: 3 };
+  if (data >= 90 && data < 100)
+    return { cluster: "HIGH ACHIEVER >= 90%", id: 4 };
+  return { cluster: "TOP ACHIEVER >= 100%", id: 5 };
 };
 
 class Sales {
@@ -343,7 +347,8 @@ class Sales {
           target,
           outlet,
           pencapaian: ((aktual / target) * 100).toFixed(2) + "%",
-          cluster: getCluster(aktual, target),
+          cluster: getCluster(aktual, target).cluster,
+          id: getCluster(aktual, target).id,
         };
       });
 
@@ -351,6 +356,7 @@ class Sales {
         .groupBy("cluster")
         .map((items) => ({
           cluster: items[0].cluster,
+          id: items[0].id,
           aktual: sumDataBy(items, "aktual"),
           target: sumDataBy(items, "target"),
           outlet: sumDataBy(items, "outlet"),
@@ -367,9 +373,10 @@ class Sales {
             sumDataBy(items, "target")
           ),
         }))
-        .sortBy("cluster")
+        .sortBy("id")
         .push({
           cluster: "Total Pencapaian",
+          id: "Total Pencapaian",
           aktual: sumData(match, "aktual"),
           target: sumData(match, "target"),
           outlet: sumData(match, "outlet"),
