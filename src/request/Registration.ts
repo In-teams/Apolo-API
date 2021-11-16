@@ -158,7 +158,7 @@ class Registration {
           // await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
           await FileSystem.WriteFile(path, value.file, true, ext);
           req.validated.id = id;
-          await RegistrationService.updateRegistrationForm(req, t);
+          await RegistrationService.updateRegistrationForm({...req.validated, ...req.decoded}, t);
           t.commit();
           return response(res, true, "Form successfully uploaded", null, 200);
         }

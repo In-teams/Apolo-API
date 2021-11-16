@@ -366,17 +366,17 @@ class Registration {
       transaction: t,
     });
   }
-  async updateRegistrationForm(req: Request, t: any): Promise<any> {
-    const { outlet_id, periode_id, filename, tgl_upload } = req.validated;
+  async updateRegistrationForm(data: any, t: any): Promise<any> {
+    const { outlet_id, periode_id, filename, tgl_upload, user_id } = data;
     let query =
-      "UPDATE trx_file_registrasi SET filename = ?, tgl_upload = ?, status_registrasi = ? WHERE outlet_id = ? AND periode_id = ?";
+      "UPDATE trx_file_registrasi SET filename = ?, tgl_upload = ?, status_registrasi = ?, uploaded_by = ? WHERE outlet_id = ? AND periode_id = ?";
 
     await db.query(
-      "INSERT INTO trx_history_file_registrasi (outlet_id, periode_id, filename, tgl_upload) VALUES(?, ?, ?, ?)",
+      "INSERT INTO trx_history_file_registrasi (outlet_id, periode_id, filename, tgl_upload, uploaded_by) VALUES(?, ?, ?, ?, ?)",
       {
         raw: true,
         type: QueryTypes.INSERT,
-        replacements: [outlet_id, periode_id, filename, tgl_upload],
+        replacements: [outlet_id, periode_id, filename, tgl_upload, user_id],
         transaction: t,
       }
     );
@@ -384,7 +384,7 @@ class Registration {
     return await db.query(query, {
       raw: true,
       type: QueryTypes.UPDATE,
-      replacements: [filename, tgl_upload, 2, outlet_id, periode_id],
+      replacements: [filename, tgl_upload, 2, user_id, outlet_id, periode_id],
     });
   }
   async getRegistrationStatus(req: Request): Promise<any> {
