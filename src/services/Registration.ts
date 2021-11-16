@@ -27,7 +27,7 @@ const getLevelQuery = async () => {
   let levelPercen = "";
   level.map((e: any, i: number) => {
     levelQ += `IFNULL(${e}, 0) AS ${e}, `;
-    levelPercen += `IFNULL(CONCAT(TRUNCATE(((${e}/COUNT(o.outlet_id)) * 100), 2), '%'), '0.00%') AS ${e}percent, `
+    levelPercen += `IFNULL(CONCAT(TRUNCATE(((${e}/COUNT(o.outlet_id)) * 100), 2), '%'), '0.00%') AS ${e}percent, `;
   });
 
   return { q, levelQ, levelPercen };
@@ -284,26 +284,26 @@ class Registration {
       replacements: [outlet_id, periode_id, file_id, type_file],
     });
   }
-  async insertRegistrationForm(req: Request, t: any): Promise<any> {
-    const { outlet_id, periode_id, filename, tgl_upload } = req.validated;
+  async insertRegistrationForm(data: any, t: any): Promise<any> {
+    const { outlet_id, periode_id, filename, tgl_upload, user_id } = data;
     let query =
-      "INSERT INTO trx_file_registrasi (outlet_id, periode_id, filename, tgl_upload) VALUES(?, ?, ?, ?)";
+      "INSERT INTO trx_file_registrasi (outlet_id, periode_id, filename, tgl_upload, uploaded_by) VALUES(?, ?, ?, ?, ?)";
     let queryHistory =
       "INSERT INTO trx_history_registrasi (outlet_id, file_id, created_at) VALUES(?, ?, ?)";
 
     await db.query(
-      "INSERT INTO trx_history_file_registrasi (outlet_id, periode_id, filename, tgl_upload) VALUES(?, ?, ?, ?)",
+      "INSERT INTO trx_history_file_registrasi (outlet_id, periode_id, filename, tgl_upload, uploaded_by) VALUES(?, ?, ?, ?, ?)",
       {
         raw: true,
         type: QueryTypes.INSERT,
-        replacements: [outlet_id, periode_id, filename, tgl_upload],
+        replacements: [outlet_id, periode_id, filename, tgl_upload, user_id],
         transaction: t,
       }
     );
     const insert = await db.query(query, {
       raw: true,
       type: QueryTypes.INSERT,
-      replacements: [outlet_id, periode_id, filename, tgl_upload],
+      replacements: [outlet_id, periode_id, filename, tgl_upload, user_id],
       transaction: t,
     });
     await db.query("UPDATE mstr_outlet SET formulir = ? WHERE outlet_id = ?", {
@@ -320,14 +320,13 @@ class Registration {
       transaction: t,
     });
   }
-  async validation(req: Request, t: any): Promise<any> {
-    const { outlet_id, file_id, status_registrasi, validated_at } =
-      req.validated;
+  async validation(data: any, t: any): Promise<any> {
+    const { outlet_id, file_id, status_registrasi, validated_at, user_id } = data;
     let query =
-      "UPDATE trx_file_registrasi SET status_registrasi = ?, validated_at = ? WHERE outlet_id = ? AND id = ?";
+      "UPDATE trx_file_registrasi SET status_registrasi = ?, validated_at = ?, validated_by = ? WHERE outlet_id = ? AND id = ?";
 
     let queryHistory =
-      "INSERT INTO trx_history_registrasi (outlet_id, status_registrasi, file_id, created_at) VALUES(?, ?, ?, ?)";
+      "INSERT INTO trx_history_registrasi (outlet_id, status_registrasi, file_id, created_at, validated_by) VALUES(?, ?, ?, ?, ?)";
 
     let level: any = await db.query(
       "SELECT level from ms_status_registrasi WHERE id = ?",
@@ -356,14 +355,14 @@ class Registration {
     await db.query(query, {
       raw: true,
       type: QueryTypes.UPDATE,
-      replacements: [status_registrasi, validated_at, outlet_id, file_id],
+      replacements: [status_registrasi, validated_at, user_id, outlet_id, file_id],
       transaction: t,
     });
 
     return await db.query(queryHistory, {
       raw: true,
       type: QueryTypes.INSERT,
-      replacements: [outlet_id, status_registrasi, file_id, validated_at],
+      replacements: [outlet_id, status_registrasi, file_id, validated_at, user_id],
       transaction: t,
     });
   }
@@ -566,19 +565,20 @@ class Registration {
     } else if (type === "hr") {
       select = "hr.head_region_id, hr.head_region_name";
       groupBy = "hr.head_region_id";
-    }else if (type === "region") {
-      select = "reg.pulau_id_alias AS region_id, reg.nama_pulau_alias AS region";
+    } else if (type === "region") {
+      select =
+        "reg.pulau_id_alias AS region_id, reg.nama_pulau_alias AS region";
       groupBy = "reg.pulau_id_alias";
-    }else if (type === "distributor") {
+    } else if (type === "distributor") {
       select = "d.distributor_id, d.distributor_name AS distributor";
       groupBy = "d.distributor_id";
-    }else if (type === "area") {
+    } else if (type === "area") {
       select = "c.city_id_alias AS area_id, c.city_name_alias AS city";
       groupBy = "c.city_id_alias";
-    }else if (type === "asm") {
+    } else if (type === "asm") {
       select = "p.kode_pic AS asm_id, p.nama_pic";
       groupBy = "asm_id";
-    }else if (type === "ass") {
+    } else if (type === "ass") {
       select = "ass.kode_pic AS ass_id, ass.nama_pic";
       groupBy = "ass_id";
     }

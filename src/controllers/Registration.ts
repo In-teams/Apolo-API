@@ -92,7 +92,7 @@ class Registration {
   async post(req: Request, res: Response): Promise<object | undefined> {
     const transaction = await db.transaction();
     try {
-      await Service.insertRegistrationForm(req, transaction);
+      await Service.insertRegistrationForm({...req.validated, ...req.decoded}, transaction);
       transaction.commit();
       return response(res, true, "Form successfully uploaded", null, 200);
     } catch (error) {
@@ -118,7 +118,7 @@ class Registration {
   async validation(req: Request, res: Response): Promise<object | undefined> {
     const transaction = await db.transaction();
     try {
-      await Service.validation(req, transaction);
+      await Service.validation({...req.validated, ...req.decoded}, transaction);
       transaction.commit();
       return response(res, true, "Form successfully validated", null, 200);
     } catch (error) {

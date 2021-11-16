@@ -151,7 +151,7 @@ class Redeem {
   async validation(req: Request, res: Response) {
     const t = await db.transaction();
     try {
-      await Service.validation(req.validated, t);
+      await Service.validation({...req.validated, ...req.decoded}, t);
       t.commit();
       return response(res, true, "berhasil divalidasi", null, 200);
     } catch (error) {
@@ -237,7 +237,7 @@ class Redeem {
   async post(req: Request, res: Response) {
     const t = await db.transaction();
     try {
-      await Service.postRedeemFile(req, t);
+      await Service.postRedeemFile({...req.validated.file, ...req.decoded}, t);
       t.commit();
       return response(res, true, "Form successfully uploaded", null, 200);
     } catch (error) {
