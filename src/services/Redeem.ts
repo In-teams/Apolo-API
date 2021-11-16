@@ -76,9 +76,9 @@ class Redeem {
       );
     } catch (error) {}
   }
-  async updateRedeemFile(req: Request, t: any): Promise<any> {
+  async updateRedeemFile(data: any, t: any): Promise<any> {
     try {
-      const { outlet_id, filename, tgl_upload } = req.validated.file;
+      const { outlet_id, filename, tgl_upload, user_id } = data;
       await db.query(
         "UPDATE trx_file_penukaran SET filename = ?, tgl_upload = ? WHERE outlet_id = ?",
         {
@@ -89,11 +89,11 @@ class Redeem {
         }
       );
       return await db.query(
-        "INSERT INTO trx_history_file_penukaran (outlet_id, filename, tgl_upload) VALUES(?, ?, ?)",
+        "INSERT INTO trx_history_file_penukaran (outlet_id, filename, tgl_upload, uploaded_by) VALUES(?, ?, ?, ?)",
         {
           raw: true,
           type: QueryTypes.INSERT,
-          replacements: [outlet_id, filename, tgl_upload],
+          replacements: [outlet_id, filename, tgl_upload, user_id],
           transaction: t,
         }
       );

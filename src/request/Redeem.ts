@@ -293,7 +293,7 @@ class Redeem {
       if (isUploaded.length > 0) {
         if (levelUser !== "1")
           return response(res, false, null, "Upload hanya bisa sekali", 400);
-        await service.updateRedeemFile(req, t);
+        await service.updateRedeemFile({...req.validated.file, ...req.decoded}, t);
         t.commit();
         return response(res, true, "Form successfully uploaded", null, 200);
       }
