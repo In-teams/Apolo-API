@@ -52,18 +52,20 @@ class Redeem {
     next: NextFunction
   ): Promise<any> {
     const schema = joi.object({
-      outlet_id: joi.string().required(),
+      file_id: joi.number().required(),
       category: joi.string(),
     });
 
-    const { value, error } = schema.validate({...req.params, ...req.query});
+    const { value, error } = schema.validate({ ...req.params, ...req.query });
     if (error) {
       return response(res, false, null, error.message, 400);
     }
     req.validated = value;
-    const outletCheck = await Outlet.getOutlet(req);
-    if (outletCheck.length < 1)
-      return response(res, false, null, "outlet not found", 404);
+    const fileCheck = await service.getRedeemFileByFileId(req.validated);
+    if (!fileCheck) return response(res, false, null, "file not found", 404);
+    // const outletCheck = await Outlet.getOutlet(req);
+    // if (outletCheck.length < 1)
+    //   return response(res, false, null, "outlet not found", 404);
     next();
   }
   async getTransactionDetail(
@@ -72,7 +74,7 @@ class Redeem {
     next: NextFunction
   ): Promise<any> {
     const schema = joi.object({
-      outlet_id: joi.string().required(),
+      file_id: joi.number().required(),
       kd_transaksi: joi.string().required(),
     });
 
@@ -81,9 +83,8 @@ class Redeem {
       return response(res, false, null, error.message, 400);
     }
     req.validated = value;
-    const outletCheck = await Outlet.getOutlet(req);
-    if (outletCheck.length < 1)
-      return response(res, false, null, "outlet not found", 404);
+    const fileCheck = await service.getRedeemFileByFileId(req.validated);
+    if (!fileCheck) return response(res, false, null, "file not found", 404);
     const transactionCodeCheck = await service.getTransactionCode(
       value.kd_transaksi
     );
@@ -293,7 +294,10 @@ class Redeem {
       if (isUploaded.length > 0) {
         if (levelUser !== "1")
           return response(res, false, null, "Upload hanya bisa sekali", 400);
-        await service.updateRedeemFile({...req.validated.file, ...req.decoded}, t);
+        await service.updateRedeemFile(
+          { ...req.validated.file, ...req.decoded },
+          t
+        );
         t.commit();
         return response(res, true, "Form successfully uploaded", null, 200);
       }

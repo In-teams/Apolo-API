@@ -135,6 +135,21 @@ class Redeem {
       );
     } catch (error) {}
   }
+  async getRedeemFileByFileId(data: any): Promise<any> {
+    try {
+      const { file_id } = data;
+      const thisMonth = new Date().getMonth() + 1;
+      const findOne = await db.query(
+        "SELECT fp.*, sp.level FROM trx_file_penukaran AS fp INNER JOIN ms_status_penukaran AS sp ON fp.`status_penukaran` = sp.`id` WHERE fp.id = ?",
+        {
+          raw: true,
+          type: QueryTypes.SELECT,
+          replacements: [file_id],
+        }
+      );
+      return findOne ? findOne[0] : null;
+    } catch (error) {}
+  }
   async getRedeemFileById(req: Request): Promise<any> {
     try {
       const { file_id, outlet_id } = req.validated;
@@ -502,9 +517,9 @@ class Redeem {
     return find ? find.map((e: any) => e.category) : null;
   }
   async getRedeemHistory(data: any): Promise<any> {
-    const {outlet_id, category} = data
-    const params = [outlet_id]
-    let query = "SELECT tgl_confirm, tgl_confirm, tr.kd_transaksi, tgl_transaksi, kd_produk, nama_produk, quantity, point_satuan, p.category FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trb ON tr.`kd_transaksi` = trb.`kd_transaksi` INNER JOIN ms_product p ON p.product_id = trb.kd_produk LEFT JOIN trx_status s ON tr.`kd_transaksi` = s.`kd_transaksi` LEFT JOIN trx_pr_barang i ON i.kd_transaksi = tr.`kd_transaksi` LEFT JOIN trx_pr j ON j.kode_pr = i.kode_pr LEFT JOIN trx_confirm_detail k ON k.kd_transaksi = tr.kd_transaksi LEFT JOIN trx_confirm l ON l.id_confirm = k.id_confirm LEFT JOIN trx_valid_redeemp n ON n.kd_transaksi = tr.kd_transaksi WHERE no_id = ?"
+    const {file_id, category} = data
+    const params = [file_id]
+    let query = "SELECT created_by, tgl_confirm, tgl_confirm, tr.kd_transaksi, tgl_transaksi, kd_produk, nama_produk, quantity, point_satuan, p.category FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trb ON tr.`kd_transaksi` = trb.`kd_transaksi` INNER JOIN ms_product p ON p.product_id = trb.kd_produk LEFT JOIN trx_status s ON tr.`kd_transaksi` = s.`kd_transaksi` LEFT JOIN trx_pr_barang i ON i.kd_transaksi = tr.`kd_transaksi` LEFT JOIN trx_pr j ON j.kode_pr = i.kode_pr LEFT JOIN trx_confirm_detail k ON k.kd_transaksi = tr.kd_transaksi LEFT JOIN trx_confirm l ON l.id_confirm = k.id_confirm LEFT JOIN trx_valid_redeemp n ON n.kd_transaksi = tr.kd_transaksi WHERE file_id = ?"
     if(category){
       query += " AND p.category = ?"
       params.push(category)
@@ -518,13 +533,13 @@ class Redeem {
       }
     );
   }
-  async getRedeemHistoryDetail(kd_transaksi: string, outlet_id: string): Promise<any> {
+  async getRedeemHistoryDetail(kd_transaksi: string, file_id: string): Promise<any> {
     const find: any[] = await db.query(
-      "SELECT tp.no_handphone, tgl_transaksi,kd_produk,nama_produk,quantity,tgl_confirm,`tanggal_terima`,`nama_penerima`,tr.kd_transaksi,point_satuan, tgl_confirm, o.*  FROM trx_transaksi_redeem tr INNER JOIN trx_transaksi_redeem_barang trb ON tr.`kd_transaksi` = trb.`kd_transaksi` LEFT JOIN trx_status s ON trb.`kd_transaksi` = s.`kd_transaksi`  LEFT JOIN trx_pr_barang i ON i.kd_transaksi = trb.`kd_transaksi` LEFT JOIN trx_pr j ON j.kode_pr = i.kode_pr LEFT JOIN trx_confirm_detail k ON k.kd_transaksi = trb.kd_transaksi LEFT JOIN trx_confirm l ON l.id_confirm = k.id_confirm LEFT JOIN trx_valid_redeemp n ON n.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet o ON o.outlet_id = tr.no_id LEFT JOIN trx_transaksi_pulsa tp ON tp.kd_transaksi = tr.kd_transaksi WHERE trb.kd_transaksi = ? AND o.outlet_id = ?",
+      "SELECT tp.no_handphone, tgl_transaksi,kd_produk,nama_produk,quantity,tgl_confirm,`tanggal_terima`,`nama_penerima`,tr.kd_transaksi,point_satuan, tgl_confirm, o.*  FROM trx_transaksi_redeem tr INNER JOIN trx_transaksi_redeem_barang trb ON tr.`kd_transaksi` = trb.`kd_transaksi` LEFT JOIN trx_status s ON trb.`kd_transaksi` = s.`kd_transaksi`  LEFT JOIN trx_pr_barang i ON i.kd_transaksi = trb.`kd_transaksi` LEFT JOIN trx_pr j ON j.kode_pr = i.kode_pr LEFT JOIN trx_confirm_detail k ON k.kd_transaksi = trb.kd_transaksi LEFT JOIN trx_confirm l ON l.id_confirm = k.id_confirm LEFT JOIN trx_valid_redeemp n ON n.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet o ON o.outlet_id = tr.no_id LEFT JOIN trx_transaksi_pulsa tp ON tp.kd_transaksi = tr.kd_transaksi WHERE trb.kd_transaksi = ? AND file_id = ?",
       {
         raw: true,
         type: QueryTypes.SELECT,
-        replacements: [kd_transaksi, outlet_id],
+        replacements: [kd_transaksi, file_id],
       }
     );
 

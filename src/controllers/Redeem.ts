@@ -77,7 +77,8 @@ class Redeem {
         program_id: e.program_id,
         no_id: e.no_id,
         status: e.status,
-        created_by: req.decoded.user_id
+        created_by: req.decoded.user_id,
+        file_id: req.validated.file_id
       }));
       const detail = temp.map((e: any) => ({
         kd_transaksi: e.kd_transaksi,
@@ -190,6 +191,7 @@ class Redeem {
             ? "Otorisasi"
             : "Proses",
       }));
+      histories = DateFormat.index(histories, "DD MMMM YYYY HH:mm:ss", "tgl_transaksi")
       return response(res, true, histories, null, 200);
     } catch (error) {
       console.log(error);
@@ -197,10 +199,10 @@ class Redeem {
   }
   async getRedeemHistoryDetail(req: Request, res: Response) {
     try {
-      const { kd_transaksi, outlet_id } = req.validated;
+      const { kd_transaksi, file_id } = req.validated;
       const detail = await Service.getRedeemHistoryDetail(
         kd_transaksi,
-        outlet_id
+        file_id
       );
       if (!detail) return response(res, false, null, "not found", 404);
       const { status_terima, tgl_confirm } = detail;
