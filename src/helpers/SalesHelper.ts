@@ -27,10 +27,10 @@ class SalesHelper {
       ...e,
       aktual: +e.aktual,
       diff: (+e.aktual) - e.target,
-      poin: e.poin && +e.poin,
+      poin: e.poin && +e.poin || 0,
       pencapaian: e.pencapaian
-        ? e.pencapaian + "%"
-        : ((e.aktual / e.target) * 100).toFixed(2) + "%",
+        ? e.pencapaian || 0 + "%"
+        : (((+e.aktual / +e.target) * 100) || 0).toFixed(2) + "%",
       kontribusi: ((+e.aktual / totalTarget) * 100).toFixed(2) + "%",
       bobot_target: ((e.target / totalTarget) * 100).toFixed(2) + "%",
       bobot_outlet: ((e.outlets / totalOutlet) * 100).toFixed(2) + "%",

@@ -260,7 +260,7 @@ class Sales {
     qap += " GROUP BY bulan";
     qt += " GROUP BY b.id";
 
-    let query = `SELECT CASE WHEN b.id = 1 OR b.id = 2 OR b.id = 3 THEN '1' WHEN b.id = 4 OR b.id = 5 OR b.id = 6 THEN '2' WHEN b.id = 7 OR b.id = 8 OR b.id = 9 THEN '3' WHEN b.id = 10 OR b.id = 11 OR b.id = 12 THEN '4' END AS kuartal, SUM(aktual) AS aktual, SUM(poin) AS poin, SUM(target) AS target FROM mstr_outlet AS o LEFT JOIN(${qt}) AS mst ON mst.outlet_id = o.outlet_id LEFT JOIN(${qap}) AS trb ON trb.bulan = mst.bulan INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN ms_bulan AS b ON b.id = mst.bulan WHERE o.outlet_id IS NOT NULL`;
+    let query = `SELECT CASE WHEN b.id = 1 OR b.id = 2 OR b.id = 3 THEN '1' WHEN b.id = 4 OR b.id = 5 OR b.id = 6 THEN '2' WHEN b.id = 7 OR b.id = 8 OR b.id = 9 THEN '3' WHEN b.id = 10 OR b.id = 11 OR b.id = 12 THEN '4' END AS kuartal, SUM(aktual) AS aktual, SUM(poin) AS poin, SUM(target) AS target, IFNULL(outlets, 0) AS outlets FROM mstr_outlet AS o LEFT JOIN(${qt}) AS mst ON mst.outlet_id = o.outlet_id LEFT JOIN(${qap}) AS trb ON trb.bulan = mst.bulan INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN ms_bulan AS b ON b.id = mst.bulan WHERE o.outlet_id IS NOT NULL`;
 
     if (semester_id) {
       query += ` AND b.id IN (${semester_id})`;
