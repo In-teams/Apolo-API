@@ -14,7 +14,7 @@ const queryAktual: string =
   "SELECT SUM(trb.sales) AS aktual FROM trx_transaksi tr INNER JOIN trx_transaksi_barang trb ON trb.kd_transaksi = tr.kd_transaksi INNER JOIN mstr_outlet AS ou ON ou.outlet_id = tr.no_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id WHERE ou.outlet_id IS NOT NULL";
 
 let queryAktualAndPoint: string =
-  "SELECT ou.outlet_id, MONTH(tr.tgl_transaksi) AS bulan, SUM(sales) AS aktual, SUM(point_satuan) AS poin FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_head_region AS hr ON r.head_region_id = hr.head_region_id WHERE ou.outlet_id IS NOT NULL";
+  "SELECT ou.outlet_id, MONTH(tr.tgl_transaksi) AS bulan, SUM(sales) AS aktual, SUM(point_satuan) AS poin, COUNT(DISTINCT no_id) AS outlets FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_head_region AS hr ON r.head_region_id = hr.head_region_id WHERE ou.outlet_id IS NOT NULL";
 
 let queryOutletCount =
   "SELECT COUNT(DISTINCT ou.outlet_id) AS total FROM mstr_outlet AS ou INNER JOIN ms_pulau_alias AS r ON ou.`region_id` = r. `pulau_id_alias` INNER JOIN ms_dist_pic AS pic ON ou.`distributor_id` = pic.`distributor_id` WHERE ou.`outlet_id` IS NOT NULL";
@@ -235,7 +235,7 @@ class Sales {
     qap += " GROUP BY bulan";
     qt += " GROUP BY b.id";
 
-    let query = `SELECT b.bulan, aktual, poin, SUM(target) AS target FROM mstr_outlet AS o LEFT JOIN(${qt}) AS mst ON mst.outlet_id = o.outlet_id LEFT JOIN(${qap}) AS trb ON trb.bulan = mst.bulan INNER JOIN ms_bulan AS b ON b.id = mst.bulan INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL`;
+    let query = `SELECT b.bulan, aktual, poin, SUM(target) AS target, IFNULL(outlets, 0) AS outlets FROM mstr_outlet AS o LEFT JOIN(${qt}) AS mst ON mst.outlet_id = o.outlet_id LEFT JOIN(${qap}) AS trb ON trb.bulan = mst.bulan INNER JOIN ms_bulan AS b ON b.id = mst.bulan INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL`;
 
     let { query: newQuery, params } = filterParams.query(req, query);
     newQuery += " GROUP BY b.id ORDER BY b.id ASC";

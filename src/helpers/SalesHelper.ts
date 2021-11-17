@@ -10,7 +10,7 @@ class SalesHelper {
     isSingle: boolean = false
   ) {
     let aktual: number = 0,
-      outlet: number = 0,
+      outlets: number = 0,
       poin: number = 0,
       target: number = 0;
     let totalTarget: any = await Service.getTarget(req);
@@ -20,7 +20,7 @@ class SalesHelper {
     data.map((e: any) => {
       aktual += +e.aktual;
       target += +e.target;
-      outlet += e.outlet;
+      outlets += e.outlets;
       poin += +e.poin;
     });
     data = data.map((e: any) => ({
@@ -33,7 +33,7 @@ class SalesHelper {
         : ((e.aktual / e.target) * 100).toFixed(2) + "%",
       kontribusi: ((+e.aktual / totalTarget) * 100).toFixed(2) + "%",
       bobot_target: ((e.target / totalTarget) * 100).toFixed(2) + "%",
-      bobot_outlet: ((e.outlet / totalOutlet) * 100).toFixed(2) + "%",
+      bobot_outlet: ((e.outlets / totalOutlet) * 100).toFixed(2) + "%",
     }));
     if (isSingle) {
       data = NumberFormat(data, true, "aktual", "target", "diff");
@@ -46,12 +46,12 @@ class SalesHelper {
         aktual,
         target,
         poin,
-        outlet,
+        outlets,
         [type]: type !== "Aktual" ? "Total Pencapaian" : "Total",
         pencapaian: ((aktual / target) * 100).toFixed(2) + "%",
         kontribusi: ((aktual / totalTarget) * 100).toFixed(2) + "%",
         bobot_target: ((target / totalTarget) * 100).toFixed(2) + "%",
-        bobot_outlet: ((outlet / totalOutlet) * 100).toFixed(2) + "%",
+        bobot_outlet: ((outlets / totalOutlet) * 100).toFixed(2) + "%",
       },
     ];
     data = NumberFormat(data, true, "aktual", "target", "diff");

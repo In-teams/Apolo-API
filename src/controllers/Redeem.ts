@@ -30,7 +30,7 @@ class Redeem {
       let temp: any[] = [];
       let total: number = 0;
       let trCode = await Service.getLastTrRedeemCode();
-      const today = DateFormat.getToday("YYYY-MM-DD");
+      const today = DateFormat.getToday("YYYY-MM-DD HH:mm:ss");
       trCode = IncrementNumber(trCode);
       const product_id: any[] = req.validated.product.map(
         (e: any) => e.product_id
@@ -77,6 +77,7 @@ class Redeem {
         program_id: e.program_id,
         no_id: e.no_id,
         status: e.status,
+        created_by: req.decoded.user_id
       }));
       const detail = temp.map((e: any) => ({
         kd_transaksi: e.kd_transaksi,
