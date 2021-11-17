@@ -213,6 +213,7 @@ class Redeem {
       } else {
         detail.status = "Proses";
       }
+      detail.tgl_transaksi = DateFormat.getDate(detail.tgl_transaksi, "DD MMMM YYYY HH:mm:ss")
       return response(res, true, detail, null, 200);
     } catch (error) {
       console.log(error);
