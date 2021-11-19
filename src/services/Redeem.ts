@@ -479,8 +479,8 @@ class Redeem {
       replacements: pp,
     });
   }
-  async getProduct(req: Request, point: number): Promise<any> {
-    const { category } = req.validated;
+  async getProduct(data: any, point: number): Promise<any> {
+    const { category } = data;
     let q =
       "SELECT mp.product_id, mp.product_name, mpb.point, category FROM ms_product AS mp INNER JOIN ms_program_barang AS mpb ON mp.product_id =  mpb.product_id WHERE point <= ?";
     let params = [point];

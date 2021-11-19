@@ -7,7 +7,7 @@
     "go": "npm-run-all -s test build",
     "test": "mocha --exit -r ts-node/register 'tests/**/*.ts'",
     "dev": "ts-node-dev --respawn --pretty --transpile-only src/app.ts",
-    "start": "node build/app.js",
+    "start": "node build/src/app.js",
     "serve": "pm2 start build/app.js",
     "build": "tsc"
   },

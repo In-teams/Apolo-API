@@ -26,7 +26,7 @@ class Redeem {
       let diff =
         parseInt(outletPoint[0]?.achieve || 0) -
         parseInt(outletPointRedeem[0]?.redeem || 0);
-      let product: any[] = await Service.getProduct(req, diff);
+      let product: any[] = await Service.getProduct(req.validated, diff);
       let temp: any[] = [];
       let total: number = 0;
       let trCode = await Service.getLastTrRedeemCode();
@@ -43,7 +43,7 @@ class Redeem {
         }
       });
       if (filtered.length < 1)
-        return response(res, false, null, "something wrong", 400);
+        return response(res, false, null, "redeem gagal", 400);
       req.validated.product
         .map((e: any) => ({
           ...e,
@@ -78,7 +78,7 @@ class Redeem {
         no_id: e.no_id,
         status: e.status,
         created_by: req.decoded.user_id,
-        file_id: req.validated.file_id
+        file_id: req.validated.file_id,
       }));
       const detail = temp.map((e: any) => ({
         kd_transaksi: e.kd_transaksi,
@@ -93,9 +93,11 @@ class Redeem {
           kd_transaksi: e.kd_transaksi,
           no_handphone: e.no_handphone,
         }));
-      if (total > diff)
+      if (total > diff) {
+        t.commit();
         return response(res, false, null, "poin tidak cukup", 400);
-      await Service.insert(data, detail, pulsaEwallet, t);
+      }
+      (await Service.insert(data, detail, pulsaEwallet, t)) + t.LOCK.UPDATE;
       t.commit();
       return response(res, true, "Redeem sukses", null, 200);
     } catch (error) {
@@ -153,7 +155,7 @@ class Redeem {
   async validation(req: Request, res: Response) {
     const t = await db.transaction();
     try {
-      await Service.validation({...req.validated, ...req.decoded}, t);
+      await Service.validation({ ...req.validated, ...req.decoded }, t);
       t.commit();
       return response(res, true, "berhasil divalidasi", null, 200);
     } catch (error) {
@@ -191,7 +193,11 @@ class Redeem {
             ? "Otorisasi"
             : "Proses",
       }));
-      histories = DateFormat.index(histories, "DD MMMM YYYY HH:mm:ss", "tgl_transaksi")
+      histories = DateFormat.index(
+        histories,
+        "DD MMMM YYYY HH:mm:ss",
+        "tgl_transaksi"
+      );
       return response(res, true, histories, null, 200);
     } catch (error) {
       console.log(error);
@@ -213,7 +219,10 @@ class Redeem {
       } else {
         detail.status = "Proses";
       }
-      detail.tgl_transaksi = DateFormat.getDate(detail.tgl_transaksi, "DD MMMM YYYY HH:mm:ss")
+      detail.tgl_transaksi = DateFormat.getDate(
+        detail.tgl_transaksi,
+        "DD MMMM YYYY HH:mm:ss"
+      );
       return response(res, true, detail, null, 200);
     } catch (error) {
       console.log(error);
@@ -241,7 +250,10 @@ class Redeem {
   async post(req: Request, res: Response) {
     const t = await db.transaction();
     try {
-      await Service.postRedeemFile({...req.validated.file, ...req.decoded}, t);
+      await Service.postRedeemFile(
+        { ...req.validated.file, ...req.decoded },
+        t
+      );
       t.commit();
       return response(res, true, "Form successfully uploaded", null, 200);
     } catch (error) {
