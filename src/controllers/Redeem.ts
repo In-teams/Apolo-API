@@ -131,7 +131,7 @@ class Redeem {
           parseFloat(outletPointRedeem[0]?.redeem || 0)
         ).toFixed(2)
       );
-      let product = await Service.getProduct(req, diff);
+      let product = await Service.getProduct(req.validated, diff);
       return response(res, true, product, null, 200);
     } catch (error) {
       console.log(error);
@@ -175,7 +175,7 @@ class Redeem {
     try {
       let file = await Service.getRedeemFile(req);
       file = GetFile(req, file, "redeem", "filename");
-      file = DateFormat.index(file, "DD MMMM YYYY HH:mm:ss", "tgl_upload");
+      file = DateFormat.index(file, "DD MMMM YYYY, HH:mm:ss", "tgl_upload");
       return response(res, true, file, null, 200);
     } catch (error) {
       console.log(error);
@@ -186,6 +186,7 @@ class Redeem {
       let histories = await Service.getRedeemHistory(req.validated);
       histories = histories.map((history: any) => ({
         ...history,
+        file: req.validated.file,
         status:
           history.status_terima === "TELAH DITERIMA"
             ? "Sukses"
@@ -195,7 +196,7 @@ class Redeem {
       }));
       histories = DateFormat.index(
         histories,
-        "DD MMMM YYYY HH:mm:ss",
+        "DD MMMM YYYY, HH:mm:ss",
         "tgl_transaksi"
       );
       return response(res, true, histories, null, 200);
@@ -205,7 +206,7 @@ class Redeem {
   }
   async getRedeemHistoryDetail(req: Request, res: Response) {
     try {
-      const { kd_transaksi, file_id } = req.validated;
+      const { kd_transaksi, file_id, filename } = req.validated;
       const detail = await Service.getRedeemHistoryDetail(
         kd_transaksi,
         file_id
@@ -221,8 +222,9 @@ class Redeem {
       }
       detail.tgl_transaksi = DateFormat.getDate(
         detail.tgl_transaksi,
-        "DD MMMM YYYY HH:mm:ss"
+        "DD MMMM YYYY, HH:mm:ss"
       );
+      detail.file = filename
       return response(res, true, detail, null, 200);
     } catch (error) {
       console.log(error);
@@ -235,7 +237,7 @@ class Redeem {
       isRegis = ["Yes+", "Yes"].includes(isRegis);
       let isAllowCheckout = await Service.getRedeemFileById(req);
       isAllowCheckout = ["Level 4"].includes(isAllowCheckout.level);
-      file = DateFormat.index(file, "DD MMMM YYYY HH:mm:ss", "created_at");
+      file = DateFormat.index(file, "DD MMMM YYYY, HH:mm:ss", "created_at");
       return response(
         res,
         true,

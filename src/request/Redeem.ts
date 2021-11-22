@@ -66,6 +66,7 @@ class Redeem {
     // const outletCheck = await Outlet.getOutlet(req);
     // if (outletCheck.length < 1)
     //   return response(res, false, null, "outlet not found", 404);
+    req.validated.file = fileCheck.filename
     next();
   }
   async getTransactionDetail(
@@ -90,6 +91,7 @@ class Redeem {
     );
     if (!transactionCodeCheck)
       return response(res, false, null, "kd transaksi not found", 404);
+    req.validated.filename = fileCheck.filename
     next();
   }
   async getHistoryRedeemFile(
@@ -231,9 +233,9 @@ class Redeem {
       }
 
       req.validated = value;
-      const isRegis = await Outlet.outletIsRegist(value.outlet_id);
-      if (!["Yes+", "Yes"].includes(isRegis))
-        return response(res, false, null, "Belum registrasi", 400);
+      // const isRegis = await Outlet.outletIsRegist(value.outlet_id);
+      // if (!["Yes+", "Yes"].includes(isRegis))
+      //   return response(res, false, null, "Belum registrasi", 400);
       const isUploaded = await service.getRedeemFileById(req);
       if (!isUploaded) return response(res, false, null, "file not found", 404);
       if (["Level 4"].includes(isUploaded?.level))

@@ -253,7 +253,7 @@ class Registration {
     const { outlet_id } = req.validated;
     if (!type_file) type_file = 0;
     let query =
-      "SELECT f.*, s.status FROM trx_file_registrasi AS f INNER JOIN ms_status_registrasi AS s ON s.id = f.status_registrasi WHERE outlet_id = ? AND type_file = ?";
+      "SELECT f.*, s.status, f.filename AS file FROM trx_file_registrasi AS f INNER JOIN ms_status_registrasi AS s ON s.id = f.status_registrasi WHERE outlet_id = ? AND type_file = ?";
 
     return await db.query(query, {
       raw: true,

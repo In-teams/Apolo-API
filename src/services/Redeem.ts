@@ -112,7 +112,7 @@ class Redeem {
       const { outlet_id } = req.validated;
       const thisMonth = +DateFormat.getToday("MM");
       return await db.query(
-        "SELECT * FROM trx_file_penukaran WHERE outlet_id = ? AND MONTH(tgl_upload) = ? ORDER BY tgl_upload DESC",
+        "SELECT f.*, f.filename AS file, sp.status FROM trx_file_penukaran AS f INNER JOIN ms_status_penukaran AS sp ON sp.id = f.status_penukaran WHERE outlet_id = ? AND MONTH(tgl_upload) = ? ORDER BY tgl_upload DESC",
         {
           raw: true,
           type: QueryTypes.SELECT,
