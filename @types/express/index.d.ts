@@ -7,6 +7,7 @@ declare global {
           decoded?: any,
           log?: any,
           db?: any,
+          fileValidationError?: any,
       }
   }
 }

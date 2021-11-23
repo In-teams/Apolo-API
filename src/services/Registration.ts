@@ -284,6 +284,56 @@ class Registration {
       replacements: [outlet_id, periode_id, file_id, type_file],
     });
   }
+  async deleteRegistrationForm(ids: [], periode_id: number, t: any, type_file?: number): Promise<any> {
+    if (!type_file) type_file = 0;
+
+    return await db.query("DELETE FROM trx_file_registrasi WHERE outlet_id IN (?) AND periode_id = ?", {
+      raw: true,
+      type: QueryTypes.DELETE,
+      transaction: t,
+      replacements: [ids, periode_id],
+    });
+  }
+  async insertBulkyRegistrationForm(data: any, t: any): Promise<any> {
+    let query =
+      "INSERT INTO trx_file_registrasi (outlet_id, filename, tgl_upload, periode_id, uploaded_by, type_file) VALUES ?";
+    let queryHistory =
+      "INSERT INTO trx_history_registrasi (outlet_id, file_id, created_at) VALUES ?";
+
+    await db.query(
+      "INSERT INTO trx_history_file_registrasi (outlet_id, filename, tgl_upload, periode_id, uploaded_by, type_file) VALUES ?",
+      {
+        raw: true,
+        type: QueryTypes.INSERT,
+        replacements: [data],
+        transaction: t,
+      }
+    );
+    let insert: any = await db.query(query, {
+      raw: true,
+      type: QueryTypes.INSERT,
+      replacements: [data],
+      transaction: t,
+    });
+    let count = insert.pop()
+    insert = insert.shift()
+    const ids = [insert]
+    for (let i = 1; i < count; i++) {
+      ids.push(insert + i)
+    }
+
+    let histories = []
+    for (let i = 0; i < data.length; i++) {
+      histories.push([data[i][0], ids[i], data[i][2]])
+    }
+
+    return await db.query(queryHistory, {
+      raw: true,
+      type: QueryTypes.INSERT,
+      replacements: [histories],
+      transaction: t,
+    });
+  }
   async insertRegistrationForm(data: any, t: any): Promise<any> {
     const { outlet_id, periode_id, filename, tgl_upload, user_id } = data;
     let query =

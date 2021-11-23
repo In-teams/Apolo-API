@@ -85,6 +85,21 @@ class Registration {
     req.validated = { ...value, sort: value.sort || "ASC" };
     next();
   }
+  async postBulky(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      const check = await PeriodeService.checkData(req);
+      if (check.length < 1)
+        return response(res, false, null, "bukan periode upload", 400);
+      req.validated = {periode_id: check[0].id};
+      next();
+    } catch (error) {
+      console.log(error);
+    }
+  }
   async post(req: Request, res: Response, next: NextFunction): Promise<any> {
     const t = await db.transaction();
     try {
@@ -158,7 +173,10 @@ class Registration {
           // await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
           await FileSystem.WriteFile(path, value.file, true, ext);
           req.validated.id = id;
-          await RegistrationService.updateRegistrationForm({...req.validated, ...req.decoded}, t);
+          await RegistrationService.updateRegistrationForm(
+            { ...req.validated, ...req.decoded },
+            t
+          );
           t.commit();
           return response(res, true, "Form successfully uploaded", null, 200);
         }

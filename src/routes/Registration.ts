@@ -1,5 +1,6 @@
 import { Router } from "express";
 import RegistrationController from "../controllers/Registration";
+import Upload from "../helpers/Upload";
 import RegistrationRequest from "../request/Registration";
 import IRouter from "../types/RouterInterface";
 
@@ -24,6 +25,7 @@ class Registration implements IRouter {
     this.router.get("/summary/asm", RegistrationRequest.get, RegistrationController.getRegistrationSummaryByASM); // summary by asm
     this.router.get("/summary/ass", RegistrationRequest.get, RegistrationController.getRegistrationSummaryByASS); // summary by ass
     this.router.post("/", RegistrationRequest.post, RegistrationController.post); // upload registration file
+    this.router.post("/bulky", RegistrationRequest.postBulky, Upload("registration"), RegistrationController.postBulky); // upload registration file
     this.router.put("/:outlet_id", RegistrationRequest.update, RegistrationController.update); // update outlet data
     this.router.get("/:outlet_id", RegistrationRequest.getOutletData, RegistrationController.getOutletData); // get outlet data
     this.router.post("/validation", RegistrationRequest.validation, RegistrationController.validation); // registration file validation

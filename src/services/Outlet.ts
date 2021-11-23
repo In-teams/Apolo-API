@@ -7,6 +7,16 @@ let queryOutletCount =
   "SELECT COUNT(DISTINCT o.outlet_id) AS total FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.`region_id` = reg.`pulau_id_alias` INNER JOIN ms_dist_pic AS dp ON o.`distributor_id` = dp.`distributor_id` WHERE o.`outlet_id` IS NOT NULL";
 
 class Outlet {
+  async getOutletByIds(ids: string[]): Promise<any> {
+
+    const gets = await db.query("SELECT outlet_id FROM mstr_outlet WHERE outlet_id IN(?)", {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: [ids],
+    });
+
+    return gets.map((e: any) => e.outlet_id)
+  }
   async getOutlet(req: Request): Promise<any> {
     const { outlet_id } = req.validated;
 
