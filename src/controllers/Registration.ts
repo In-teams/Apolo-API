@@ -134,6 +134,10 @@ class Registration {
         });
 
       outletIds = outletIds.filter((e: any) => checkOutlet.includes(e));
+      if (files.length < 1) {
+        transaction.commit();
+        return response(res, false, {unknownFile}, "nama file harus sesuai dengan outlet_id", 400);
+      }
       await Service.deleteRegistrationForm(
         outletIds,
         req.validated.periode_id,
@@ -141,7 +145,7 @@ class Registration {
       );
       await Service.insertBulkyRegistrationForm(files, transaction);
       transaction.commit();
-      return response(res, true, { files, unknownFile }, null, 200);
+      return response(res, true, { unknownFile }, null, 200);
     } catch (error) {
       // FileSystem.DeleteFile(req.validated.path);
       // console.log(error);
