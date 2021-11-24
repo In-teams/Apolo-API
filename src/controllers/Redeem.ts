@@ -226,7 +226,7 @@ class Redeem {
         detail.tgl_transaksi,
         "DD MMMM YYYY, HH:mm:ss"
       );
-      detail.file = filename
+      detail.file = filename;
       return response(res, true, detail, null, 200);
     } catch (error) {
       console.log(error);
@@ -254,6 +254,8 @@ class Redeem {
   async postBulky(req: Request, res: Response) {
     const transaction = await db.transaction();
     try {
+      if (req.files?.length || 0 < 1)
+        return response(res, false, null, "file tidak ada", 400);
       if (req.fileValidationError)
         return response(res, false, null, req.fileValidationError, 400);
 
@@ -262,7 +264,7 @@ class Redeem {
         outlet_id: e.originalname.split(".").shift(),
         filename: e.filename,
         tgl_upload: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),
-        uploaded_by: req.decoded.user_id
+        uploaded_by: req.decoded.user_id,
       }));
 
       let outletIds = files.map((e: any) => e.outlet_id);
@@ -284,12 +286,18 @@ class Redeem {
       outletIds = outletIds.filter((e: any) => checkOutlet.includes(e));
       if (files.length < 1) {
         transaction.commit();
-        return response(res, false, {unknownFile}, "nama file harus sesuai dengan outlet_id", 400);
+        return response(
+          res,
+          false,
+          { unknownFile },
+          "nama file harus sesuai dengan outlet_id",
+          400
+        );
       }
-      await Service.deleteRedeemFileByIds(outletIds, transaction)
-      await Service.postRedeemFileBulky(files, transaction)
+      await Service.deleteRedeemFileByIds(outletIds, transaction);
+      await Service.postRedeemFileBulky(files, transaction);
       transaction.commit();
-      return response(res, true, {files, unknownFile}, null, 200);
+      return response(res, true, { files, unknownFile }, null, 200);
     } catch (error) {
       // t.rollback();
       console.log(error);

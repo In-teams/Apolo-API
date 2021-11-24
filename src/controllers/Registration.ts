@@ -94,6 +94,8 @@ class Registration {
   async postBulky(req: Request, res: Response): Promise<object | undefined> {
     const transaction = await db.transaction();
     try {
+      if (req.files?.length || 0 < 1)
+        return response(res, false, null, "file tidak ada", 400);
       if (req.fileValidationError)
         return response(res, false, null, req.fileValidationError, 400);
 
