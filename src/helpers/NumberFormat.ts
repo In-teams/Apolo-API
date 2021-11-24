@@ -6,18 +6,14 @@ class NumberFormat {
       for (let a of key.values()) {
         res[a + "convert"] = isMoney
           ? Intl.NumberFormat("id").format(row[a]?.toFixed() || 0)
-          : Intl.NumberFormat("id", {
-              minimumFractionDigits: 2,
-            }).format(row[a]) || 0;
+          : Intl.NumberFormat("id").format(row[a]) || 0;
       }
       return { ...row, ...res };
     });
     for (let a of key.values()) {
       res[a + "convert"] = isMoney
         ? Intl.NumberFormat("id").format(data[a]?.toFixed() || 0)
-        : Intl.NumberFormat("id", {
-            minimumFractionDigits: 2,
-          }).format(data[a]) || 0;
+        : Intl.NumberFormat("id").format(data[a]) || 0;
     }
     return { ...data, ...res };
 

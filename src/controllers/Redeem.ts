@@ -149,7 +149,7 @@ class Redeem {
           parseFloat(outletPointRedeem[0]?.redeem || 0)
         ).toFixed(2)
       );
-      return response(res, true, { point: diff }, null, 200);
+      return response(res, true, { point: NumberFormat({diff}, false, "diff") }, null, 200);
     } catch (error) {
       console.log(error);
     }
@@ -175,10 +175,18 @@ class Redeem {
   }
   async getRedeemFile(req: Request, res: Response) {
     try {
+      let isUpload: any = await Service.getRedeemFile(req);
+      if (isUpload.length < 1) {
+        isUpload = true;
+      } else if (isUpload.length > 0 && req.decoded.level === "1") {
+        isUpload = true;
+      } else {
+        isUpload = false;
+      }
       let file = await Service.getRedeemFile(req);
       file = GetFile(req, file, "redeem", "filename");
       file = DateFormat.index(file, "DD MMMM YYYY, HH:mm:ss", "tgl_upload");
-      return response(res, true, file, null, 200);
+      return response(res, true, {isUpload,  file}, null, 200);
     } catch (error) {
       console.log(error);
     }
@@ -226,7 +234,7 @@ class Redeem {
         detail.tgl_transaksi,
         "DD MMMM YYYY, HH:mm:ss"
       );
-      detail.file = filename
+      detail.file = filename;
       return response(res, true, detail, null, 200);
     } catch (error) {
       console.log(error);
@@ -265,7 +273,7 @@ class Redeem {
         outlet_id: e.originalname.split(".").shift().split("_").shift(),
         filename: e.filename,
         tgl_upload: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),
-        uploaded_by: req.decoded.user_id
+        uploaded_by: req.decoded.user_id,
       }));
 
       let outletIds = files.map((e: any) => e.outlet_id);
@@ -295,10 +303,10 @@ class Redeem {
           400
         );
       }
-      await Service.deleteRedeemFileByIds(outletIds, transaction)
-      await Service.postRedeemFileBulky(files, transaction)
+      await Service.deleteRedeemFileByIds(outletIds, transaction);
+      await Service.postRedeemFileBulky(files, transaction);
       transaction.commit();
-      return response(res, true, {files, unknownFile}, null, 200);
+      return response(res, true, { files, unknownFile }, null, 200);
     } catch (error) {
       // t.rollback();
       console.log(error);
