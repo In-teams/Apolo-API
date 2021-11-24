@@ -23,7 +23,8 @@ const getPointRedeemByHirarki = (col: string): string =>
 class Redeem {
   async validation(data: any, t: any): Promise<any> {
     try {
-      const { status_penukaran, validated_at, file_id, outlet_id, user_id } = data;
+      const { status_penukaran, validated_at, file_id, outlet_id, user_id } =
+        data;
       await db.query(
         "UPDATE trx_file_penukaran SET status_penukaran = ?, validated_at = ?, validated_by = ? WHERE id = ?",
         {
@@ -39,7 +40,68 @@ class Redeem {
           raw: true,
           type: QueryTypes.INSERT,
           transaction: t,
-          replacements: [outlet_id, status_penukaran, file_id, validated_at, user_id],
+          replacements: [
+            outlet_id,
+            status_penukaran,
+            file_id,
+            validated_at,
+            user_id,
+          ],
+        }
+      );
+    } catch (error) {}
+  }
+  async deleteRedeemFileByIds(ids: number[], t: any): Promise<any> {
+    try {
+      return await db.query(
+        "DELETE FROM trx_file_penukaran WHERE outlet_id IN (?) AND MONTH(tgl_upload) = ?",
+        {
+          raw: true,
+          type: QueryTypes.INSERT,
+          replacements: [ids, new Date().getMonth() + 1],
+          transaction: t,
+        }
+      );
+    } catch (error) {}
+  }
+  async postRedeemFileBulky(data: any, t: any): Promise<any> {
+    try {
+      let id: any = await db.query(
+        "INSERT INTO trx_file_penukaran (outlet_id, filename, tgl_upload, uploaded_by) VALUES ?",
+        {
+          raw: true,
+          type: QueryTypes.INSERT,
+          replacements: [data],
+          transaction: t,
+        }
+      );
+      let count = id.pop();
+      id = id.shift();
+      const ids = [id];
+      for (let i = 1; i < count; i++) {
+        ids.push(id + i);
+      }
+
+      let histories = [];
+      for (let i = 0; i < data.length; i++) {
+        histories.push([data[i][0], ids[i], data[i][2]]);
+      }
+      await db.query(
+        "INSERT INTO trx_history_penukaran (outlet_id, file_id, created_at) VALUES ?",
+        {
+          raw: true,
+          type: QueryTypes.INSERT,
+          replacements: [histories],
+          transaction: t,
+        }
+      );
+      return await db.query(
+        "INSERT INTO trx_history_file_penukaran (outlet_id, filename, tgl_upload, uploaded_by) VALUES ?",
+        {
+          raw: true,
+          type: QueryTypes.INSERT,
+          replacements: [data],
+          transaction: t,
         }
       );
     } catch (error) {}
@@ -517,23 +579,24 @@ class Redeem {
     return find ? find.map((e: any) => e.category) : null;
   }
   async getRedeemHistory(data: any): Promise<any> {
-    const {file_id, category} = data
-    const params = [file_id]
-    let query = "SELECT created_by, tgl_confirm, tgl_confirm, tr.kd_transaksi, tgl_transaksi, kd_produk, nama_produk, quantity, point_satuan, p.category FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trb ON tr.`kd_transaksi` = trb.`kd_transaksi` INNER JOIN ms_product p ON p.product_id = trb.kd_produk LEFT JOIN trx_status s ON tr.`kd_transaksi` = s.`kd_transaksi` LEFT JOIN trx_pr_barang i ON i.kd_transaksi = tr.`kd_transaksi` LEFT JOIN trx_pr j ON j.kode_pr = i.kode_pr LEFT JOIN trx_confirm_detail k ON k.kd_transaksi = tr.kd_transaksi LEFT JOIN trx_confirm l ON l.id_confirm = k.id_confirm LEFT JOIN trx_valid_redeemp n ON n.kd_transaksi = tr.kd_transaksi WHERE file_id = ?"
-    if(category){
-      query += " AND p.category = ?"
-      params.push(category)
+    const { file_id, category } = data;
+    const params = [file_id];
+    let query =
+      "SELECT created_by, tgl_confirm, tgl_confirm, tr.kd_transaksi, tgl_transaksi, kd_produk, nama_produk, quantity, point_satuan, p.category FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trb ON tr.`kd_transaksi` = trb.`kd_transaksi` INNER JOIN ms_product p ON p.product_id = trb.kd_produk LEFT JOIN trx_status s ON tr.`kd_transaksi` = s.`kd_transaksi` LEFT JOIN trx_pr_barang i ON i.kd_transaksi = tr.`kd_transaksi` LEFT JOIN trx_pr j ON j.kode_pr = i.kode_pr LEFT JOIN trx_confirm_detail k ON k.kd_transaksi = tr.kd_transaksi LEFT JOIN trx_confirm l ON l.id_confirm = k.id_confirm LEFT JOIN trx_valid_redeemp n ON n.kd_transaksi = tr.kd_transaksi WHERE file_id = ?";
+    if (category) {
+      query += " AND p.category = ?";
+      params.push(category);
     }
-    return await db.query(
-      query + " ORDER BY tgl_transaksi DESC",
-      {
-        raw: true,
-        type: QueryTypes.SELECT,
-        replacements: params,
-      }
-    );
+    return await db.query(query + " ORDER BY tgl_transaksi DESC", {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: params,
+    });
   }
-  async getRedeemHistoryDetail(kd_transaksi: string, file_id: string): Promise<any> {
+  async getRedeemHistoryDetail(
+    kd_transaksi: string,
+    file_id: string
+  ): Promise<any> {
     const find: any[] = await db.query(
       "SELECT tp.no_handphone, tgl_transaksi,kd_produk,nama_produk,quantity,tgl_confirm,`tanggal_terima`,`nama_penerima`,tr.kd_transaksi,point_satuan, tgl_confirm, o.*  FROM trx_transaksi_redeem tr INNER JOIN trx_transaksi_redeem_barang trb ON tr.`kd_transaksi` = trb.`kd_transaksi` LEFT JOIN trx_status s ON trb.`kd_transaksi` = s.`kd_transaksi`  LEFT JOIN trx_pr_barang i ON i.kd_transaksi = trb.`kd_transaksi` LEFT JOIN trx_pr j ON j.kode_pr = i.kode_pr LEFT JOIN trx_confirm_detail k ON k.kd_transaksi = trb.kd_transaksi LEFT JOIN trx_confirm l ON l.id_confirm = k.id_confirm LEFT JOIN trx_valid_redeemp n ON n.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet o ON o.outlet_id = tr.no_id LEFT JOIN trx_transaksi_pulsa tp ON tp.kd_transaksi = tr.kd_transaksi WHERE trb.kd_transaksi = ? AND file_id = ?",
       {
@@ -543,7 +606,7 @@ class Redeem {
       }
     );
 
-    return find ? find[0] : null
+    return find ? find[0] : null;
   }
   async getTransactionCode(kd_transaksi: string): Promise<any> {
     const find: any = await db.query(

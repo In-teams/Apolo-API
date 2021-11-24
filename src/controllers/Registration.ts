@@ -94,11 +94,6 @@ class Registration {
   async postBulky(req: Request, res: Response): Promise<object | undefined> {
     const transaction = await db.transaction();
     try {
-      // await Service.insertRegistrationForm(
-      // 	{ ...req.validated, ...req.decoded },
-      // 	transaction
-      // );
-      // transaction.commit();
       if (req.fileValidationError)
         return response(res, false, null, req.fileValidationError, 400);
 

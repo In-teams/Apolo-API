@@ -3,6 +3,7 @@ import _ from "lodash";
 import db from "../config/db";
 import App from "../helpers/App";
 import DateFormat from "../helpers/DateFormat";
+import FileSystem from "../helpers/FileSystem";
 import GetFile from "../helpers/GetFile";
 import IncrementNumber from "../helpers/IncrementNumber";
 import NumberFormat from "../helpers/NumberFormat";
@@ -16,6 +17,7 @@ import Region from "../services/Region";
 import Sales from "../services/Sales";
 import User from "../services/User";
 import Wilayah from "../services/Wilayah";
+import config from "../config/app";
 
 class Redeem {
   async checkout(req: Request, res: Response) {
@@ -246,6 +248,50 @@ class Redeem {
         200
       );
     } catch (error) {
+      console.log(error);
+    }
+  }
+  async postBulky(req: Request, res: Response) {
+    const transaction = await db.transaction();
+    try {
+      if (req.fileValidationError)
+        return response(res, false, null, req.fileValidationError, 400);
+
+      let files: any = req.files;
+      files = files.map((e: any) => ({
+        outlet_id: e.originalname.split(".").shift(),
+        filename: e.filename,
+        tgl_upload: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),
+        uploaded_by: req.decoded.user_id
+      }));
+
+      let outletIds = files.map((e: any) => e.outlet_id);
+      const checkOutlet = await Outlet.getOutletByIds(outletIds);
+      const unknownFile: any[] = [];
+      files
+        .filter((e: any) => !checkOutlet.includes(e.outlet_id))
+        .map((e: any) => {
+          unknownFile.push(e.outlet_id);
+          FileSystem.DeleteFile(`${config.pathRegistration}/${e.filename}`);
+        });
+
+      files = files
+        .filter((e: any) => checkOutlet.includes(e.outlet_id))
+        .map((e: any) => {
+          return Object.values(e);
+        });
+
+      outletIds = outletIds.filter((e: any) => checkOutlet.includes(e));
+      if (files.length < 1) {
+        transaction.commit();
+        return response(res, false, {unknownFile}, "nama file harus sesuai dengan outlet_id", 400);
+      }
+      await Service.deleteRedeemFileByIds(outletIds, transaction)
+      await Service.postRedeemFileBulky(files, transaction)
+      transaction.commit();
+      return response(res, true, {files, unknownFile}, null, 200);
+    } catch (error) {
+      // t.rollback();
       console.log(error);
     }
   }

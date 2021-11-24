@@ -1,5 +1,6 @@
 import { Router } from "express";
 import RedeemController from "../controllers/Redeem";
+import Upload from "../helpers/Upload";
 import RedeemRequest from "../request/Redeem";
 import IRouter from "../types/RouterInterface";
 
@@ -27,6 +28,7 @@ class Redeem implements IRouter {
     this.router.get("/outlet-point/:outlet_id", RedeemRequest.getRedeemFile,RedeemController.getOutletPoin);
     this.router.get("/product-category", RedeemRequest.getProduct,RedeemController.getProductCategory);
     this.router.post("/", RedeemRequest.post, RedeemController.post);
+    this.router.post("/bulky", Upload("Redeem"), RedeemController.postBulky);
     this.router.get("/file/:outlet_id", RedeemRequest.getRedeemFile, RedeemController.getRedeemFile);
     this.router.get("/redeem-history/:file_id", RedeemRequest.getRedeemHistory, RedeemController.getRedeemHistory);
     this.router.get("/redeem-history/:file_id/:kd_transaksi", RedeemRequest.getTransactionDetail, RedeemController.getRedeemHistoryDetail);
