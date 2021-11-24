@@ -226,7 +226,7 @@ class Redeem {
         detail.tgl_transaksi,
         "DD MMMM YYYY, HH:mm:ss"
       );
-      detail.file = filename;
+      detail.file = filename
       return response(res, true, detail, null, 200);
     } catch (error) {
       console.log(error);
@@ -254,17 +254,18 @@ class Redeem {
   async postBulky(req: Request, res: Response) {
     const transaction = await db.transaction();
     try {
-      if (req.files?.length || 0 < 1)
-        return response(res, false, null, "file tidak ada", 400);
       if (req.fileValidationError)
         return response(res, false, null, req.fileValidationError, 400);
 
       let files: any = req.files;
+      if (!files) return response(res, false, null, "file tidak ada", 400);
+      if (files.length < 1)
+        return response(res, false, null, "file tidak ada", 400);
       files = files.map((e: any) => ({
-        outlet_id: e.originalname.split(".").shift(),
+        outlet_id: e.originalname.split(".").shift().split("_").shift(),
         filename: e.filename,
         tgl_upload: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),
-        uploaded_by: req.decoded.user_id,
+        uploaded_by: req.decoded.user_id
       }));
 
       let outletIds = files.map((e: any) => e.outlet_id);
@@ -274,7 +275,7 @@ class Redeem {
         .filter((e: any) => !checkOutlet.includes(e.outlet_id))
         .map((e: any) => {
           unknownFile.push(e.outlet_id);
-          FileSystem.DeleteFile(`${config.pathRegistration}/${e.filename}`);
+          FileSystem.DeleteFile(`${config.pathRedeem}/${e.filename}`);
         });
 
       files = files
@@ -294,10 +295,10 @@ class Redeem {
           400
         );
       }
-      await Service.deleteRedeemFileByIds(outletIds, transaction);
-      await Service.postRedeemFileBulky(files, transaction);
+      await Service.deleteRedeemFileByIds(outletIds, transaction)
+      await Service.postRedeemFileBulky(files, transaction)
       transaction.commit();
-      return response(res, true, { files, unknownFile }, null, 200);
+      return response(res, true, {files, unknownFile}, null, 200);
     } catch (error) {
       // t.rollback();
       console.log(error);

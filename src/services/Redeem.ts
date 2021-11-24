@@ -57,12 +57,14 @@ class Redeem {
         "DELETE FROM trx_file_penukaran WHERE outlet_id IN (?) AND MONTH(tgl_upload) = ?",
         {
           raw: true,
-          type: QueryTypes.INSERT,
+          type: QueryTypes.DELETE,
           replacements: [ids, new Date().getMonth() + 1],
           transaction: t,
         }
       );
-    } catch (error) {}
+    } catch (error) {
+      console.log(error, "errororr")
+    }
   }
   async postRedeemFileBulky(data: any, t: any): Promise<any> {
     try {
@@ -104,7 +106,9 @@ class Redeem {
           transaction: t,
         }
       );
-    } catch (error) {}
+    } catch (error) {
+      console.log(error, "errorrrrr")
+    }
   }
   async postRedeemFile(data: any, t: any): Promise<any> {
     try {
