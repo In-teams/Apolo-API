@@ -333,6 +333,19 @@ class Registration {
     const query = `UPDATE trx_file_registrasi SET filename = ${filename}, uploaded_by = ${uploaded_by}, tgl_upload = ${tgl_upload} WHERE id IN(${ids.join(
       ","
     )})`;
+    const createHistories: any[] = data.map((e: any) => {
+      delete e.id
+      return Object.values(e)
+    })
+    await db.query(
+      "INSERT INTO trx_history_file_registrasi (outlet_id, filename, tgl_upload, periode_id, uploaded_by, type_file) VALUES ?",
+      {
+        raw: true,
+        type: QueryTypes.INSERT,
+        replacements: [createHistories],
+        transaction: t,
+      }
+    );
     return await db.query(query, {
       raw: true,
       type: QueryTypes.RAW,
@@ -340,7 +353,6 @@ class Registration {
     });
   }
   async insertBulkyRegistrationForm(data: any, t: any): Promise<any> {
-    console.log(data)
     let query =
       "INSERT INTO trx_file_registrasi (outlet_id, filename, tgl_upload, periode_id, uploaded_by, type_file) VALUES ?";
     let queryHistory =

@@ -149,7 +149,13 @@ class Redeem {
           parseFloat(outletPointRedeem[0]?.redeem || 0)
         ).toFixed(2)
       );
-      return response(res, true, { point: NumberFormat({diff}, false, "diff") }, null, 200);
+      return response(
+        res,
+        true,
+        { point: NumberFormat({ diff }, false, "diff") },
+        null,
+        200
+      );
     } catch (error) {
       console.log(error);
     }
@@ -186,7 +192,7 @@ class Redeem {
       let file = await Service.getRedeemFile(req);
       file = GetFile(req, file, "redeem", "filename");
       file = DateFormat.index(file, "DD MMMM YYYY, HH:mm:ss", "tgl_upload");
-      return response(res, true, {isUpload,  file}, null, 200);
+      return response(res, true, { isUpload, file }, null, 200);
     } catch (error) {
       console.log(error);
     }
@@ -278,6 +284,20 @@ class Redeem {
 
       let outletIds = files.map((e: any) => e.outlet_id);
       const checkOutlet = await Outlet.getOutletByIds(outletIds);
+      const isUploaded = await Service.getRedeemFileByOutletIds(outletIds);
+      const alreadyExistId: string[] = isUploaded.map((e: any) => e.outlet_id);
+      let shouldUpdate = files
+        .filter((e: any) => alreadyExistId.includes(e.outlet_id))
+        .map((e: any) => ({
+          ...e,
+          id: isUploaded.find((x: any) => x.outlet_id === e.outlet_id).id,
+        }));
+      const shouldInsert = files
+        .filter((e: any) => !alreadyExistId.includes(e.outlet_id))
+        .filter((e: any) => checkOutlet.includes(e.outlet_id))
+        .map((e: any) => {
+          return Object.values(e);
+        });
       const unknownFile: any[] = [];
       files
         .filter((e: any) => !checkOutlet.includes(e.outlet_id))
@@ -303,10 +323,32 @@ class Redeem {
           400
         );
       }
-      await Service.deleteRedeemFileByIds(outletIds, transaction);
-      await Service.postRedeemFileBulky(files, transaction);
+      if (shouldInsert.length > 0) {
+        await Service.postRedeemFileBulky(shouldInsert, transaction);
+      }
+      if (shouldUpdate.length > 0) {
+        if (req.decoded.level === "1") {
+          await Service.updateBulkyRedeemForm(shouldUpdate, transaction);
+        } else {
+          shouldUpdate.map((e: any) => {
+            FileSystem.DeleteFile(`${config.pathRedeem}/${e.filename}`);
+          });
+          shouldUpdate = [];
+        }
+      }
+      // await Service.deleteRedeemFileByIds(outletIds, transaction);
       transaction.commit();
-      return response(res, true, { files, unknownFile }, null, 200);
+      return response(
+        res,
+        true,
+        {
+          unknownFile,
+          updated: shouldUpdate.map((e: any) => e.outlet_id),
+          inserted: shouldInsert.map((e: any) => e[0]),
+        },
+        null,
+        200
+      );
     } catch (error) {
       // t.rollback();
       console.log(error);

@@ -63,8 +63,49 @@ class Redeem {
         }
       );
     } catch (error) {
-      console.log(error, "errororr")
+      console.log(error, "errororr");
     }
+  }
+  async updateBulkyRedeemForm(data: Array<[]>, t: any): Promise<any> {
+    let filename = "(CASE id ";
+    let tgl_upload = "(CASE id ";
+    let uploaded_by = "(CASE id ";
+    data.map((e: any) => {
+      filename += `WHEN ${e.id} THEN '${e.filename}' `;
+      uploaded_by += `WHEN ${e.id} THEN '${e.uploaded_by}' `;
+      tgl_upload += `WHEN ${e.id} THEN '${e.tgl_upload}' `;
+    });
+
+    filename += "END)";
+    tgl_upload += "END)";
+    uploaded_by += "END)";
+
+    
+
+
+    const ids = data.map((e: any) => e.id);
+    const query = `UPDATE trx_file_penukaran SET filename = ${filename}, uploaded_by = ${uploaded_by}, tgl_upload = ${tgl_upload} WHERE id IN(${ids.join(
+      ","
+    )})`;
+
+    const createHistories: any[] = data.map((e: any) => {
+      delete e.id
+      return Object.values(e)
+    })
+    await db.query(
+      "INSERT INTO trx_history_file_penukaran (outlet_id, filename, tgl_upload, uploaded_by) VALUES ?",
+      {
+        raw: true,
+        type: QueryTypes.INSERT,
+        replacements: [createHistories],
+        transaction: t,
+      }
+    );
+    return await db.query(query, {
+      raw: true,
+      type: QueryTypes.RAW,
+      transaction: t,
+    });
   }
   async postRedeemFileBulky(data: any, t: any): Promise<any> {
     try {
@@ -107,7 +148,7 @@ class Redeem {
         }
       );
     } catch (error) {
-      console.log(error, "errorrrrr")
+      console.log(error, "errorrrrr");
     }
   }
   async postRedeemFile(data: any, t: any): Promise<any> {
@@ -214,6 +255,20 @@ class Redeem {
         }
       );
       return findOne ? findOne[0] : null;
+    } catch (error) {}
+  }
+  async getRedeemFileByOutletIds(outletIds: string[]): Promise<any> {
+    try {
+      const thisMonth = new Date().getMonth() + 1;
+      const findAll = await db.query(
+        "SELECT fp.*, sp.level FROM trx_file_penukaran AS fp INNER JOIN ms_status_penukaran AS sp ON fp.`status_penukaran` = sp.`id` WHERE outlet_id IN (?) AND MONTH(tgl_upload) = ?",
+        {
+          raw: true,
+          type: QueryTypes.SELECT,
+          replacements: [outletIds, thisMonth],
+        }
+      );
+      return findAll;
     } catch (error) {}
   }
   async getRedeemFileById(req: Request): Promise<any> {
