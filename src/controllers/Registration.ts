@@ -125,6 +125,27 @@ class Registration {
           FileSystem.DeleteFile(`${config.pathRegistration}/${e.filename}`);
         });
 
+      const isUploaded = await Service.getRegistrationFormByOutletIds(
+        outletIds,
+        req.validated.periode_id
+      );
+
+      const alreadyExistId: string[] = isUploaded.map((e: any) => e.outlet_id);
+
+      // console.log(isUploaded)
+      let shouldUpdate = files
+        .filter((e: any) => alreadyExistId.includes(e.outlet_id))
+        .map((e: any) => ({
+          ...e,
+          id: isUploaded.find((x: any) => x.outlet_id === e.outlet_id).id,
+        }));
+      const shouldInsert = files
+        .filter((e: any) => !alreadyExistId.includes(e.outlet_id))
+        .filter((e: any) => checkOutlet.includes(e.outlet_id))
+        .map((e: any) => {
+          return Object.values(e);
+        });
+
       files = files
         .filter((e: any) => checkOutlet.includes(e.outlet_id))
         .map((e: any) => {
@@ -142,14 +163,31 @@ class Registration {
           400
         );
       }
-      await Service.deleteRegistrationForm(
-        outletIds,
-        req.validated.periode_id,
-        transaction
-      );
-      await Service.insertBulkyRegistrationForm(files, transaction);
+      if (shouldUpdate.length > 0) {
+        if (req.decoded.level === "1") {
+          await Service.updateBulkyRegistrationForm(shouldUpdate, transaction);
+        } else {
+          shouldUpdate.map((e: any) => {
+            FileSystem.DeleteFile(`${config.pathRegistration}/${e.filename}`);
+          });
+          shouldUpdate = [];
+        }
+      }
+      if (shouldInsert.length > 0) {
+        await Service.insertBulkyRegistrationForm(shouldInsert, transaction);
+      }
       transaction.commit();
-      return response(res, true, { unknownFile }, null, 200);
+      return response(
+        res,
+        true,
+        {
+          unknownFile,
+          updated: shouldUpdate.map((e: any) => e.outlet_id),
+          inserted: shouldInsert.map((e: any) => e[0]),
+        },
+        null,
+        200
+      );
     } catch (error) {
       // FileSystem.DeleteFile(req.validated.path);
       // console.log(error);

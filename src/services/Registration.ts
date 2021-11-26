@@ -284,17 +284,63 @@ class Registration {
       replacements: [outlet_id, periode_id, file_id, type_file],
     });
   }
-  async deleteRegistrationForm(ids: [], periode_id: number, t: any, type_file?: number): Promise<any> {
+  async getRegistrationFormByOutletIds(
+    outletIds: any[],
+    periode_id: number
+  ): Promise<any> {
+    let query =
+      "SELECT fr.*, s.level FROM trx_file_registrasi AS fr INNER JOIN ms_status_registrasi AS s ON s.id = fr.status_registrasi WHERE outlet_id IN(?) AND type_file = 0 AND periode_id = ?";
+
+    return await db.query(query, {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: [outletIds, periode_id],
+    });
+  }
+  async deleteRegistrationForm(
+    ids: [],
+    periode_id: number,
+    t: any,
+    type_file?: number
+  ): Promise<any> {
     if (!type_file) type_file = 0;
 
-    return await db.query("DELETE FROM trx_file_registrasi WHERE outlet_id IN (?) AND periode_id = ?", {
+    return await db.query(
+      "DELETE FROM trx_file_registrasi WHERE outlet_id IN (?) AND periode_id = ?",
+      {
+        raw: true,
+        type: QueryTypes.DELETE,
+        transaction: t,
+        replacements: [ids, periode_id],
+      }
+    );
+  }
+  async updateBulkyRegistrationForm(data: Array<[]>, t: any): Promise<any> {
+    let filename = "(CASE id ";
+    let tgl_upload = "(CASE id ";
+    let uploaded_by = "(CASE id ";
+    data.map((e: any) => {
+      filename += `WHEN ${e.id} THEN '${e.filename}' `;
+      uploaded_by += `WHEN ${e.id} THEN '${e.uploaded_by}' `;
+      tgl_upload += `WHEN ${e.id} THEN '${e.tgl_upload}' `;
+    });
+
+    filename += "END)";
+    tgl_upload += "END)";
+    uploaded_by += "END)";
+
+    const ids = data.map((e: any) => e.id);
+    const query = `UPDATE trx_file_registrasi SET filename = ${filename}, uploaded_by = ${uploaded_by}, tgl_upload = ${tgl_upload} WHERE id IN(${ids.join(
+      ","
+    )})`;
+    return await db.query(query, {
       raw: true,
-      type: QueryTypes.DELETE,
+      type: QueryTypes.RAW,
       transaction: t,
-      replacements: [ids, periode_id],
     });
   }
   async insertBulkyRegistrationForm(data: any, t: any): Promise<any> {
+    console.log(data)
     let query =
       "INSERT INTO trx_file_registrasi (outlet_id, filename, tgl_upload, periode_id, uploaded_by, type_file) VALUES ?";
     let queryHistory =
@@ -315,16 +361,16 @@ class Registration {
       replacements: [data],
       transaction: t,
     });
-    let count = insert.pop()
-    insert = insert.shift()
-    const ids = [insert]
+    let count = insert.pop();
+    insert = insert.shift();
+    const ids = [insert];
     for (let i = 1; i < count; i++) {
-      ids.push(insert + i)
+      ids.push(insert + i);
     }
 
-    let histories = []
+    let histories = [];
     for (let i = 0; i < data.length; i++) {
-      histories.push([data[i][0], ids[i], data[i][2]])
+      histories.push([data[i][0], ids[i], data[i][2]]);
     }
 
     return await db.query(queryHistory, {
@@ -371,7 +417,8 @@ class Registration {
     });
   }
   async validation(data: any, t: any): Promise<any> {
-    const { outlet_id, file_id, status_registrasi, validated_at, user_id } = data;
+    const { outlet_id, file_id, status_registrasi, validated_at, user_id } =
+      data;
     let query =
       "UPDATE trx_file_registrasi SET status_registrasi = ?, validated_at = ?, validated_by = ? WHERE outlet_id = ? AND id = ?";
 
@@ -405,14 +452,26 @@ class Registration {
     await db.query(query, {
       raw: true,
       type: QueryTypes.UPDATE,
-      replacements: [status_registrasi, validated_at, user_id, outlet_id, file_id],
+      replacements: [
+        status_registrasi,
+        validated_at,
+        user_id,
+        outlet_id,
+        file_id,
+      ],
       transaction: t,
     });
 
     return await db.query(queryHistory, {
       raw: true,
       type: QueryTypes.INSERT,
-      replacements: [outlet_id, status_registrasi, file_id, validated_at, user_id],
+      replacements: [
+        outlet_id,
+        status_registrasi,
+        file_id,
+        validated_at,
+        user_id,
+      ],
       transaction: t,
     });
   }
