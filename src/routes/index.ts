@@ -11,6 +11,7 @@ import DistrictRoute from "./District";
 import SubDistrictRoute from "./SubDistrict";
 import WilayahRoute from "./Wilayah";
 import DistributorRoute from "./Distributor";
+import ReportRoute from "./Report";
 import OutletRoute from "./Outlet";
 import RedeemRoute from "./Redeem";
 import RegistrationRoute from "./Registration";
@@ -44,6 +45,7 @@ class Index implements IRouter {
     route.use("/app", Token.checkToken, AppRoute);
     route.use("/user", Token.checkToken, UserRoute);
     route.use("/distributor", Token.checkToken, DistributorRoute);
+    route.use("/report", Token.checkToken, ReportRoute);
     route.use("/example", Token.checkToken, ExampleRoute);
     route.use("/auth", AuthRoute);
   }
