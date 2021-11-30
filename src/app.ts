@@ -4,6 +4,7 @@ import Route from "./routes";
 import cluster from "cluster";
 import totalCPUs from "os";
 import config from './config/app'
+import userAgent from "express-useragent"
 
 const total = totalCPUs.cpus().length;
 const port: number = 2000;
@@ -22,6 +23,7 @@ class App {
     // database().connect((err) => console.log("database running well"));
     this.app.use(cors());
     this.app.enable('trust proxy')
+    this.app.use(userAgent.express())
     this.app.use(express.urlencoded({ limit: "200mb", extended: true }));
     this.app.use(express.json({ limit: "200mb" }));
     this.app.use('/file/registration', express.static(config.pathRegistration))

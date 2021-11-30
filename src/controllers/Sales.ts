@@ -20,13 +20,13 @@ const getCluster = (
   target: number
 ): { cluster: string; id: number } => {
   const data = +((aktual / target) * 100).toFixed(2);
-  if (data <= 0) return { cluster: "ZERO ACHIEVER <= 0% ", id: 1 };
-  if (data > 0 && data < 70) return { cluster: "LOW ACHIEVER > 0%", id: 2 };
+  if (data <= 0) return { cluster: "ZERO ACHIEVER <= 0% ", id: 5 };
+  if (data > 0 && data < 70) return { cluster: "LOW ACHIEVER > 0%", id: 4 };
   if (data >= 70 && data < 90)
     return { cluster: "NEAR ACHIEVER >= 70%", id: 3 };
   if (data >= 90 && data < 100)
-    return { cluster: "HIGH ACHIEVER >= 90%", id: 4 };
-  return { cluster: "TOP ACHIEVER >= 100%", id: 5 };
+    return { cluster: "HIGH ACHIEVER >= 90%", id: 2 };
+  return { cluster: "TOP ACHIEVER >= 100%", id: 1 };
 };
 
 class Sales {

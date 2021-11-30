@@ -117,47 +117,50 @@ import ArrayOfObjToObj from "./ArrayOfObjToObj";
 import NumberFormat from "./NumberFormat";
 import _ from "lodash";
 
-const sumData = (result: any[], hirarki: string, totalTarget: any, totalOutlet: any) => {
+const sumData = (
+  result: any[],
+  hirarki: string,
+  totalTarget: any,
+  totalOutlet: any
+) => {
   const sumData = (data: any[], key: string) =>
-      _.reduce(data, (prev: any, curr: any) => prev + curr[key], 0);
-    result = [
-      ...result,
-      {
-        [hirarki]: "Total Pencapaian",
-        target: sumData(result, "target"),
-        achieve: sumData(result, "achieve"),
-        aktual: sumData(result, "aktual"),
-        ao: sumData(result, "ao"),
-        outlet: sumData(result, "outlet"),
-        aoro:
-          ((sumData(result, "ao") / sumData(result, "outlet")) * 100).toFixed(
-            2
-          ) + "%",
-        redeem: sumData(result, "redeem"),
-        diff: sumData(result, "diff"),
-        diff_point: sumData(result, "diff_point"),
-        pencapaian: (
-          (sumData(result, "aktual") / sumData(result, "target")) *
-          100
-        ).toFixed(2),
-        percentage:
-          (
-            (sumData(result, "aktual") / sumData(result, "target")) *
-            100
-          ).toFixed(2) + "%",
-        kontribusi:
-          ((sumData(result, "aktual") / totalTarget) * 100).toFixed(2) + "%",
-        bobot_target:
-          ((sumData(result, "target") / totalTarget) * 100).toFixed(2) + "%",
-        bobot_outlet:
-          ((sumData(result, "outlet") / totalOutlet) * 100).toFixed(2) + "%",
-      },
-    ];
-    result = NumberFormat(result, true, "aktual", "target", "diff");
-    result = NumberFormat(result, false, "achieve", "redeem", "diff_point");
+    _.reduce(data, (prev: any, curr: any) => prev + curr[key], 0);
+  result = [
+    ...result,
+    {
+      [hirarki]: "Total Pencapaian",
+      target: sumData(result, "target"),
+      achieve: sumData(result, "achieve"),
+      aktual: sumData(result, "aktual"),
+      ao: sumData(result, "ao"),
+      outlet: sumData(result, "outlet"),
+      aoro:
+        ((sumData(result, "ao") / sumData(result, "outlet")) * 100).toFixed(2) +
+        "%",
+      redeem: sumData(result, "redeem"),
+      diff: sumData(result, "diff"),
+      diff_point: sumData(result, "diff_point"),
+      pencapaian: (
+        (sumData(result, "aktual") / sumData(result, "target")) *
+        100
+      ).toFixed(2),
+      percentage:
+        ((sumData(result, "aktual") / sumData(result, "target")) * 100).toFixed(
+          2
+        ) + "%",
+      kontribusi:
+        ((sumData(result, "aktual") / totalTarget) * 100).toFixed(2) + "%",
+      bobot_target:
+        ((sumData(result, "target") / totalTarget) * 100).toFixed(2) + "%",
+      bobot_outlet:
+        ((sumData(result, "outlet") / totalOutlet) * 100).toFixed(2) + "%",
+    },
+  ];
+  result = NumberFormat(result, true, "aktual", "target", "diff");
+  result = NumberFormat(result, false, "achieve", "redeem", "diff_point");
 
-    return result;
-}
+  return result;
+};
 
 class SalesHelper2 {
   async index(
@@ -184,6 +187,10 @@ class SalesHelper2 {
     pointRedeems = ArrayOfObjToObj(pointRedeems, key2, "redeem");
     let regists: any[] = await Registration.getRegistrationCount(req, key);
     regists = ArrayOfObjToObj(regists, key2, "registrasi");
+    const isMobile = req.useragent?.isMobile;
+    const isChrome = req.useragent?.isChrome;
+    const isAndroid = req.useragent?.isAndroid;
+
     let result: any[] = data.map((e: any) => {
       const target = targets[e[key2]]?.target || 0;
       const outlet = targets[e[key2]]?.outlet || 0;
@@ -225,20 +232,27 @@ class SalesHelper2 {
     // })
     // .slice(0, 5);
 
-    let asc = result
-      .sort((a: any, b: any) => {
-        return a.pencapaian - b.pencapaian;
-      })
-      .slice(0, 5);
-    let desc = result
-      .sort((a: any, b: any) => {
-        return b.pencapaian - a.pencapaian;
-      })
-      .slice(0, 5);
+    const show = req.validated.show;
 
-    asc = sumData(asc, hirarki, totalTarget, totalOutlet)
-    desc = sumData(desc, hirarki, totalTarget, totalOutlet)
-    return {asc, desc}
+    let asc = result.sort((a: any, b: any) => {
+      return a.pencapaian - b.pencapaian;
+    });
+    let desc = result.sort((a: any, b: any) => {
+      return b.pencapaian - a.pencapaian;
+    });
+
+    if (show) {
+      asc = asc.slice(0, show || 10);
+      desc = desc.slice(0, show || 10);
+    }else{
+      asc = asc.slice(0, 10);
+      desc = desc.slice(0, 10);
+
+    }
+
+    asc = sumData(asc, hirarki, totalTarget, totalOutlet);
+    desc = sumData(desc, hirarki, totalTarget, totalOutlet);
+    return { asc, desc };
   }
 }
 
