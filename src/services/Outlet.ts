@@ -43,6 +43,10 @@ class Outlet {
     "select distinct o.outlet_id, o.outlet_name from mstr_outlet as o INNER JOIN ms_pulau_alias as reg on o.region_id = reg.pulau_id_alias INNER JOIN ms_dist_pic as dp on o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL";
 
     let { query, params } = FilterParams.query(req, q);
+    if (req.validated.keyword) {
+      query += " AND o.outlet_name LIKE ?";
+      params.push(`%${req.validated.keyword}%`);
+    }
 
     return await db.query(query + " order by o.outlet_id ASC", {
       raw: true,

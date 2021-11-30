@@ -22,6 +22,7 @@ class Auth {
 			outlet_id: joi.string(),
 			quarter_id: joi.number().valid(1, 2, 3, 4),
 			sem: joi.number().valid(1, 2),
+			keyword: joi.string(),
 		});
 
 		const { value, error } = schema.validate(req.query);

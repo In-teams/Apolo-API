@@ -10,6 +10,11 @@ class Wilayah {
 
     let { query: newQuery, params } = FilterParams.query(req, query);
 
+    if (req.validated.keyword) {
+      newQuery += " AND mhr.head_region_name LIKE ?";
+      params.push(`%${req.validated.keyword}%`);
+    }
+
     return await db.query(newQuery + " order by mhr.head_region_id ASC", {
       raw: true,
       type: QueryTypes.SELECT,
