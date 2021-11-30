@@ -69,7 +69,7 @@ class Registration {
       {
         raw: true,
         type: QueryTypes.SELECT,
-        replacements: [...pr, ...pocs, ...pocs, ...params],
+        replacements: [...pocs, ...pocs, ...pr, ...params],
       }
     );
   }
@@ -97,7 +97,7 @@ class Registration {
       {
         raw: true,
         type: QueryTypes.SELECT,
-        replacements: [...pr, ...pocs, ...pocs, ...params],
+        replacements: [...pocs, ...pocs, ...pr, ...params],
       }
     );
   }
@@ -125,7 +125,7 @@ class Registration {
       {
         raw: true,
         type: QueryTypes.SELECT,
-        replacements: [...pr, ...pocs, ...pocs, ...params],
+        replacements: [...pocs, ...pocs, ...pr, ...params],
       }
     );
   }
@@ -152,7 +152,7 @@ class Registration {
       {
         raw: true,
         type: QueryTypes.SELECT,
-        replacements: [...pr, ...pocs, ...pocs, ...params],
+        replacements: [...pocs, ...pocs, ...pr, ...params],
       }
     );
   }
@@ -179,7 +179,7 @@ class Registration {
       {
         raw: true,
         type: QueryTypes.SELECT,
-        replacements: [...pr, ...pocs, ...pocs, ...params],
+        replacements: [...pocs, ...pocs, ...pr, ...params],
       }
     );
   }
@@ -206,7 +206,7 @@ class Registration {
       {
         raw: true,
         type: QueryTypes.SELECT,
-        replacements: [...pr, ...pocs, ...pocs, ...params],
+        replacements: [...pocs, ...pocs, ...pr, ...params],
       }
     );
   }
@@ -233,17 +233,17 @@ class Registration {
       {
         raw: true,
         type: QueryTypes.SELECT,
-        replacements: [...pr, ...pocs, ...pocs, ...params],
+        replacements: [...pocs, ...pocs, ...pr, ...params],
       }
     );
   }
   async getLastRegistration(req: Request): Promise<any> {
     let q =
-      "SELECT fr.outlet_id, fr.tgl_upload, o.outlet_name FROM trx_file_registrasi AS fr INNER JOIN mstr_outlet AS o ON o.outlet_id = fr.outlet_id INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg. pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE fr.type_file = 0";
+      "SELECT rf.outlet_id, rf.tgl_upload, o.outlet_name FROM trx_file_registrasi AS rf INNER JOIN mstr_outlet AS o ON o.outlet_id = rf.outlet_id INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg. pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE rf.type_file = 0";
 
     let { query, params } = FilterParams.register(req, q);
 
-    return await db.query(query + " order by fr.tgl_upload DESC LIMIT 5", {
+    return await db.query(query + " order by rf.tgl_upload DESC LIMIT 5", {
       raw: true,
       type: QueryTypes.SELECT,
       replacements: params,
