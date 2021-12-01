@@ -152,11 +152,11 @@ class Redeem {
     try {
       const { outlet_id, filename, tgl_upload, user_id } = data;
       const id = await db.query(
-        "INSERT INTO trx_file_penukaran (outlet_id, filename, tgl_upload, uploaded_by) VALUES(?, ?, ?, ?)",
+        "INSERT INTO trx_file_penukaran (outlet_id, filename, tgl_upload, uploaded_by, platform) VALUES(?, ?, ?, ?, ?)",
         {
           raw: true,
           type: QueryTypes.INSERT,
-          replacements: [outlet_id, filename, tgl_upload, user_id],
+          replacements: [outlet_id, filename, tgl_upload, user_id, 'PPR'],
           transaction: t,
         }
       );
