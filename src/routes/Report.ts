@@ -13,6 +13,7 @@ class Report implements IRouter {
 
   public routes(): void {
     this.router.get("/registration", ReportRequest.get, ReportController.getRegistrationReport);
+    this.router.get("/resume/registration", ReportRequest.get, ReportController.getRegistrationResumeReport);
   }
 }
 

@@ -14,6 +14,15 @@ class Report {
       }
     );
   }
+  async getRegistrationResumeReport(): Promise<any> {
+    return await db.query(
+      "SELECT CASE WHEN w.`tgl_respon_wa` IS NULL AND fr.id IS NOT NULL THEN 'BY PAPER' WHEN w.`tgl_respon_wa` IS NOT NULL THEN 'BY WA' WHEN w.`tgl_respon_wa` IS NULL AND fr.id IS NULL THEN 'BELUM REGISTRASI' END AS type, (COUNT(DISTINCT o.`outlet_id`) - COUNT(DISTINCT fr.`id`)) AS level1, COUNT(DISTINCT CASE WHEN sr.`level` = 'Level 2' THEN o.`outlet_id` END) AS level2,  COUNT(CASE WHEN sr.`level` = 'Level 3' THEN o.`outlet_id` END) AS level3, COUNT(CASE WHEN sr.`level` = 'Level 4' THEN o.`outlet_id` END) AS level4, COUNT(DISTINCT o.outlet_id) AS total FROM mstr_outlet AS o LEFT JOIN trx_file_registrasi AS fr ON fr.`outlet_id` = o.`outlet_id` AND fr.`type_file` = 0 LEFT JOIN trx_respon_wa AS w ON w.`outlet_id` = o.`outlet_id` AND w.outlet_id = fr.outlet_id LEFT JOIN ms_status_registrasi AS sr ON sr.`id` = fr.`status_registrasi` GROUP BY type",
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+      }
+    );
+  }
 }
 
 export default new Report();
