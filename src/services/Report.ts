@@ -23,6 +23,15 @@ class Report {
       }
     );
   }
+  async getRedeemResumeReport(): Promise<any> {
+    return await db.query(
+      "SELECT CASE WHEN platform = 'MS' THEN 'BY MICROSITE' WHEN platform = 'PPR' THEN 'BY PAPER' WHEN platform IS NULL THEN 'BELUM PENUKARAN' END AS type, (COUNT(DISTINCT o.outlet_id) - COUNT(DISTINCT fp.id)) AS level1,	 COUNT(DISTINCT CASE WHEN sp.`level` = 'Level 2' THEN o.`outlet_id` END) AS level2, COUNT(CASE WHEN sp.`level` = 'Level 3' THEN o.`outlet_id` END) AS level3, COUNT(CASE WHEN sp.`level` = 'Level 4' THEN o.`outlet_id` END) AS level4, COUNT(DISTINCT o.outlet_id) AS total FROM mstr_outlet AS o LEFT JOIN trx_file_penukaran AS fp ON fp.`outlet_id` = o.`outlet_id` LEFT JOIN ms_status_penukaran AS sp ON sp.`id` = fp.`status_penukaran` GROUP BY type",
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+      }
+    );
+  }
 }
 
 export default new Report();
