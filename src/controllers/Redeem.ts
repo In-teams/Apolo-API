@@ -18,8 +18,31 @@ import Sales from "../services/Sales";
 import User from "../services/User";
 import Wilayah from "../services/Wilayah";
 import config from "../config/app";
+import IncrementCustom from "../helpers/IncrementCustom";
 
 class Redeem {
+  async otorisasi(req: Request, res: Response) {
+    const t = await db.transaction();
+    try {
+      let lastId = await Service.getLastTrConfirmCode();
+      lastId = IncrementCustom(lastId, "C");
+      console.log(lastId)
+      const payload = {
+        id_confirm: lastId,
+        tgl_confirm: DateFormat.getToday("YYYY-MM-DD"),
+        relased_by: req.decoded.user_id
+      };
+      
+      const detail = req.validated.items.map((e: any) => [e, lastId])
+      await Service.otorisasi(payload, detail, t)
+      t.commit();
+      return response(res, true, "Otorisasi sukses", null, 200);
+    } catch (error) {
+      t.rollback();
+      console.log(error);
+      return response(res, false, null, "Otorisasi gagal", 500);
+    }
+  }
   async checkout(req: Request, res: Response) {
     const t = await db.transaction();
     try {

@@ -80,18 +80,15 @@ class Redeem {
     tgl_upload += "END)";
     uploaded_by += "END)";
 
-    
-
-
     const ids = data.map((e: any) => e.id);
     const query = `UPDATE trx_file_penukaran SET filename = ${filename}, uploaded_by = ${uploaded_by}, tgl_upload = ${tgl_upload} WHERE id IN(${ids.join(
       ","
     )})`;
 
     const createHistories: any[] = data.map((e: any) => {
-      delete e.id
-      return Object.values(e)
-    })
+      delete e.id;
+      return Object.values(e);
+    });
     await db.query(
       "INSERT INTO trx_history_file_penukaran (outlet_id, filename, tgl_upload, uploaded_by) VALUES ?",
       {
@@ -305,7 +302,7 @@ class Redeem {
   }
   async getRedeemLast(req: Request): Promise<any> {
     let q =
-      "SELECT DISTINCT o.outlet_id, o.outlet_name, tgl_transaksi FROM trx_transaksi_redeem AS tr INNER JOIN mstr_outlet AS o ON o.outlet_id = tr.no_id INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN ms_head_region AS mhr on mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL";
+      "SELECT DISTINCT ou.outlet_id, ou.outlet_name, tgl_transaksi FROM trx_transaksi_redeem AS tr INNER JOIN mstr_outlet AS ou ON ou.outlet_id = tr.no_id INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = ou.region_id INNER JOIN ms_head_region AS mhr on mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON ou.distributor_id = dp.distributor_id WHERE ou.outlet_id IS NOT NULL";
     let { query: pq, params: pp } = FilterParams.aktual(req, q);
 
     return await db.query(pq + " ORDER BY tgl_transaksi DESC LIMIT 5", {
@@ -690,6 +687,17 @@ class Redeem {
 
     return data[0]?.trCode || "MV2021-1-00000001";
   }
+  async getLastTrConfirmCode(): Promise<any> {
+    const data: any = await db.query(
+      "SELECT MAX(id_confirm) AS id_confirm FROM trx_confirm",
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+      }
+    );
+
+    return data[0]?.id_confirm || "C0000001";
+  }
   async insert(
     data: any[],
     detail: any[],
@@ -726,6 +734,27 @@ class Redeem {
         type: QueryTypes.INSERT,
         transaction: t,
         replacements: [dataDetail],
+      }
+    );
+  }
+  async otorisasi(data: any, detail: string[], t: any): Promise<any> {
+    await db.query(
+      "INSERT INTO `trx_confirm` (`id_confirm`, `tgl_confirm`, `relased by`) VALUES (?, ?, ?)",
+      {
+        raw: true,
+        type: QueryTypes.INSERT,
+        transaction: t,
+        replacements: [data.id_confirm, data.tgl_confirm, data.relased_by],
+      }
+    );
+
+    return await db.query(
+      "INSERT INTO trx_confirm_detail (kd_transaksi, id_confirm) VALUES ?",
+      {
+        raw: true,
+        type: QueryTypes.INSERT,
+        transaction: t,
+        replacements: [detail],
       }
     );
   }

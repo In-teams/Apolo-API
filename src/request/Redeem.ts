@@ -66,7 +66,7 @@ class Redeem {
     // const outletCheck = await Outlet.getOutlet(req);
     // if (outletCheck.length < 1)
     //   return response(res, false, null, "outlet not found", 404);
-    req.validated.file = fileCheck.filename
+    req.validated.file = fileCheck.filename;
     next();
   }
   async getTransactionDetail(
@@ -91,7 +91,7 @@ class Redeem {
     );
     if (!transactionCodeCheck)
       return response(res, false, null, "kd transaksi not found", 404);
-    req.validated.filename = fileCheck.filename
+    req.validated.filename = fileCheck.filename;
     next();
   }
   async getHistoryRedeemFile(
@@ -205,6 +205,30 @@ class Redeem {
         );
       // if (isUploaded[0].outlet_id === value.outlet_id)
       //   return response(res, false, null, "form unknown", 400);
+      next();
+    } catch (error) {
+      console.log(error, "error request");
+    }
+  }
+  async otorisasi(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      const schema = joi.object({
+        items: joi.array().items(joi.string()).required(),
+      });
+
+      const { value, error } = schema.validate(req.body);
+      if (error) {
+        return response(res, false, null, error.message, 400);
+      }
+
+      if (value.items.length < 1)
+        return response(res, false, null, "must be value at least 1", 400);
+
+      req.validated = value;
       next();
     } catch (error) {
       console.log(error, "error request");
