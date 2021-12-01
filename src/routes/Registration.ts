@@ -1,5 +1,6 @@
 import { Router } from "express";
 import RegistrationController from "../controllers/Registration";
+import AccessMiddleware from "../helpers/AccessMiddleware";
 import Upload from "../helpers/Upload";
 import RegistrationRequest from "../request/Registration";
 import IRouter from "../types/RouterInterface";
@@ -17,13 +18,13 @@ class Registration implements IRouter {
     this.router.get("/", RegistrationRequest.get, RegistrationController.get); // summary (all)
     this.router.get("/last", RegistrationRequest.get, RegistrationController.getLastRegistration); // last 5 registration
     this.router.get("/summary/month", RegistrationRequest.get, RegistrationController.getSummaryByMonth); // summary (all)
-    this.router.get("/summary/hr", RegistrationRequest.get, RegistrationController.getRegistrationSummaryByHR); // summary by head region (wilayah)
-    this.router.get("/summary/region", RegistrationRequest.get, RegistrationController.getRegistrationSummaryByRegion); // summary by region
-    this.router.get("/summary/area", RegistrationRequest.get, RegistrationController.getRegistrationSummaryByArea); // summary by area
-    this.router.get("/summary/distributor", RegistrationRequest.get, RegistrationController.getRegistrationSummaryByDistributor); // summary by distributor
+    this.router.get("/summary/hr", AccessMiddleware.wilayah, RegistrationRequest.get, RegistrationController.getRegistrationSummaryByHR); // summary by head region (wilayah)
+    this.router.get("/summary/region", AccessMiddleware.region, RegistrationRequest.get, RegistrationController.getRegistrationSummaryByRegion); // summary by region
+    this.router.get("/summary/area", AccessMiddleware.area, RegistrationRequest.get, RegistrationController.getRegistrationSummaryByArea); // summary by area
+    this.router.get("/summary/distributor", AccessMiddleware.distributor, RegistrationRequest.get, RegistrationController.getRegistrationSummaryByDistributor); // summary by distributor
     this.router.get("/summary/outlet", RegistrationRequest.get, RegistrationController.getRegistrationSummaryByOutlet); // summary by outlet
-    this.router.get("/summary/asm", RegistrationRequest.get, RegistrationController.getRegistrationSummaryByASM); // summary by asm
-    this.router.get("/summary/ass", RegistrationRequest.get, RegistrationController.getRegistrationSummaryByASS); // summary by ass
+    this.router.get("/summary/asm", AccessMiddleware.area, RegistrationRequest.get, RegistrationController.getRegistrationSummaryByASM); // summary by asm
+    this.router.get("/summary/ass", AccessMiddleware.distributor, RegistrationRequest.get, RegistrationController.getRegistrationSummaryByASS); // summary by ass
     this.router.post("/", RegistrationRequest.post, RegistrationController.post); // upload registration file
     this.router.post("/bulky", RegistrationRequest.postBulky, Upload("registration"), RegistrationController.postBulky); // upload registration file
     this.router.put("/:outlet_id", RegistrationRequest.update, RegistrationController.update); // update outlet data
