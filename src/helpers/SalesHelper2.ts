@@ -238,15 +238,13 @@ class SalesHelper2 {
 
     let asc = result.sort((a: any, b: any) => {
       return a.pencapaian - b.pencapaian;
-    });
+    }).slice((page - 1) * show, page * show);
     let desc = result.sort((a: any, b: any) => {
       return b.pencapaian - a.pencapaian;
-    });
+    }).slice((page - 1) * show, page * show);
 
-    if (show) {
-      asc = asc.slice((page - 1) * show, page * show);
-      desc = desc.slice((page - 1) * show, page * show);
-    }
+    // asc = asc.slice((page - 1) * show, page * show);
+    // desc = desc.slice((page - 1) * show, page * show);
 
     asc = sumData(asc, hirarki, totalTarget, totalOutlet);
     desc = sumData(desc, hirarki, totalTarget, totalOutlet);

@@ -57,7 +57,7 @@ class Redeem {
           no_id: req.validated.outlet_id,
           tgl_transaksi: today,
           status: "R",
-          no_batch: "MS",
+          no_batch: "PPR",
           program_id: "MON-001",
         }))
         .map((e: any) => {

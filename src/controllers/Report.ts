@@ -57,7 +57,7 @@ class Report {
         level3percen: ((e.level3 / total) * 100).toFixed(2) + "%",
         level4percen: ((e.level4 / total) * 100).toFixed(2) + "%",
       }));
-      const sum = {
+      data.push({
         type: "Total Outlet",
         level1,
         level2,
@@ -68,8 +68,7 @@ class Report {
         level3percen,
         level4percen,
         total,
-      };
-      data = [...data, sum];
+      });
       return response(res, true, data, null, 200);
     } catch (error) {
       return response(res, false, null, error, 500);
