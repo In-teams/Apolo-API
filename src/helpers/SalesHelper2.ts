@@ -231,8 +231,10 @@ class SalesHelper2 {
     //     : a.pencapaian - b.pencapaian;
     // })
     // .slice(0, 5);
-
-    const show = req.validated.show;
+    
+    const show = req.validated.show || 10;
+    const page = req.validated.page || 1;
+    const totalPage = Math.ceil(result.length / show);
 
     let asc = result.sort((a: any, b: any) => {
       return a.pencapaian - b.pencapaian;
@@ -242,17 +244,13 @@ class SalesHelper2 {
     });
 
     if (show) {
-      asc = asc.slice(0, show || 10);
-      desc = desc.slice(0, show || 10);
-    }else{
-      asc = asc.slice(0, 10);
-      desc = desc.slice(0, 10);
-
+      asc = asc.slice((page - 1) * show, page * show);
+      desc = desc.slice((page - 1) * show, page * show);
     }
 
     asc = sumData(asc, hirarki, totalTarget, totalOutlet);
     desc = sumData(desc, hirarki, totalTarget, totalOutlet);
-    return { asc, desc };
+    return { totalPage, asc, desc };
   }
 }
 
