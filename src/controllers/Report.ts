@@ -30,6 +30,29 @@ class Report {
       return response(res, false, null, error, 500);
     }
   }
+  async getRedeemReport(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      const outletCount = await Outlet.getOutletCount(req);
+      const data = await Service.getRedeemReport(req.validated);
+      const show = req.validated.show || 10;
+      const totalPage = Math.ceil(outletCount[0].total / show);
+      return response(
+        res,
+        true,
+        {
+          totalPage,
+          data,
+        },
+        null,
+        200
+      );
+    } catch (error) {
+      return response(res, false, null, error, 500);
+    }
+  }
   async getRegistrationResumeReport(
     req: Request,
     res: Response

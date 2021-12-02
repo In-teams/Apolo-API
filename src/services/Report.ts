@@ -14,6 +14,18 @@ class Report {
       }
     );
   }
+  async getRedeemReport(data: any): Promise<any> {
+    const { show = 10, page = 1 } = data;
+    const thisPage = show * page - show;
+    return await db.query(
+      "SELECT a.kd_transaksi, no_id, outlet_name, nama_produk, quantity, no_batch, IF(no_batch = 'PPR', 'BY PAPER', 'BY MICROSITE') AS type, a.`file_id`, yy.`level`, yy.`status` AS status_redeem, tgl_transaksi AS proses, z.`tgl_upload` AS penukaran, tanggal_kirim AS kirim, l.tgl_confirm AS otorisasi, j.tanggal AS pengadaan, tanggal_terima AS terima, nama_penerima, z.`filename`, h.status_terima, distributor_name, no_handphone FROM trx_transaksi_redeem a INNER JOIN mstr_outlet b ON a.no_id = b.outlet_id INNER JOIN trx_transaksi_redeem_barang f ON f.kd_transaksi = a.kd_transaksi LEFT JOIN trx_file_penukaran AS z ON z.`id` = a.`file_id` LEFT JOIN ms_status_penukaran AS yy ON yy.`id` = z.`status_penukaran` LEFT JOIN trx_transaksi_pulsa g ON g.kd_transaksi = a.kd_transaksi LEFT JOIN ( SELECT `kd_transaksi`, `tanggal_kirim`, `tanggal_terima`, nama_penerima, `status_terima`, id FROM ( SELECT `kd_transaksi`, `tanggal_kirim`, `tanggal_terima`, nama_penerima, `status_terima`, id FROM `trx_status` UNION SELECT `transfer_id` AS `kd_transaksi`, `tgl_transfer` AS `tanggal_kirim`, `tgl_transfer` AS `tanggal_terima`, `noreferensi` AS `nama_penerima`, IF( `noreferensi` IS NULL, 'PROSES PENUKARAN', 'TELAH DITERIMA' ) AS status_terima, id FROM `trx_pc_list` ) a GROUP BY kd_transaksi ) h ON h.kd_transaksi = a.kd_transaksi LEFT JOIN trx_pr_barang i ON i.kd_transaksi = a.kd_transaksi LEFT JOIN trx_pr j ON j.kode_pr = i.kode_pr LEFT JOIN trx_confirm_detail k ON k.kd_transaksi = a.kd_transaksi LEFT JOIN trx_confirm l ON l.id_confirm = k.id_confirm INNER JOIN `mstr_distributor` m ON m.distributor_id = b.distributor_id WHERE 1 = 1 AND a.`status` = 'R' ORDER BY a.`kd_transaksi` DESC LIMIT ? OFFSET ?",
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+        replacements: [show, thisPage],
+      }
+    );
+  }
   async getRegistrationResumeReport(): Promise<any> {
     return await db.query(
       "SELECT CASE WHEN w.`tgl_respon_wa` IS NULL AND fr.id IS NOT NULL THEN 'BY PAPER' WHEN w.`tgl_respon_wa` IS NOT NULL THEN 'BY WA' WHEN w.`tgl_respon_wa` IS NULL AND fr.id IS NULL THEN 'BELUM REGISTRASI' END AS type, (COUNT(DISTINCT o.`outlet_id`) - COUNT(DISTINCT fr.`id`)) AS level1, COUNT(DISTINCT CASE WHEN sr.`level` = 'Level 2' THEN o.`outlet_id` END) AS level2,  COUNT(CASE WHEN sr.`level` = 'Level 3' THEN o.`outlet_id` END) AS level3, COUNT(CASE WHEN sr.`level` = 'Level 4' THEN o.`outlet_id` END) AS level4, COUNT(DISTINCT o.outlet_id) AS total FROM mstr_outlet AS o LEFT JOIN trx_file_registrasi AS fr ON fr.`outlet_id` = o.`outlet_id` AND fr.`type_file` = 0 LEFT JOIN trx_respon_wa AS w ON w.`outlet_id` = o.`outlet_id` AND w.outlet_id = fr.outlet_id LEFT JOIN ms_status_registrasi AS sr ON sr.`id` = fr.`status_registrasi` GROUP BY type",
