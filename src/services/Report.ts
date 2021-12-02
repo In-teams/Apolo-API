@@ -2,6 +2,16 @@ import { QueryTypes } from "sequelize";
 import db from "../config/db";
 
 class Report {
+  async getSalesReportPerSubBrand(): Promise<any> {
+    return await db.query(
+      "SELECT i.`item_name` AS subbrand, s.`nama_signature` AS brand, c.`nama_category` AS kategory, CAST(SUM(trb.sales) as INTEGER) AS aktual, CAST(SUM(trbh.sales) AS INTEGER) AS historical, CAST(SUM(trb.sales) - SUM(trbh.sales) AS INTEGER) AS gap FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.`kd_transaksi` = trb.`kd_transaksi` INNER JOIN trx_transaksi_barang_historical AS trbh ON trbh.`kd_transaksi` = trb.`kd_transaksi` INNER JOIN mstr_item AS i ON i.`item_code` = trb.`kd_produk` INNER JOIN mstr_signature AS s ON s.`kode_signature` = i.`kode_signature` INNER JOIN mstr_category AS c ON c.`kode_category` = s.`kode_category` GROUP BY subbrand",
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+        // replacements: [show, thisPage],
+      }
+    );
+  }
   async getRegistrationReport(data: any): Promise<any> {
     const { show = 10, page = 1 } = data;
     const thisPage = show * page - show;
