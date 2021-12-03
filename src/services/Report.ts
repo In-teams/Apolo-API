@@ -12,6 +12,18 @@ class Report {
       }
     );
   }
+  async getPointActivity(data: any): Promise<any> {
+    const { show = 10, page = 1 } = data;
+    const thisPage = show * page - show;
+    return await db.query(
+      "SELECT DISTINCT o.`outlet_id`, sales, target, (TRUNCATE(((sales / target) * 100), 2)) AS pencapaian, poin_achieve, poin_redeem, (poin_achieve - poin_redeem) AS sisa, sp.`level`, sp.`status` FROM mstr_outlet AS o LEFT JOIN trx_file_penukaran AS fp ON fp.`outlet_id` = o.`outlet_id` LEFT JOIN ms_status_penukaran AS sp ON sp.`id` = fp.`status_penukaran` LEFT JOIN (SELECT SUM(st.target_sales) AS target, ou.`outlet_id`, month_target FROM (SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS st INNER JOIN mstr_outlet AS ou ON ou.outlet_id = st.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id INNER JOIN ms_bulan AS b ON b.bulan = st.month_target WHERE st.outlet_id IS NOT NULL AND b.id = 11 GROUP BY ou.`outlet_id`) AS st ON st.outlet_id = o.`outlet_id` LEFT JOIN (SELECT CAST(SUM(trrb.point_satuan * trrb.quantity) AS DECIMAL(20, 2)) AS poin_redeem, ou.`outlet_id`, MONTH(tr.`tgl_transaksi`) AS bulan FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trrb ON tr.kd_transaksi = trrb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id WHERE ou.outlet_id IS NOT NULL AND MONTH(tr.`tgl_transaksi`) = 11 GROUP BY ou.`outlet_id`) AS z ON z.outlet_id = o.`outlet_id` LEFT JOIN (SELECT SUM(trb.`sales`) AS sales, SUM(trb.`point_satuan`) AS poin_achieve, o.`outlet_id`, MONTH(tr.`tgl_transaksi`) AS bulan FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.`kd_transaksi` = trb.`kd_transaksi` INNER JOIN mstr_outlet AS o ON o.`outlet_id` = tr.`no_id` WHERE o.`outlet_id` IS NOT NULL AND MONTH(tr.`tgl_transaksi`) = 11 GROUP BY o.`outlet_id`) AS p ON o.`outlet_id` = p.outlet_id WHERE (MONTH(fp.`tgl_upload`) = 11 OR MONTH(fp.`tgl_upload`) IS NULL) GROUP BY o.`outlet_id` LIMIT ? OFFSET ?",
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+        replacements: [show, thisPage],
+      }
+    );
+  }
   async getSalesReportPerCategory(): Promise<any> {
     return await db.query(
       "SELECT c.`nama_category` AS category, CAST(SUM(trb.sales) as INTEGER) AS aktual, CAST(SUM(trbh.sales) AS INTEGER) AS historical, CAST(SUM(trb.sales) - SUM(trbh.sales) AS INTEGER) AS gap FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.`kd_transaksi` = trb.`kd_transaksi` INNER JOIN trx_transaksi_barang_historical AS trbh ON trbh.`kd_transaksi` = trb.`kd_transaksi` INNER JOIN mstr_item AS i ON i.`item_code` = trb.`kd_produk` INNER JOIN mstr_signature AS s ON s.`kode_signature` = i.`kode_signature` INNER JOIN mstr_category AS c ON c.`kode_category` = s.`kode_category` GROUP BY category",

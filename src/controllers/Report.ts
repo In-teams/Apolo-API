@@ -54,6 +54,17 @@ class Report {
       return response(res, false, null, error, 500);
     }
   }
+  async getPointActivityReport(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      const data = await Service.getPointActivity(req.validated);
+      return response(res, true, data, null, 200);
+    } catch (error) {
+      return response(res, false, null, error, 500);
+    }
+  }
   async getRegistrationResumeReport(
     req: Request,
     res: Response
