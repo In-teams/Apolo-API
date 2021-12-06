@@ -70,7 +70,27 @@ class Report {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let data: any[] = await Service.getRegistrationResumeReport();
+      let data: any[] = await Service.getRegistrationResumeReport(
+        req.validated
+      );
+      const types = ["BY PAPER", "BY WA"];
+      types.map((e: any) => {
+        if (!data.map((a: any) => a.type).includes(e)) {
+          data.push({
+            type: e,
+            level1: 0,
+            level2: 0,
+            level3: 0,
+            level4: 0,
+            total: 0,
+            level1percen: "0.00%",
+            level2percen: "0.00%",
+            level3percen: "0.00%",
+            level4percen: "0.00%",
+          });
+        }
+      });
+
       const total = sumDataBy(data, "total");
       const level1 = sumDataBy(data, "level1");
       const level1percen =
@@ -106,6 +126,7 @@ class Report {
       });
       return response(res, true, data, null, 200);
     } catch (error) {
+      console.log(error);
       return response(res, false, null, error, 500);
     }
   }
