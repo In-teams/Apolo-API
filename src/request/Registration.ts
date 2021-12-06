@@ -185,8 +185,9 @@ class Registration {
       next();
     } catch (error) {
       t.rollback();
+      console.log(error)
       // FileSystem.DeleteFile(req.validated.path)
-      return response(res, false, null, error, 400);
+      return response(res, false, null, error, 500);
     }
   }
   async update(req: Request, res: Response, next: NextFunction): Promise<any> {
