@@ -25,8 +25,7 @@ class Redeem {
     const t = await db.transaction();
     try {
       let lastId = await Service.getLastTrConfirmCode();
-      lastId = IncrementCustom(lastId, "C");
-      console.log(lastId)
+      lastId = IncrementCustom(lastId, "C", 7);
       const payload = {
         id_confirm: lastId,
         tgl_confirm: DateFormat.getToday("YYYY-MM-DD"),
@@ -41,6 +40,26 @@ class Redeem {
       t.rollback();
       console.log(error);
       return response(res, false, null, "Otorisasi gagal", 500);
+    }
+  }
+  async purchase(req: Request, res: Response) {
+    const t = await db.transaction();
+    try {
+      let lastId = await Service.getLastTrPurchaseCode();
+      lastId = IncrementCustom(lastId, "LV", 4);
+      const payload = {
+        kode_pr: lastId,
+        tanggal: DateFormat.getToday("YYYY-MM-DD HH:mm:ss")
+      };
+      
+      const detail = req.validated.items.map((e: any) => [e, lastId])
+      await Service.purchase(payload, detail, t)
+      t.commit();
+      return response(res, true, "Purchase Request Sukses", null, 200);
+    } catch (error) {
+      t.rollback();
+      console.log(error);
+      return response(res, false, null, "Purchase Request Gagal", 500);
     }
   }
   async checkout(req: Request, res: Response) {

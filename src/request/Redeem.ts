@@ -234,6 +234,30 @@ class Redeem {
       console.log(error, "error request");
     }
   }
+  async purchaseReq(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      const schema = joi.object({
+        items: joi.array().items(joi.string()).required(),
+      });
+
+      const { value, error } = schema.validate(req.body);
+      if (error) {
+        return response(res, false, null, error.message, 400);
+      }
+
+      if (value.items.length < 1)
+        return response(res, false, null, "must be value at least 1", 400);
+
+      req.validated = value;
+      next();
+    } catch (error) {
+      console.log(error, "error request");
+    }
+  }
   async validation(
     req: Request,
     res: Response,

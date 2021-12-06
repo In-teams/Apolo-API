@@ -698,6 +698,17 @@ class Redeem {
 
     return data[0]?.id_confirm || "C0000001";
   }
+  async getLastTrPurchaseCode(): Promise<any> {
+    const data: any = await db.query(
+      "SELECT MAX(kode_pr) AS kode_pr FROM trx_pr",
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+      }
+    );
+
+    return data[0]?.kode_pr || "LV0001";
+  }
   async insert(
     data: any[],
     detail: any[],
@@ -750,6 +761,27 @@ class Redeem {
 
     return await db.query(
       "INSERT INTO trx_confirm_detail (kd_transaksi, id_confirm) VALUES ?",
+      {
+        raw: true,
+        type: QueryTypes.INSERT,
+        transaction: t,
+        replacements: [detail],
+      }
+    );
+  }
+  async purchase(data: any, detail: string[], t: any): Promise<any> {
+    await db.query(
+      "INSERT INTO trx_pr (`kode_pr`, tanggal) VALUES (?, ?)",
+      {
+        raw: true,
+        type: QueryTypes.INSERT,
+        transaction: t,
+        replacements: [data.kode_pr, data.tanggal],
+      }
+    );
+
+    return await db.query(
+      "INSERT INTO trx_pr_barang (kd_transaksi, kode_pr) VALUES ?",
       {
         raw: true,
         type: QueryTypes.INSERT,
