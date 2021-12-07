@@ -118,14 +118,64 @@ class Report {
       replacements: params,
     });
   }
-  async getRedeemResumeReport(): Promise<any> {
-    return await db.query(
-      "SELECT CASE WHEN platform = 'MS' THEN 'BY MICROSITE' WHEN platform = 'PPR' THEN 'BY PAPER' WHEN platform IS NULL THEN 'BELUM PENUKARAN' END AS type, (COUNT(DISTINCT o.outlet_id) - COUNT(DISTINCT fp.id)) AS level1, COUNT(DISTINCT CASE WHEN sp.`level` = 'Level 2' THEN o.`outlet_id` END) AS level2, COUNT(CASE WHEN sp.`level` = 'Level 3' THEN o.`outlet_id` END) AS level3, COUNT(CASE WHEN sp.`level` = 'Level 4' THEN o.`outlet_id` END) AS level4, COUNT(DISTINCT o.outlet_id) AS total FROM mstr_outlet AS o LEFT JOIN trx_file_penukaran AS fp ON fp.`outlet_id` = o.`outlet_id` LEFT JOIN ms_status_penukaran AS sp ON sp.`id` = fp.`status_penukaran` GROUP BY type",
-      {
-        raw: true,
-        type: QueryTypes.SELECT,
-      }
-    );
+  async getRedeemResumeReport(data?: any): Promise<any> {
+    const {
+      month,
+      quarter_id,
+      area_id,
+      region_id,
+      wilayah_id,
+      outlet_id,
+      asm_id,
+      ass_id,
+      distributor_id,
+    } = data;
+
+    let params = [];
+    let q = "";
+    if (month) {
+      q += " AND MONTH(fp.tgl_upload) = ?";
+      params.push(month);
+    }
+    if (quarter_id) {
+      q += " AND MONTH(fp.tgl_upload) IN (?)";
+      params.push(quarter_id);
+    }
+    let query = `SELECT CASE WHEN platform = 'MS' THEN 'BY MICROSITE' WHEN platform = 'PPR' THEN 'BY PAPER' WHEN platform IS NULL THEN 'BELUM PENUKARAN' END AS type, (COUNT(DISTINCT o.outlet_id) - COUNT(DISTINCT sub.id) ) AS level1, COUNT( DISTINCT CASE WHEN sub.level = 'Level 2' THEN o.outlet_id END ) AS level2, COUNT(CASE WHEN sub.level = 'Level 3' THEN o.outlet_id END) AS level3, COUNT(CASE WHEN sub.level = 'Level 4' THEN o.outlet_id END) AS level4, COUNT(DISTINCT o.outlet_id) AS total FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id LEFT JOIN (SELECT fp.*, sp.level, sp.status FROM mstr_outlet AS o LEFT JOIN trx_file_penukaran AS fp ON fp.outlet_id = o.outlet_id LEFT JOIN ms_status_penukaran AS sp ON sp.id = fp.status_penukaran WHERE 1 = 1 ${q} GROUP BY o.outlet_id ) AS sub ON sub.outlet_id = o.outlet_id WHERE o.outlet_id IS NOT NULL`;
+
+    if (area_id) {
+      query += " AND o.city_id_alias = ?";
+      params.push(area_id);
+    }
+    if (region_id) {
+      query += " AND o.region_id = ?";
+      params.push(region_id);
+    }
+    if (distributor_id) {
+      query += " AND o.distributor_id = ?";
+      params.push(distributor_id);
+    }
+    if (outlet_id) {
+      query += " AND o.outlet_id = ?";
+      params.push(outlet_id);
+    }
+    if (wilayah_id) {
+      query += " AND reg.head_region_id = ?";
+      params.push(wilayah_id);
+    }
+    if (asm_id) {
+      query += " AND dp.asm_id = ?";
+      params.push(asm_id);
+    }
+    if (ass_id) {
+      query += " AND dp.ass_id = ?";
+      params.push(ass_id);
+    }
+    return await db.query(query + " GROUP BY type", {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: params
+    });
   }
 }
 
