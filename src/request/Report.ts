@@ -6,10 +6,12 @@ import response from "../helpers/Response";
 class Report {
   get(req: Request, res: Response, next: NextFunction): any {
     const monthsId = App.months.map((e: any) => e.id);
+    const quartersId = App.quarters.map((e: any) => e.id);
     const schema = joi.object({
       show: joi.number().valid(10, 15),
       page: joi.number(),
       month: joi.number().valid(...monthsId),
+      quarter_id: joi.number().valid(...quartersId),
       region_id: joi.string(),
       area_id: joi.string(),
       wilayah_id: joi.string(),
@@ -23,7 +25,14 @@ class Report {
     if (error) {
       return response(res, false, null, error.message, 400);
     }
-    req.validated = value;
+    let quarter: string[] | undefined = value.quarter_id
+      ? App.getMonthIdByQuarter(value.quarter_id)
+      : undefined;
+    req.validated = {
+      ...value,
+      quarter: value.quarter_id,
+      ...(value.quarter_id && { quarter_id: quarter }),
+    };
     next();
   }
 }

@@ -58,16 +58,65 @@ class Report {
       }
     );
   }
-  async getRegistrationResumeReport(data?:any): Promise<any> {
-    const {month = null, area_id = null} = data
-    return await db.query(
-      `SELECT CASE WHEN r.id IS NOT NULL THEN 'BY PAPER' WHEN r.id IS NULL THEN 'BELUM REGISTRASI' END AS type, (COUNT(DISTINCT o.outlet_id) - COUNT(DISTINCT r.id)) AS level1, COUNT(DISTINCT CASE WHEN r.level = 'Level 2' THEN o.outlet_id END ) AS level2, COUNT(CASE WHEN r.level = 'Level 3' THEN o.outlet_id END) AS level3, COUNT(CASE WHEN r.level = 'Level 4' THEN o.outlet_id END ) AS level4, COUNT(DISTINCT o.outlet_id) AS total FROM mstr_outlet AS o LEFT JOIN (SELECT fr.*, sr.level, sr.status FROM mstr_outlet AS o INNER JOIN trx_file_registrasi AS fr ON o.outlet_id = fr.outlet_id INNER JOIN ms_status_registrasi AS sr ON sr.id = fr.status_registrasi WHERE fr.type_file = 0 AND IF(${month}, MONTH(fr.tgl_upload), 1) = ? AND IF(${area_id}, o.city_id_alias, 1) = ? GROUP BY fr.outlet_id ) AS r ON r.outlet_id = o.outlet_id GROUP BY type`,
-      {
-        raw: true,
-        type: QueryTypes.SELECT,
-        replacements: [month, area_id]
-      }
-    );
+  async getRegistrationResumeReport(data?: any): Promise<any> {
+    const {
+      month,
+      quarter_id,
+      area_id,
+      region_id,
+      wilayah_id,
+      outlet_id,
+      asm_id,
+      ass_id,
+      distributor_id,
+    } = data;
+
+    let params = [];
+    let q = ''
+    if (month){
+      q+= ' AND MONTH(fr.tgl_upload) = ?'
+      params.push(month)
+    }
+    if (quarter_id){
+      q+= ' AND MONTH(fr.tgl_upload) IN (?)'
+      params.push(quarter_id)
+    }
+    let query = `SELECT CASE WHEN r.id IS NOT NULL THEN 'BY PAPER' WHEN r.id IS NULL THEN 'BELUM REGISTRASI' END AS type, (COUNT(DISTINCT o.outlet_id) - COUNT(DISTINCT r.id)) AS level1, COUNT(DISTINCT CASE WHEN r.level = 'Level 2' THEN o.outlet_id END ) AS level2, COUNT(CASE WHEN r.level = 'Level 3' THEN o.outlet_id END) AS level3, COUNT(CASE WHEN r.level = 'Level 4' THEN o.outlet_id END ) AS level4, COUNT(DISTINCT o.outlet_id) AS total FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id LEFT JOIN (SELECT fr.*, sr.level, sr.status FROM mstr_outlet AS o INNER JOIN trx_file_registrasi AS fr ON o.outlet_id = fr.outlet_id INNER JOIN ms_status_registrasi AS sr ON sr.id = fr.status_registrasi WHERE fr.type_file = 0${q} GROUP BY fr.outlet_id ) AS r ON r.outlet_id = o.outlet_id WHERE o.outlet_id IS NOT NULL`;
+
+    if (area_id) {
+      query += " AND o.city_id_alias = ?";
+      params.push(area_id);
+    }
+    if (region_id) {
+      query += " AND o.region_id = ?";
+      params.push(region_id);
+    }
+    if (distributor_id) {
+      query += " AND o.distributor_id = ?";
+      params.push(distributor_id);
+    }
+    if (outlet_id) {
+      query += " AND o.outlet_id = ?";
+      params.push(outlet_id);
+    }
+    if (wilayah_id) {
+      query += " AND reg.head_region_id = ?";
+      params.push(wilayah_id);
+    }
+    if (asm_id) {
+      query += " AND dp.asm_id = ?";
+      params.push(asm_id);
+    }
+    if (ass_id) {
+      query += " AND dp.ass_id = ?";
+      params.push(ass_id);
+    }
+
+    return await db.query(query + " GROUP BY type", {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: params,
+    });
   }
   async getRedeemResumeReport(): Promise<any> {
     return await db.query(
