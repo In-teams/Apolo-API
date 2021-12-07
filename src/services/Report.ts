@@ -35,14 +35,83 @@ class Report {
     );
   }
   async getRegistrationReport(data: any): Promise<any> {
-    const { show = 10, page = 1 } = data;
+    const {
+      show = 10,
+      page = 1,
+      month,
+      quarter_id,
+      area_id,
+      region_id,
+      wilayah_id,
+      outlet_id,
+      asm_id,
+      ass_id,
+      distributor_id,
+    } = data;
     const thisPage = show * page - show;
+    let q1 =
+      "SELECT fr.*, sr.level, sr.status FROM trx_file_registrasi AS fr INNER JOIN ms_status_registrasi AS sr ON fr.status_registrasi = sr.id WHERE fr.type_file = 0";
+    let q2 =
+      "SELECT tgl_upload AS ektp_upload, outlet_id FROM trx_file_registrasi WHERE type_file = 1";
+    let q3 =
+      "SELECT tgl_upload AS npwp_upload, outlet_id FROM trx_file_registrasi WHERE type_file = 2";
+    let q4 =
+      "SELECT tgl_upload AS bank_upload, outlet_id FROM trx_file_registrasi WHERE type_file = 3";
+    if (month) {
+      q1 += " AND MONTH(tgl_upload) = :month";
+      q2 += " AND MONTH(tgl_upload) = :month";
+      q3 += " AND MONTH(tgl_upload) = :month";
+      q4 += " AND MONTH(tgl_upload) = :month";
+    }
+    if (quarter_id) {
+      q1 += " AND MONTH(tgl_upload) IN (:quarter_id)";
+      q2 += " AND MONTH(tgl_upload) IN (:quarter_id)";
+      q3 += " AND MONTH(tgl_upload) IN (:quarter_id)";
+      q4 += " AND MONTH(tgl_upload) IN (:quarter_id)";
+    }
+    let query = `SELECT o.outlet_id, o.outlet_name, o.no_wa, o.ektp, o.npwp, o.nomor_rekening, o.nama_rekening, mb.nama_bank, o.cabang_bank, o.kota_bank, IFNULL(fr.level, 'Level 1') AS level, IFNULL(fr.status, 'Level 1A - Formulir Tidak Ada') AS status, ektp_upload, npwp_upload, fr.tgl_upload AS form_upload, bank_upload, fr.validated_at, rw.tgl_send_wa, IF( rw.tgl_send_wa, 'BY MICROSITE', IF(fr.tgl_upload, 'BY PAPER', 'BELUM REGISTRASI')) AS type FROM mstr_outlet AS o LEFT JOIN(${q1}) AS fr ON fr.outlet_id = o.outlet_id LEFT JOIN(${q2}) AS e ON e.outlet_id = o.outlet_id LEFT JOIN (${q3}) AS n ON n.outlet_id = o.outlet_id LEFT JOIN (${q4}) AS b ON b.outlet_id = o.outlet_id LEFT JOIN trx_respon_wa AS rw ON rw.outlet_id = o.outlet_id LEFT JOIN indonesia.ms_bank AS mb ON mb.id_bank = o.nama_bank WHERE 1=1`;
+
+    if (area_id) {
+      query += " AND o.city_id_alias = :area_id";
+    }
+    if (region_id) {
+      query += " AND o.region_id = :region_id";
+    }
+    if (distributor_id) {
+      query += " AND o.distributor_id = :distributor_id";
+    }
+    if (outlet_id) {
+      query += " AND o.outlet_id = :outlet_id";
+    }
+    if (wilayah_id) {
+      query += " AND reg.head_region_id = :wilayah_id";
+    }
+    if (asm_id) {
+      query += " AND dp.asm_id = :asm_id";
+    }
+    if (ass_id) {
+      query += " AND dp.ass_id = :ass_id";
+    }
+
     return await db.query(
-      "SELECT o.`outlet_id`, o.`outlet_name`, o.`no_wa`, o.`ektp`, o.`npwp`, o.`nomor_rekening`, o.`nama_rekening`, mb.`nama_bank`,  o.`cabang_bank`, o.`kota_bank`, IFNULL(sr.`level`, 'Level 1') AS level, IFNULL(sr.`status`, 'Level 1A - Formulir Tidak Ada') AS status, ektp_upload, npwp_upload, fr.`tgl_upload` AS form_upload, bank_upload, fr.`validated_at`, rw.`tgl_send_wa`, IF(rw.`tgl_send_wa`, 'BY MICROSITE', IF(fr.`tgl_upload`, 'BY PAPER', 'BELUM REGISTRASI')) AS type FROM mstr_outlet AS o LEFT JOIN trx_file_registrasi AS fr ON o.`outlet_id` = fr.`outlet_id` AND type_file = 0 LEFT JOIN ms_status_registrasi AS sr ON fr.`status_registrasi` = sr.`id` LEFT JOIN(SELECT tgl_upload AS ektp_upload, outlet_id FROM trx_file_registrasi WHERE type_file = 1) AS e ON e.outlet_id = o.`outlet_id` LEFT JOIN(SELECT tgl_upload AS npwp_upload, outlet_id FROM trx_file_registrasi WHERE type_file = 2) AS n ON n.outlet_id = o.`outlet_id` LEFT JOIN(SELECT tgl_upload AS bank_upload, outlet_id FROM trx_file_registrasi WHERE type_file = 3) AS b ON b.outlet_id = o.`outlet_id` LEFT JOIN trx_respon_wa AS rw ON rw.`outlet_id` = o.`outlet_id` LEFT JOIN indonesia.`ms_bank` AS mb ON mb.`id_bank` = o.`nama_bank` GROUP BY outlet_id ORDER BY outlet_id LIMIT ? OFFSET ?",
+      query +
+        " GROUP BY outlet_id ORDER BY outlet_id LIMIT :show OFFSET :thisPage",
       {
         raw: true,
         type: QueryTypes.SELECT,
-        replacements: [show, thisPage],
+        replacements: {
+          area_id,
+          region_id,
+          wilayah_id,
+          distributor_id,
+          outlet_id,
+          asm_id,
+          ass_id,
+          month,
+          show,
+          thisPage,
+          quarter_id,
+        },
       }
     );
   }
@@ -174,7 +243,7 @@ class Report {
     return await db.query(query + " GROUP BY type", {
       raw: true,
       type: QueryTypes.SELECT,
-      replacements: params
+      replacements: params,
     });
   }
 }
