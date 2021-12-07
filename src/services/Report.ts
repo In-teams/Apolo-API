@@ -72,14 +72,14 @@ class Report {
     } = data;
 
     let params = [];
-    let q = ''
-    if (month){
-      q+= ' AND MONTH(fr.tgl_upload) = ?'
-      params.push(month)
+    let q = "";
+    if (month) {
+      q += " AND MONTH(fr.tgl_upload) = ?";
+      params.push(month);
     }
-    if (quarter_id){
-      q+= ' AND MONTH(fr.tgl_upload) IN (?)'
-      params.push(quarter_id)
+    if (quarter_id) {
+      q += " AND MONTH(fr.tgl_upload) IN (?)";
+      params.push(quarter_id);
     }
     let query = `SELECT CASE WHEN r.id IS NOT NULL THEN 'BY PAPER' WHEN r.id IS NULL THEN 'BELUM REGISTRASI' END AS type, (COUNT(DISTINCT o.outlet_id) - COUNT(DISTINCT r.id)) AS level1, COUNT(DISTINCT CASE WHEN r.level = 'Level 2' THEN o.outlet_id END ) AS level2, COUNT(CASE WHEN r.level = 'Level 3' THEN o.outlet_id END) AS level3, COUNT(CASE WHEN r.level = 'Level 4' THEN o.outlet_id END ) AS level4, COUNT(DISTINCT o.outlet_id) AS total FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id LEFT JOIN (SELECT fr.*, sr.level, sr.status FROM mstr_outlet AS o INNER JOIN trx_file_registrasi AS fr ON o.outlet_id = fr.outlet_id INNER JOIN ms_status_registrasi AS sr ON sr.id = fr.status_registrasi WHERE fr.type_file = 0${q} GROUP BY fr.outlet_id ) AS r ON r.outlet_id = o.outlet_id WHERE o.outlet_id IS NOT NULL`;
 
