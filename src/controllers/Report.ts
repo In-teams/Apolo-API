@@ -13,7 +13,7 @@ class Report {
     res: Response
   ): Promise<object | undefined> {
     try {
-      const counts = await Service.getRegistrationReportCount(req.validated)
+      const counts = await Service.getRegistrationReportCount(req.validated);
       const data = await Service.getRegistrationReport(req.validated);
       const show = req.validated.show || 10;
       const totalPage = Math.ceil(counts[0].total / show);
@@ -36,7 +36,7 @@ class Report {
     res: Response
   ): Promise<object | undefined> {
     try {
-      const outletCount = await Outlet.getOutletCount(req);
+      const outletCount = await Service.getRedeemReportCount(req.validated);
       const data = await Service.getRedeemReport(req.validated);
       const show = req.validated.show || 10;
       const totalPage = Math.ceil(outletCount[0].total / show);
@@ -188,7 +188,7 @@ class Report {
       });
       return response(res, true, data, null, 200);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return response(res, false, null, error, 500);
     }
   }
