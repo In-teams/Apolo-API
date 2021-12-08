@@ -13,10 +13,11 @@ class Report {
     res: Response
   ): Promise<object | undefined> {
     try {
+      const counts = await Service.getRegistrationReportCount(req.validated)
       const outletCount = await Outlet.getOutletCount(req);
       const data = await Service.getRegistrationReport(req.validated);
       const show = req.validated.show || 10;
-      const totalPage = Math.ceil(outletCount[0].total / show);
+      const totalPage = Math.ceil(counts[0].total / show);
       return response(
         res,
         true,

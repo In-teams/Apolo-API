@@ -10,6 +10,7 @@ class Report {
     const schema = joi.object({
       show: joi.number().valid(10, 15),
       page: joi.number(),
+      level: joi.number().valid(1,2,3,4),
       month: joi.number().valid(...monthsId),
       quarter_id: joi.number().valid(...quartersId),
       region_id: joi.string(),
