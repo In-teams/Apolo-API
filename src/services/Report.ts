@@ -1,6 +1,105 @@
 import { QueryTypes } from "sequelize";
 import db from "../config/db";
 
+const getRegistrationReportQuery = async (
+  data: any,
+  isCount: boolean = false
+) => {
+  let {
+    show = 10,
+    level,
+    page = 1,
+    month,
+    quarter_id,
+    area_id,
+    region_id,
+    wilayah_id,
+    outlet_id,
+    asm_id,
+    ass_id,
+    distributor_id,
+  } = data;
+  const thisPage = show * page - show;
+  let q1 =
+    "SELECT fr.*, sr.level, sr.status FROM trx_file_registrasi AS fr INNER JOIN ms_status_registrasi AS sr ON fr.status_registrasi = sr.id WHERE fr.type_file = 0";
+  let q2 =
+    "SELECT tgl_upload AS ektp_upload, outlet_id FROM trx_file_registrasi WHERE type_file = 1";
+  let q3 =
+    "SELECT tgl_upload AS npwp_upload, outlet_id FROM trx_file_registrasi WHERE type_file = 2";
+  let q4 =
+    "SELECT tgl_upload AS bank_upload, outlet_id FROM trx_file_registrasi WHERE type_file = 3";
+  if (month) {
+    q1 += " AND MONTH(tgl_upload) = :month";
+    q2 += " AND MONTH(tgl_upload) = :month";
+    q3 += " AND MONTH(tgl_upload) = :month";
+    q4 += " AND MONTH(tgl_upload) = :month";
+  }
+  if (quarter_id) {
+    q1 += " AND MONTH(tgl_upload) IN (:quarter_id)";
+    q2 += " AND MONTH(tgl_upload) IN (:quarter_id)";
+    q3 += " AND MONTH(tgl_upload) IN (:quarter_id)";
+    q4 += " AND MONTH(tgl_upload) IN (:quarter_id)";
+  }
+  const filterLevel = level
+    ? level === 1
+      ? "AND fr.level IS NULL"
+      : "AND fr.level = :level"
+    : "";
+  const col = isCount
+    ? "COUNT(DISTINCT o.outlet_id) AS total"
+    : "o.outlet_id, o.outlet_name, o.no_wa, o.ektp, o.npwp, o.nomor_rekening, o.nama_rekening, mb.nama_bank, o.cabang_bank, o.kota_bank, IFNULL(fr.level, 'Level 1') AS level, IFNULL(fr.status, 'Level 1A - Formulir Tidak Ada') AS status, ektp_upload, npwp_upload, fr.tgl_upload AS form_upload, bank_upload, fr.validated_at, rw.tgl_send_wa, IF( rw.tgl_send_wa, 'BY MICROSITE', IF(fr.tgl_upload, 'BY PAPER', 'BELUM REGISTRASI')) AS type";
+  let query = `SELECT ${col} FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id LEFT JOIN(${q1}) AS fr ON fr.outlet_id = o.outlet_id LEFT JOIN(${q2}) AS e ON e.outlet_id = o.outlet_id LEFT JOIN (${q3}) AS n ON n.outlet_id = o.outlet_id LEFT JOIN (${q4}) AS b ON b.outlet_id = o.outlet_id LEFT JOIN trx_respon_wa AS rw ON rw.outlet_id = o.outlet_id LEFT JOIN indonesia.ms_bank AS mb ON mb.id_bank = o.nama_bank WHERE 1=1 ${filterLevel}`;
+
+  if (level) {
+    level = "Level " + level;
+    // query += " AND level = :level";
+  }
+  if (area_id) {
+    query += " AND o.city_id_alias = :area_id";
+  }
+  if (region_id) {
+    query += " AND o.region_id = :region_id";
+  }
+  if (distributor_id) {
+    query += " AND o.distributor_id = :distributor_id";
+  }
+  if (outlet_id) {
+    query += " AND o.outlet_id = :outlet_id";
+  }
+  if (wilayah_id) {
+    query += " AND reg.head_region_id = :wilayah_id";
+  }
+  if (asm_id) {
+    query += " AND dp.asm_id = :asm_id";
+  }
+  if (ass_id) {
+    query += " AND dp.ass_id = :ass_id";
+  }
+
+  if (!isCount) {
+    query +=
+      " GROUP BY outlet_id ORDER BY outlet_id LIMIT :show OFFSET :thisPage";
+  }
+  return await db.query(query, {
+    raw: true,
+    type: QueryTypes.SELECT,
+    replacements: {
+      area_id,
+      region_id,
+      wilayah_id,
+      distributor_id,
+      outlet_id,
+      asm_id,
+      ass_id,
+      month,
+      show,
+      thisPage,
+      quarter_id,
+      level,
+    },
+  });
+};
+
 class Report {
   async getSalesReportPerSubBrand(): Promise<any> {
     return await db.query(
@@ -35,179 +134,10 @@ class Report {
     );
   }
   async getRegistrationReport(data: any): Promise<any> {
-    let {
-      show = 10,
-      level,
-      page = 1,
-      month,
-      quarter_id,
-      area_id,
-      region_id,
-      wilayah_id,
-      outlet_id,
-      asm_id,
-      ass_id,
-      distributor_id,
-    } = data;
-    const thisPage = show * page - show;
-    let q1 =
-      "SELECT fr.*, sr.level, sr.status FROM trx_file_registrasi AS fr INNER JOIN ms_status_registrasi AS sr ON fr.status_registrasi = sr.id WHERE fr.type_file = 0";
-    let q2 =
-      "SELECT tgl_upload AS ektp_upload, outlet_id FROM trx_file_registrasi WHERE type_file = 1";
-    let q3 =
-      "SELECT tgl_upload AS npwp_upload, outlet_id FROM trx_file_registrasi WHERE type_file = 2";
-    let q4 =
-      "SELECT tgl_upload AS bank_upload, outlet_id FROM trx_file_registrasi WHERE type_file = 3";
-    if (month) {
-      q1 += " AND MONTH(tgl_upload) = :month";
-      q2 += " AND MONTH(tgl_upload) = :month";
-      q3 += " AND MONTH(tgl_upload) = :month";
-      q4 += " AND MONTH(tgl_upload) = :month";
-    }
-    if (quarter_id) {
-      q1 += " AND MONTH(tgl_upload) IN (:quarter_id)";
-      q2 += " AND MONTH(tgl_upload) IN (:quarter_id)";
-      q3 += " AND MONTH(tgl_upload) IN (:quarter_id)";
-      q4 += " AND MONTH(tgl_upload) IN (:quarter_id)";
-    }
-    const filterLevel = level ? level === 1 ? 'AND fr.level IS NULL' : "AND fr.level = :level" : ""
-    let query = `SELECT o.outlet_id, o.outlet_name, o.no_wa, o.ektp, o.npwp, o.nomor_rekening, o.nama_rekening, mb.nama_bank, o.cabang_bank, o.kota_bank, IFNULL(fr.level, 'Level 1') AS level, IFNULL(fr.status, 'Level 1A - Formulir Tidak Ada') AS status, ektp_upload, npwp_upload, fr.tgl_upload AS form_upload, bank_upload, fr.validated_at, rw.tgl_send_wa, IF( rw.tgl_send_wa, 'BY MICROSITE', IF(fr.tgl_upload, 'BY PAPER', 'BELUM REGISTRASI')) AS type FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id LEFT JOIN(${q1}) AS fr ON fr.outlet_id = o.outlet_id LEFT JOIN(${q2}) AS e ON e.outlet_id = o.outlet_id LEFT JOIN (${q3}) AS n ON n.outlet_id = o.outlet_id LEFT JOIN (${q4}) AS b ON b.outlet_id = o.outlet_id LEFT JOIN trx_respon_wa AS rw ON rw.outlet_id = o.outlet_id LEFT JOIN indonesia.ms_bank AS mb ON mb.id_bank = o.nama_bank WHERE 1=1 ${filterLevel}`;
-
-    if (level) {
-      level = "Level " + level
-      // query += " AND level = :level";
-    }
-    if (area_id) {
-      query += " AND o.city_id_alias = :area_id";
-    }
-    if (region_id) {
-      query += " AND o.region_id = :region_id";
-    }
-    if (distributor_id) {
-      query += " AND o.distributor_id = :distributor_id";
-    }
-    if (outlet_id) {
-      query += " AND o.outlet_id = :outlet_id";
-    }
-    if (wilayah_id) {
-      query += " AND reg.head_region_id = :wilayah_id";
-    }
-    if (asm_id) {
-      query += " AND dp.asm_id = :asm_id";
-    }
-    if (ass_id) {
-      query += " AND dp.ass_id = :ass_id";
-    }
-
-    return await db.query(
-      query +
-        " GROUP BY outlet_id ORDER BY outlet_id LIMIT :show OFFSET :thisPage",
-      {
-        raw: true,
-        type: QueryTypes.SELECT,
-        replacements: {
-          area_id,
-          region_id,
-          wilayah_id,
-          distributor_id,
-          outlet_id,
-          asm_id,
-          ass_id,
-          month,
-          show,
-          thisPage,
-          quarter_id,
-          level
-        },
-      }
-    );
+    return await getRegistrationReportQuery(data, false);
   }
   async getRegistrationReportCount(data: any): Promise<any> {
-    let {
-      show = 10,
-      level,
-      page = 1,
-      month,
-      quarter_id,
-      area_id,
-      region_id,
-      wilayah_id,
-      outlet_id,
-      asm_id,
-      ass_id,
-      distributor_id,
-    } = data;
-    const thisPage = show * page - show;
-    let q1 =
-      "SELECT fr.*, sr.level, sr.status FROM trx_file_registrasi AS fr INNER JOIN ms_status_registrasi AS sr ON fr.status_registrasi = sr.id WHERE fr.type_file = 0";
-    let q2 =
-      "SELECT tgl_upload AS ektp_upload, outlet_id FROM trx_file_registrasi WHERE type_file = 1";
-    let q3 =
-      "SELECT tgl_upload AS npwp_upload, outlet_id FROM trx_file_registrasi WHERE type_file = 2";
-    let q4 =
-      "SELECT tgl_upload AS bank_upload, outlet_id FROM trx_file_registrasi WHERE type_file = 3";
-    if (month) {
-      q1 += " AND MONTH(tgl_upload) = :month";
-      q2 += " AND MONTH(tgl_upload) = :month";
-      q3 += " AND MONTH(tgl_upload) = :month";
-      q4 += " AND MONTH(tgl_upload) = :month";
-    }
-    if (quarter_id) {
-      q1 += " AND MONTH(tgl_upload) IN (:quarter_id)";
-      q2 += " AND MONTH(tgl_upload) IN (:quarter_id)";
-      q3 += " AND MONTH(tgl_upload) IN (:quarter_id)";
-      q4 += " AND MONTH(tgl_upload) IN (:quarter_id)";
-    }
-    const filterLevel = level ? level === 1 ? 'AND fr.level IS NULL' : "AND fr.level = :level" : ""
-    let query = `SELECT COUNT(o.outlet_id) AS total FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id LEFT JOIN(${q1}) AS fr ON fr.outlet_id = o.outlet_id LEFT JOIN(${q2}) AS e ON e.outlet_id = o.outlet_id LEFT JOIN (${q3}) AS n ON n.outlet_id = o.outlet_id LEFT JOIN (${q4}) AS b ON b.outlet_id = o.outlet_id LEFT JOIN trx_respon_wa AS rw ON rw.outlet_id = o.outlet_id LEFT JOIN indonesia.ms_bank AS mb ON mb.id_bank = o.nama_bank WHERE 1=1 ${filterLevel}`;
-
-    if (level) {
-      level = "Level " + level
-      // query += " AND level = :level";
-    }
-    if (area_id) {
-      query += " AND o.city_id_alias = :area_id";
-    }
-    if (region_id) {
-      query += " AND o.region_id = :region_id";
-    }
-    if (distributor_id) {
-      query += " AND o.distributor_id = :distributor_id";
-    }
-    if (outlet_id) {
-      query += " AND o.outlet_id = :outlet_id";
-    }
-    if (wilayah_id) {
-      query += " AND reg.head_region_id = :wilayah_id";
-    }
-    if (asm_id) {
-      query += " AND dp.asm_id = :asm_id";
-    }
-    if (ass_id) {
-      query += " AND dp.ass_id = :ass_id";
-    }
-
-    return await db.query(
-      query,
-      {
-        raw: true,
-        type: QueryTypes.SELECT,
-        replacements: {
-          area_id,
-          region_id,
-          wilayah_id,
-          distributor_id,
-          outlet_id,
-          asm_id,
-          ass_id,
-          month,
-          show,
-          thisPage,
-          quarter_id,
-          level
-        },
-      }
-    );
+    return await getRegistrationReportQuery(data, true)
   }
   async getRedeemReport(data: any): Promise<any> {
     let {
@@ -226,12 +156,12 @@ class Report {
     } = data;
     const thisPage = show * page - show;
     let query =
-      "SELECT a.kd_transaksi, no_id, outlet_name, nama_produk, quantity, no_batch, IF(no_batch = 'PPR', 'BY PAPER', 'BY MICROSITE') AS type, a.`file_id`, yy.`level`, yy.`status` AS status_redeem, tgl_transaksi AS proses, z.`tgl_upload` AS penukaran, tanggal_kirim AS kirim, l.tgl_confirm AS otorisasi, j.tanggal AS pengadaan, tanggal_terima AS terima, nama_penerima, z.`filename`, IF(h.status_terima IS NULL, IF(l.tgl_confirm IS NULL, 'OTORISASI', IF(j.`tanggal` IS NULL, 'PENGADAAN', 'PROSES PENGIRIMAN')), h.status_terima) AS status_terima, distributor_name, no_handphone FROM trx_transaksi_redeem a INNER JOIN mstr_outlet o ON a.no_id = o.outlet_id INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN trx_transaksi_redeem_barang f ON f.kd_transaksi = a.kd_transaksi LEFT JOIN trx_file_penukaran AS z ON z.`id` = a.`file_id` LEFT JOIN ms_status_penukaran AS yy ON yy.`id` = z.`status_penukaran` LEFT JOIN trx_transaksi_pulsa g ON g.kd_transaksi = a.kd_transaksi LEFT JOIN ( SELECT `kd_transaksi`, `tanggal_kirim`, `tanggal_terima`, nama_penerima, `status_terima`, id FROM ( SELECT `kd_transaksi`, `tanggal_kirim`, `tanggal_terima`, nama_penerima, `status_terima`, id FROM `trx_status` UNION SELECT `transfer_id` AS `kd_transaksi`, `tgl_transfer` AS `tanggal_kirim`, `tgl_transfer` AS `tanggal_terima`, `noreferensi` AS `nama_penerima`, IF( `noreferensi` IS NULL, 'PROSES PENUKARAN', 'TELAH DITERIMA' ) AS status_terima, id FROM `trx_pc_list` ) a GROUP BY kd_transaksi ) h ON h.kd_transaksi = a.kd_transaksi LEFT JOIN trx_pr_barang i ON i.kd_transaksi = a.kd_transaksi LEFT JOIN trx_pr j ON j.kode_pr = i.kode_pr LEFT JOIN trx_confirm_detail k ON k.kd_transaksi = a.kd_transaksi LEFT JOIN trx_confirm l ON l.id_confirm = k.id_confirm WHERE 1 = 1 AND a.`status` = 'R'";
+      "SELECT a.kd_transaksi, no_id AS outlet_id, outlet_name, nama_produk, quantity, no_batch, IF(no_batch = 'PPR', 'BY PAPER', 'BY MICROSITE') AS type, a.`file_id`, yy.`level`, yy.`status` AS status_redeem, tgl_transaksi AS proses, z.`tgl_upload` AS penukaran, tanggal_kirim AS kirim, l.tgl_confirm AS otorisasi, j.tanggal AS pengadaan, tanggal_terima AS terima, nama_penerima, z.`filename`, IF(h.status_terima IS NULL, IF(l.tgl_confirm IS NULL, 'OTORISASI', IF(j.`tanggal` IS NULL, 'PENGADAAN', 'PROSES PENGIRIMAN')), h.status_terima) AS status_terima, distributor_name, no_handphone FROM trx_transaksi_redeem a INNER JOIN mstr_outlet o ON a.no_id = o.outlet_id INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN trx_transaksi_redeem_barang f ON f.kd_transaksi = a.kd_transaksi LEFT JOIN trx_file_penukaran AS z ON z.`id` = a.`file_id` LEFT JOIN ms_status_penukaran AS yy ON yy.`id` = z.`status_penukaran` LEFT JOIN trx_transaksi_pulsa g ON g.kd_transaksi = a.kd_transaksi LEFT JOIN ( SELECT `kd_transaksi`, `tanggal_kirim`, `tanggal_terima`, nama_penerima, `status_terima`, id FROM ( SELECT `kd_transaksi`, `tanggal_kirim`, `tanggal_terima`, nama_penerima, `status_terima`, id FROM `trx_status` UNION SELECT `transfer_id` AS `kd_transaksi`, `tgl_transfer` AS `tanggal_kirim`, `tgl_transfer` AS `tanggal_terima`, `noreferensi` AS `nama_penerima`, IF( `noreferensi` IS NULL, 'PROSES PENUKARAN', 'TELAH DITERIMA' ) AS status_terima, id FROM `trx_pc_list` ) a GROUP BY kd_transaksi ) h ON h.kd_transaksi = a.kd_transaksi LEFT JOIN trx_pr_barang i ON i.kd_transaksi = a.kd_transaksi LEFT JOIN trx_pr j ON j.kode_pr = i.kode_pr LEFT JOIN trx_confirm_detail k ON k.kd_transaksi = a.kd_transaksi LEFT JOIN trx_confirm l ON l.id_confirm = k.id_confirm WHERE 1 = 1 AND a.`status` = 'R'";
     if (month) {
       query += " AND MONTH(a.tgl_transaksi) = :month";
     }
     if (level) {
-      level = "Level " + level
+      level = "Level " + level;
       query += " AND yy.`level` = :level";
     }
     if (quarter_id) {
@@ -275,7 +205,7 @@ class Report {
           thisPage,
           month,
           quarter_id,
-          level
+          level,
         },
       }
     );
