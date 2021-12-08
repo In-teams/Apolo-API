@@ -281,6 +281,8 @@ class Redeem {
       }
 
       req.validated = value;
+      if (req.decoded.level !== "1")
+        return response(res, false, null, "Access Denied", 403);
       // const isRegis = await Outlet.outletIsRegist(value.outlet_id);
       // if (!["Yes+", "Yes"].includes(isRegis))
       //   return response(res, false, null, "Belum registrasi", 400);

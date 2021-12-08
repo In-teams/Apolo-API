@@ -413,6 +413,9 @@ class Registration {
         return response(res, false, null, error.message, 400);
       }
 
+      if (req.decoded.level !== "1")
+        return response(res, false, null, "Access Denied", 403);
+
       req.validated = {
         ...value,
         validated_at: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),
