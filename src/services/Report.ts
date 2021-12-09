@@ -176,6 +176,74 @@ const getRedeemReportQuery = async (data: any, isCount: boolean = false) => {
   });
 };
 
+const getPointActivityQuery = async (data: any, isCount: boolean = false) => {
+  let {
+    month,
+    level,
+    quarter_id,
+    area_id,
+    region_id,
+    wilayah_id,
+    outlet_id,
+    asm_id,
+    ass_id,
+    distributor_id,
+    show = 10,
+    page = 1,
+  } = data;
+  const thisPage = show * page - show;
+  const filterMonth = month ? " AND b.id = :month" : "";
+  const filterQuarter = quarter_id ? " AND b.id IN(:quarter_id)" : "";
+  const col = isCount
+    ? "COUNT(DISTINCT o.outlet_id) AS total"
+    : "DISTINCT o.outlet_id, o.outlet_name, sales, target, (TRUNCATE(((sales / target) * 100), 2)) AS pencapaian, poin_achieve, poin_bonus, poin_reguler, poin_redeem, (poin_achieve - poin_redeem) AS sisa, level, status";
+  let query = `SELECT ${col} FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id LEFT JOIN (SELECT SUM(st.target_sales) AS target, ou.outlet_id, month_target FROM (SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS st INNER JOIN mstr_outlet AS ou ON ou.outlet_id = st.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id INNER JOIN ms_bulan AS b ON b.bulan = st.month_target WHERE st.outlet_id IS NOT NULL ${filterMonth} ${filterQuarter} GROUP BY ou.outlet_id) AS st ON st.outlet_id = o.outlet_id LEFT JOIN (SELECT CAST(SUM(trrb.point_satuan * trrb.quantity) AS DECIMAL(20, 2)) AS poin_redeem, ou.outlet_id, MONTH(tr.tgl_transaksi) AS bulan FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trrb ON tr.kd_transaksi = trrb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id INNER JOIN ms_bulan AS b ON b.id = MONTH(tr.tgl_transaksi) WHERE ou.outlet_id IS NOT NULL ${filterMonth} ${filterQuarter} GROUP BY ou.outlet_id ) AS z ON z.outlet_id = o.outlet_id LEFT JOIN ( SELECT SUM(trb.sales) AS sales, SUM(trb.point_satuan) AS poin_achieve, o.outlet_id, MONTH(tr.tgl_transaksi) AS bulan FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet AS o ON o.outlet_id = tr.no_id INNER JOIN ms_bulan AS b ON b.id = MONTH(tr.tgl_transaksi) WHERE o.outlet_id IS NOT NULL ${filterMonth} ${filterQuarter} GROUP BY o.outlet_id ) AS p ON o.outlet_id = p.outlet_id LEFT JOIN (SELECT SUM(trb.point_satuan) AS poin_bonus, o.outlet_id, MONTH(tr.tgl_transaksi) AS bulan FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet AS o ON o.outlet_id = tr.no_id INNER JOIN ms_bulan AS b ON b.id = MONTH(tr.tgl_transaksi) WHERE o.outlet_id IS NOT NULL AND tr.status = 'B' ${filterMonth} ${filterQuarter} GROUP BY o.outlet_id ) AS s ON o.outlet_id = s.outlet_id LEFT JOIN (SELECT SUM(trb.point_satuan) AS poin_reguler, o.outlet_id, MONTH(tr.tgl_transaksi) AS bulan FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet AS o ON o.outlet_id = tr.no_id INNER JOIN ms_bulan AS b ON b.id = MONTH(tr.tgl_transaksi) WHERE o.outlet_id IS NOT NULL AND tr.status = 'A' ${filterMonth} ${filterQuarter} GROUP BY o.outlet_id ) AS t ON o.outlet_id = t.outlet_id LEFT JOIN ( SELECT sp.level, sp.status, o.outlet_id FROM mstr_outlet AS o LEFT JOIN trx_file_penukaran AS fp ON fp.outlet_id = o.outlet_id LEFT JOIN ms_status_penukaran AS sp ON sp.id = fp.status_penukaran INNER JOIN ms_bulan AS b ON b.id = MONTH(fp.tgl_upload) WHERE 1 = 1 ${filterMonth} ${filterQuarter} GROUP BY o.outlet_id ) AS v ON v.outlet_id = o.outlet_id WHERE 1 = 1`;
+
+  if (area_id) {
+    query += " AND o.city_id_alias = :area_id";
+  }
+  if (region_id) {
+    query += " AND o.region_id = :region_id";
+  }
+  if (distributor_id) {
+    query += " AND o.distributor_id = :distributor_id";
+  }
+  if (outlet_id) {
+    query += " AND o.outlet_id = :outlet_id";
+  }
+  if (wilayah_id) {
+    query += " AND reg.head_region_id = :wilayah_id";
+  }
+  if (asm_id) {
+    query += " AND dp.asm_id = :asm_id";
+  }
+  if (ass_id) {
+    query += " AND dp.ass_id = :ass_id";
+  }
+
+  if (!isCount) {
+    query += ` LIMIT :show OFFSET :thisPage`;
+  }
+  return await db.query(query, {
+    raw: true,
+    type: QueryTypes.SELECT,
+    replacements: {
+      area_id,
+      region_id,
+      wilayah_id,
+      distributor_id,
+      outlet_id,
+      asm_id,
+      ass_id,
+      show,
+      thisPage,
+      month,
+      quarter_id,
+      level,
+    },
+  });
+};
+
 class Report {
   async getSalesReportPerSubBrand(): Promise<any> {
     return await db.query(
@@ -188,16 +256,10 @@ class Report {
     );
   }
   async getPointActivity(data: any): Promise<any> {
-    const { show = 10, page = 1, month = new Date().getMonth() + 1 } = data;
-    const thisPage = show * page - show;
-    return await db.query(
-      "SELECT DISTINCT o.`outlet_id`, o.`outlet_name`, sales, target, (TRUNCATE(((sales / target) * 100), 2)) AS pencapaian, poin_achieve, poin_redeem, (poin_achieve - poin_redeem) AS sisa, sp.`level`, sp.`status` FROM mstr_outlet AS o LEFT JOIN trx_file_penukaran AS fp ON fp.`outlet_id` = o.`outlet_id` LEFT JOIN ms_status_penukaran AS sp ON sp.`id` = fp.`status_penukaran` LEFT JOIN (SELECT SUM(st.target_sales) AS target, ou.`outlet_id`, month_target FROM (SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS st INNER JOIN mstr_outlet AS ou ON ou.outlet_id = st.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id INNER JOIN ms_bulan AS b ON b.bulan = st.month_target WHERE st.outlet_id IS NOT NULL AND b.id = ? GROUP BY ou.`outlet_id`) AS st ON st.outlet_id = o.`outlet_id` LEFT JOIN (SELECT CAST(SUM(trrb.point_satuan * trrb.quantity) AS DECIMAL(20, 2)) AS poin_redeem, ou.`outlet_id`, MONTH(tr.`tgl_transaksi`) AS bulan FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trrb ON tr.kd_transaksi = trrb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id WHERE ou.outlet_id IS NOT NULL AND MONTH(tr.`tgl_transaksi`) = ? GROUP BY ou.`outlet_id`) AS z ON z.outlet_id = o.`outlet_id` LEFT JOIN (SELECT SUM(trb.`sales`) AS sales, SUM(trb.`point_satuan`) AS poin_achieve, o.`outlet_id`, MONTH(tr.`tgl_transaksi`) AS bulan FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.`kd_transaksi` = trb.`kd_transaksi` INNER JOIN mstr_outlet AS o ON o.`outlet_id` = tr.`no_id` WHERE o.`outlet_id` IS NOT NULL AND MONTH(tr.`tgl_transaksi`) = ? GROUP BY o.`outlet_id`) AS p ON o.`outlet_id` = p.outlet_id WHERE (MONTH(fp.`tgl_upload`) = ? OR MONTH(fp.`tgl_upload`) IS NULL) GROUP BY o.`outlet_id` LIMIT ? OFFSET ?",
-      {
-        raw: true,
-        type: QueryTypes.SELECT,
-        replacements: [month, month, month, month, show, thisPage],
-      }
-    );
+    return await getPointActivityQuery(data)
+  }
+  async getPointActivityCount(data: any): Promise<any> {
+    return await getPointActivityQuery(data, true)
   }
   async getSalesReportPerCategory(): Promise<any> {
     return await db.query(
@@ -216,10 +278,10 @@ class Report {
     return await getRegistrationReportQuery(data, true);
   }
   async getRedeemReport(data: any): Promise<any> {
-    return await getRedeemReportQuery(data)
+    return await getRedeemReportQuery(data);
   }
   async getRedeemReportCount(data: any): Promise<any> {
-    return await getRedeemReportQuery(data, true)
+    return await getRedeemReportQuery(data, true);
   }
   async getRegistrationResumeReport(data?: any): Promise<any> {
     const {

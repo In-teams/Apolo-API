@@ -59,8 +59,20 @@ class Report {
     res: Response
   ): Promise<object | undefined> {
     try {
+      const outletCount = await Service.getPointActivityCount(req.validated);
       const data = await Service.getPointActivity(req.validated);
-      return response(res, true, data, null, 200);
+      const show = req.validated.show || 10;
+      const totalPage = Math.ceil(outletCount[0].total / show);
+      return response(
+        res,
+        true,
+        {
+          totalPage,
+          data,
+        },
+        null,
+        200
+      );
     } catch (error) {
       return response(res, false, null, error, 500);
     }
