@@ -20,6 +20,8 @@ class Report {
       distributor_id: joi.string(),
       ass_id: joi.string(),
       asm_id: joi.string(),
+      order: joi.string().valid('outlet_id', 'outlet_name'),
+      sort: joi.string().valid('asc', 'desc'),
     });
 
     const { value, error } = schema.validate({ ...req.query, ...req.body });

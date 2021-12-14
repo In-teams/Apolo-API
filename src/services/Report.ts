@@ -3,7 +3,8 @@ import db from "../config/db";
 
 const getRegistrationReportQuery = async (
   data: any,
-  isCount: boolean = false
+  isCount: boolean = false,
+  isPaging: boolean = true
 ) => {
   let {
     show = 10,
@@ -18,16 +19,18 @@ const getRegistrationReportQuery = async (
     asm_id,
     ass_id,
     distributor_id,
+    order = "outlet_id",
+    sort = "asc",
   } = data;
   const thisPage = show * page - show;
   let q1 =
-    "SELECT fr.*, sr.level, sr.status FROM trx_file_registrasi AS fr INNER JOIN ms_status_registrasi AS sr ON fr.status_registrasi = sr.id WHERE fr.type_file = 0";
+    "SELECT fr.*, sr.level, sr.status, p.`periode` FROM trx_file_registrasi AS fr INNER JOIN ms_status_registrasi AS sr ON fr.status_registrasi = sr.id INNER JOIN ms_periode_registrasi AS p ON p.`id` = fr.`periode_id` WHERE fr.type_file = 0";
   let q2 =
-    "SELECT tgl_upload AS ektp_upload, outlet_id FROM trx_file_registrasi WHERE type_file = 1";
+    "SELECT tgl_upload AS ektp_upload, outlet_id FROM trx_file_registrasi AS fr INNER JOIN ms_periode_registrasi AS p ON p.`id` = fr.`periode_id` WHERE type_file = 1";
   let q3 =
-    "SELECT tgl_upload AS npwp_upload, outlet_id FROM trx_file_registrasi WHERE type_file = 2";
+    "SELECT tgl_upload AS npwp_upload, outlet_id FROM trx_file_registrasi AS fr INNER JOIN ms_periode_registrasi AS p ON p.`id` = fr.`periode_id` WHERE type_file = 2";
   let q4 =
-    "SELECT tgl_upload AS bank_upload, outlet_id FROM trx_file_registrasi WHERE type_file = 3";
+    "SELECT tgl_upload AS bank_upload, outlet_id FROM trx_file_registrasi AS fr INNER JOIN ms_periode_registrasi AS p ON p.`id` = fr.`periode_id` WHERE type_file = 3";
   if (month) {
     q1 += " AND MONTH(tgl_upload) = :month";
     q2 += " AND MONTH(tgl_upload) = :month";
@@ -40,6 +43,10 @@ const getRegistrationReportQuery = async (
     q3 += " AND MONTH(tgl_upload) IN (:quarter_id)";
     q4 += " AND MONTH(tgl_upload) IN (:quarter_id)";
   }
+  q1 += " GROUP BY p.id, outlet_id";
+  q2 += " GROUP BY p.id, outlet_id";
+  q3 += " GROUP BY p.id, outlet_id";
+  q4 += " GROUP BY p.id, outlet_id";
   const filterLevel = level
     ? level === 1
       ? "AND fr.level IS NULL"
@@ -47,7 +54,7 @@ const getRegistrationReportQuery = async (
     : "";
   const col = isCount
     ? "COUNT(DISTINCT o.outlet_id) AS total"
-    : "o.outlet_id, o.outlet_name, o.no_wa, o.ektp, o.npwp, o.nomor_rekening, o.nama_rekening, mb.nama_bank, o.cabang_bank, o.kota_bank, IFNULL(fr.level, 'Level 1') AS level, IFNULL(fr.status, 'Level 1A - Formulir Tidak Ada') AS status, ektp_upload, npwp_upload, fr.tgl_upload AS form_upload, bank_upload, fr.validated_at, rw.tgl_send_wa, IF( rw.tgl_send_wa, 'BY MICROSITE', IF(fr.tgl_upload, 'BY PAPER', 'BELUM REGISTRASI')) AS type";
+    : "periode, o.outlet_id, o.outlet_name, o.no_wa, o.ektp, o.npwp, o.nomor_rekening, o.nama_rekening, mb.nama_bank, o.cabang_bank, o.kota_bank, IFNULL(fr.level, 'Level 1') AS level, IFNULL(fr.status, 'Level 1A - Formulir Tidak Ada') AS status, ektp_upload, npwp_upload, fr.tgl_upload AS form_upload, bank_upload, fr.validated_at, rw.tgl_send_wa, IF( rw.tgl_send_wa, 'BY MICROSITE', IF(fr.tgl_upload, 'BY PAPER', 'BELUM REGISTRASI')) AS type";
   let query = `SELECT ${col} FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id LEFT JOIN(${q1}) AS fr ON fr.outlet_id = o.outlet_id LEFT JOIN(${q2}) AS e ON e.outlet_id = o.outlet_id LEFT JOIN (${q3}) AS n ON n.outlet_id = o.outlet_id LEFT JOIN (${q4}) AS b ON b.outlet_id = o.outlet_id LEFT JOIN trx_respon_wa AS rw ON rw.outlet_id = o.outlet_id LEFT JOIN indonesia.ms_bank AS mb ON mb.id_bank = o.nama_bank WHERE 1=1 ${filterLevel}`;
 
   if (level) {
@@ -77,8 +84,10 @@ const getRegistrationReportQuery = async (
   }
 
   if (!isCount) {
-    query +=
-      " GROUP BY outlet_id ORDER BY outlet_id LIMIT :show OFFSET :thisPage";
+    query += ` GROUP BY periode, outlet_id ORDER BY ${order} ${sort}`;
+  }
+  if(!isCount && isPaging){
+    query += ` LIMIT :show OFFSET :thisPage`;
   }
   return await db.query(query, {
     raw: true,
@@ -256,10 +265,10 @@ class Report {
     );
   }
   async getPointActivity(data: any): Promise<any> {
-    return await getPointActivityQuery(data)
+    return await getPointActivityQuery(data);
   }
   async getPointActivityCount(data: any): Promise<any> {
-    return await getPointActivityQuery(data, true)
+    return await getPointActivityQuery(data, true);
   }
   async getSalesReportPerCategory(): Promise<any> {
     return await db.query(
@@ -273,6 +282,9 @@ class Report {
   }
   async getRegistrationReport(data: any): Promise<any> {
     return await getRegistrationReportQuery(data, false);
+  }
+  async exportRegistrationReport(data: any): Promise<any> {
+    return await getRegistrationReportQuery(data, false, false);
   }
   async getRegistrationReportCount(data: any): Promise<any> {
     return await getRegistrationReportQuery(data, true);

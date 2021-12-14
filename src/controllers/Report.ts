@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import _ from "lodash";
+import ExportExcel from "../helpers/ExportExcel";
 import NumberFormat from "../helpers/NumberFormat";
 import response from "../helpers/Response";
 import Outlet from "../services/Outlet";
@@ -8,6 +9,18 @@ import Service from "../services/Report";
 const sumDataBy = (data: any[], key: string) => _.sumBy(data, (o) => o[key]);
 
 class Report {
+  async exportRegistrationReport(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      const data = await Service.exportRegistrationReport(req.validated);
+      const columns = Object.keys(data[0])
+      return await ExportExcel(res, columns, data)
+    } catch (error) {
+      return response(res, false, null, error, 500);
+    }
+  }
   async getRegistrationReport(
     req: Request,
     res: Response
