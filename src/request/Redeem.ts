@@ -342,8 +342,8 @@ class Redeem {
         filename,
         tgl_upload: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),
       };
-      const isUploaded = await service.getRedeemFile(req);
-      if (isUploaded.length > 0) {
+      const isUploaded = await service.getRedeemFileThisMonth(req);
+      if (isUploaded) {
         if (levelUser !== "1")
           return response(res, false, null, "Upload hanya bisa sekali", 400);
         await service.updateRedeemFile(

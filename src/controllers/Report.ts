@@ -15,7 +15,7 @@ class Report {
   ): Promise<object | undefined> {
     try {
       const data = await Service.exportRegistrationReport(req.validated);
-      const columns = Object.keys(data[0])
+      const columns = data.length > 0 ? Object.keys(data[0]) : []
       return await ExportExcel(res, columns, data)
     } catch (error) {
       return response(res, false, null, error, 500);
@@ -27,9 +27,10 @@ class Report {
   ): Promise<object | undefined> {
     try {
       const data = await Service.exportRedeemReport(req.validated);
-      const columns = Object.keys(data[0])
+      const columns = data.length > 0 ? Object.keys(data[0]) : []
       return await ExportExcel(res, columns, data)
     } catch (error) {
+      console.log(error)
       return response(res, false, null, error, 500);
     }
   }

@@ -214,7 +214,7 @@ class Sales {
       let data: any = await Service.getSummaryPerSemester(req);
       data = data.map((e: any) => ({
         ...e,
-        kuartal: "Kuartal " + e.kuartal,
+        kuartal: "QUARTER " + e.kuartal,
         aktual: +e.aktual,
       }));
       // data = NumberFormat(data, true, 'aktual', 'target')

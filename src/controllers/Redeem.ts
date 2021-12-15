@@ -223,10 +223,10 @@ class Redeem {
   }
   async getRedeemFile(req: Request, res: Response) {
     try {
-      let isUpload: any = await Service.getRedeemFile(req);
-      if (isUpload.length < 1) {
+      let isUpload: any = await Service.getRedeemFileThisMonth(req);
+      if (!isUpload) {
         isUpload = true;
-      } else if (isUpload.length > 0 && req.decoded.level === "1") {
+      } else if (isUpload && req.decoded.level === "1") {
         isUpload = true;
       } else {
         isUpload = false;
