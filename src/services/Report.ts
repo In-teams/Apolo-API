@@ -127,6 +127,8 @@ const getRedeemReportQuery = async (
     distributor_id,
     show = 10,
     page = 1,
+    order = "kd_transaksi",
+    sort = "asc",
   } = data;
   const thisPage = show * page - show;
   const col = isCount
@@ -167,7 +169,7 @@ const getRedeemReportQuery = async (
   }
 
   if (!isCount) {
-    query += " ORDER BY a.`kd_transaksi` DESC";
+    query += ` ORDER BY ${order} ${sort}`;
   }
 
   if (!isCount && isPaging) {
