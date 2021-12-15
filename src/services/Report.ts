@@ -7,7 +7,7 @@ const getRegistrationReportQuery = async (
   isPaging: boolean = true
 ) => {
   let {
-    show = 10,
+    show,
     level,
     page = 1,
     month,
@@ -22,7 +22,7 @@ const getRegistrationReportQuery = async (
     order = "outlet_id",
     sort = "asc",
   } = data;
-  const thisPage = show * page - show;
+  let thisPage = show * page - show;
   let q1 =
     "SELECT fr.*, sr.level, sr.status, p.`periode` FROM trx_file_registrasi AS fr INNER JOIN ms_status_registrasi AS sr ON fr.status_registrasi = sr.id INNER JOIN ms_periode_registrasi AS p ON p.`id` = fr.`periode_id` WHERE fr.type_file = 0";
   let q2 =
@@ -86,7 +86,8 @@ const getRegistrationReportQuery = async (
   if (!isCount) {
     query += ` GROUP BY periode, outlet_id ORDER BY ${order} ${sort}`;
   }
-  if (!isCount && isPaging) {
+  if (!isCount && isPaging && show) {
+    thisPage = show * page - show
     query += ` LIMIT :show OFFSET :thisPage`;
   }
   return await db.query(query, {
@@ -125,12 +126,12 @@ const getRedeemReportQuery = async (
     asm_id,
     ass_id,
     distributor_id,
-    show = 10,
+    show,
     page = 1,
     order = "kd_transaksi",
     sort = "asc",
   } = data;
-  const thisPage = show * page - show;
+  let thisPage = 0;
   const col = isCount
     ? "COUNT(no_id) AS total"
     : "a.kd_transaksi, no_id AS outlet_id, outlet_name, nama_produk, quantity, point_satuan, (CAST(quantity AS UNSIGNED) * CAST(point_satuan AS UNSIGNED)) as point_total, no_batch, IF(no_batch = 'PPR', 'BY PAPER', 'BY MICROSITE') AS type, a.`file_id`, IFNULL(yy.`level`, 'Level 1') AS level, IFNULL(yy.`status`, 'Level 1A - Formulir Tidak Ada') AS status_redeem, tgl_transaksi AS proses, z.`tgl_upload` AS penukaran, tanggal_kirim AS kirim, l.tgl_confirm AS otorisasi, j.tanggal AS pengadaan, tanggal_terima AS terima, nama_penerima, z.`filename`, IF(h.status_terima IS NULL, IF(l.tgl_confirm IS NULL, 'OTORISASI', IF(j.`tanggal` IS NULL, 'PENGADAAN', 'PROSES PENGIRIMAN')), h.status_terima) AS status_terima, distributor_name, no_handphone";
@@ -172,7 +173,8 @@ const getRedeemReportQuery = async (
     query += ` ORDER BY ${order} ${sort}`;
   }
 
-  if (!isCount && isPaging) {
+  if (!isCount && isPaging && show) {
+    thisPage = show * page - show
     query += ` LIMIT :show OFFSET :thisPage`;
   }
   return await db.query(query, {
@@ -195,7 +197,7 @@ const getRedeemReportQuery = async (
   });
 };
 
-const getPointActivityQuery = async (data: any, isCount: boolean = false) => {
+const getPointActivityQuery = async (data: any, isCount: boolean = false, isPaging: boolean = true) => {
   let {
     month,
     level,
@@ -207,10 +209,10 @@ const getPointActivityQuery = async (data: any, isCount: boolean = false) => {
     asm_id,
     ass_id,
     distributor_id,
-    show = 10,
+    show,
     page = 1,
   } = data;
-  const thisPage = show * page - show;
+  let thisPage = show * page - show;
   const filterMonth = month ? " AND b.id = :month" : "";
   const filterQuarter = quarter_id ? " AND b.id IN(:quarter_id)" : "";
   const col = isCount
@@ -240,7 +242,8 @@ const getPointActivityQuery = async (data: any, isCount: boolean = false) => {
     query += " AND dp.ass_id = :ass_id";
   }
 
-  if (!isCount) {
+  if (!isCount && isPaging && show) {
+    thisPage = show * page - show
     query += ` LIMIT :show OFFSET :thisPage`;
   }
   return await db.query(query, {
@@ -291,7 +294,7 @@ class Report {
     );
   }
   async getRegistrationReport(data: any): Promise<any> {
-    return await getRegistrationReportQuery(data, false, false);
+    return await getRegistrationReportQuery(data, false, true);
   }
   async exportRegistrationReport(data: any): Promise<any> {
     return await getRegistrationReportQuery(data, false, false);
@@ -303,7 +306,7 @@ class Report {
     return await getRegistrationReportQuery(data, true);
   }
   async getRedeemReport(data: any): Promise<any> {
-    return await getRedeemReportQuery(data, false, false);
+    return await getRedeemReportQuery(data, false, true);
   }
   async getRedeemReportCount(data: any): Promise<any> {
     return await getRedeemReportQuery(data, true);

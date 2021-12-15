@@ -41,8 +41,8 @@ class Report {
     try {
       const counts = await Service.getRegistrationReportCount(req.validated);
       const data = await Service.getRegistrationReport(req.validated);
-      const show = req.validated.show || 10;
-      const totalPage = Math.ceil(counts[0].total / show);
+      // const show = req.validated.show || 10;
+      const totalPage = req.validated.show ? Math.ceil(counts[0].total / req.validated.show) : 1;
       return response(
         res,
         true,
@@ -64,8 +64,8 @@ class Report {
     try {
       const outletCount = await Service.getRedeemReportCount(req.validated);
       const data = await Service.getRedeemReport(req.validated);
-      const show = req.validated.show || 10;
-      const totalPage = Math.ceil(outletCount[0].total / show);
+      // const show = req.validated.show || 10;
+      const totalPage = req.validated.show ? Math.ceil(outletCount[0].total / req.validated.show) : 1;
       return response(
         res,
         true,
@@ -87,8 +87,8 @@ class Report {
     try {
       const outletCount = await Service.getPointActivityCount(req.validated);
       const data = await Service.getPointActivity(req.validated);
-      const show = req.validated.show || 10;
-      const totalPage = Math.ceil(outletCount[0].total / show);
+      // const show = req.validated.show || 10;
+      const totalPage = req.validated.show ? Math.ceil(outletCount[0].total / req.validated.show) : 1;
       return response(
         res,
         true,
