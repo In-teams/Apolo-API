@@ -15,6 +15,7 @@ class Report implements IRouter {
     this.router.get("/registration", ReportRequest.get, ReportController.getRegistrationReport);
     this.router.get("/registration/export", ReportRequest.get, ReportController.exportRegistrationReport);
     this.router.get("/redeem", ReportRequest.get, ReportController.getRedeemReport);
+    this.router.get("/redeem/export", ReportRequest.get, ReportController.exportRedeemReport);
     this.router.get("/point-activity", ReportRequest.get, ReportController.getPointActivityReport);
     this.router.get("/resume/registration", ReportRequest.get, ReportController.getRegistrationResumeReport);
     this.router.get("/resume/redeem", ReportRequest.get, ReportController.getRedeemResumeReport);

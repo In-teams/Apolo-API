@@ -86,7 +86,7 @@ const getRegistrationReportQuery = async (
   if (!isCount) {
     query += ` GROUP BY periode, outlet_id ORDER BY ${order} ${sort}`;
   }
-  if(!isCount && isPaging){
+  if (!isCount && isPaging) {
     query += ` LIMIT :show OFFSET :thisPage`;
   }
   return await db.query(query, {
@@ -109,7 +109,11 @@ const getRegistrationReportQuery = async (
   });
 };
 
-const getRedeemReportQuery = async (data: any, isCount: boolean = false) => {
+const getRedeemReportQuery = async (
+  data: any,
+  isCount: boolean = false,
+  isPaging: boolean = true
+) => {
   let {
     month,
     level,
@@ -163,7 +167,11 @@ const getRedeemReportQuery = async (data: any, isCount: boolean = false) => {
   }
 
   if (!isCount) {
-    query += " ORDER BY a.`kd_transaksi` DESC LIMIT :show OFFSET :thisPage";
+    query += " ORDER BY a.`kd_transaksi` DESC";
+  }
+
+  if (!isCount && isPaging) {
+    query += ` LIMIT :show OFFSET :thisPage`;
   }
   return await db.query(query, {
     raw: true,
@@ -285,6 +293,9 @@ class Report {
   }
   async exportRegistrationReport(data: any): Promise<any> {
     return await getRegistrationReportQuery(data, false, false);
+  }
+  async exportRedeemReport(data: any): Promise<any> {
+    return await getRedeemReportQuery(data, false, false);
   }
   async getRegistrationReportCount(data: any): Promise<any> {
     return await getRegistrationReportQuery(data, true);

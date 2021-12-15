@@ -21,6 +21,18 @@ class Report {
       return response(res, false, null, error, 500);
     }
   }
+  async exportRedeemReport(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      const data = await Service.exportRedeemReport(req.validated);
+      const columns = Object.keys(data[0])
+      return await ExportExcel(res, columns, data)
+    } catch (error) {
+      return response(res, false, null, error, 500);
+    }
+  }
   async getRegistrationReport(
     req: Request,
     res: Response
