@@ -8,6 +8,7 @@ const getRegistrationReportQuery = async (
 ) => {
   let {
     show,
+    status_registrasi,
     level,
     page = 1,
     month,
@@ -82,13 +83,20 @@ const getRegistrationReportQuery = async (
   if (ass_id) {
     query += " AND dp.ass_id = :ass_id";
   }
+  if (status_registrasi) {
+    if(+status_registrasi === 1){
+      query += " AND status_registrasi IS NULL";
+    }else{
+      query += " AND status_registrasi = :status_registrasi";
+    }
+  }
 
   if (!isCount) {
     query += ` GROUP BY periode, outlet_id ORDER BY ${order} ${sort}`;
   }
   if (!isCount && isPaging && show) {
-    thisPage = show * page - show
-    query += ` LIMIT :show OFFSET :thisPage`;
+    thisPage = show * page - show;
+    query += " LIMIT :show OFFSET :thisPage";
   }
   return await db.query(query, {
     raw: true,
@@ -106,6 +114,7 @@ const getRegistrationReportQuery = async (
       thisPage,
       quarter_id,
       level,
+      status_registrasi,
     },
   });
 };
@@ -130,18 +139,23 @@ const getRedeemReportQuery = async (
     page = 1,
     order = "kd_transaksi",
     sort = "asc",
+    status_terima,
+    status_redeem,
   } = data;
   let thisPage = 0;
   const col = isCount
     ? "COUNT(no_id) AS total"
-    : "a.kd_transaksi, no_id AS outlet_id, outlet_name, nama_produk, quantity, point_satuan, (CAST(quantity AS UNSIGNED) * CAST(point_satuan AS UNSIGNED)) as point_total, no_batch, IF(no_batch = 'PPR', 'BY PAPER', 'BY MICROSITE') AS type, a.`file_id`, IFNULL(yy.`level`, 'Level 1') AS level, IFNULL(yy.`status`, 'Level 1A - Formulir Tidak Ada') AS status_redeem, tgl_transaksi AS proses, z.`tgl_upload` AS penukaran, tanggal_kirim AS kirim, l.tgl_confirm AS otorisasi, j.tanggal AS pengadaan, tanggal_terima AS terima, nama_penerima, z.`filename`, IF(h.status_terima IS NULL, IF(l.tgl_confirm IS NULL, 'OTORISASI', IF(j.`tanggal` IS NULL, 'PENGADAAN', 'PROSES PENGIRIMAN')), h.status_terima) AS status_terima, distributor_name, no_handphone";
-  let query = `SELECT ${col} FROM trx_transaksi_redeem a INNER JOIN mstr_outlet o ON a.no_id = o.outlet_id INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN trx_transaksi_redeem_barang f ON f.kd_transaksi = a.kd_transaksi LEFT JOIN trx_file_penukaran AS z ON z.id = a.file_id LEFT JOIN ms_status_penukaran AS yy ON yy.id = z.status_penukaran LEFT JOIN trx_transaksi_pulsa g ON g.kd_transaksi = a.kd_transaksi LEFT JOIN ( SELECT kd_transaksi, tanggal_kirim, tanggal_terima, nama_penerima, status_terima, id FROM ( SELECT kd_transaksi, tanggal_kirim, tanggal_terima, nama_penerima, status_terima, id FROM trx_status UNION SELECT transfer_id AS kd_transaksi, tgl_transfer AS tanggal_kirim, tgl_transfer AS tanggal_terima, noreferensi AS nama_penerima, IF( noreferensi IS NULL, 'PROSES PENUKARAN', 'TELAH DITERIMA' ) AS status_terima, id FROM trx_pc_list ) a GROUP BY kd_transaksi ) h ON h.kd_transaksi = a.kd_transaksi LEFT JOIN trx_pr_barang i ON i.kd_transaksi = a.kd_transaksi LEFT JOIN trx_pr j ON j.kode_pr = i.kode_pr LEFT JOIN trx_confirm_detail k ON k.kd_transaksi = a.kd_transaksi LEFT JOIN trx_confirm l ON l.id_confirm = k.id_confirm WHERE 1 = 1 AND a.status = 'R'`;
+    : "a.kd_transaksi, no_id AS outlet_id, MONTHNAME(a.`tgl_transaksi`) AS bulan, outlet_name, nama_produk, quantity, point_satuan, (CAST(quantity AS UNSIGNED) * CAST(point_satuan AS UNSIGNED)) as point_total, no_batch, IF(no_batch = 'PPR', 'BY PAPER', 'BY MICROSITE') AS type, a.`file_id`, IFNULL(yy.`level`, 'Level 1') AS level, IFNULL(yy.`status`, 'Level 1A - Formulir Tidak Ada') AS status_redeem, tgl_transaksi AS proses, z.`tgl_upload` AS penukaran, tanggal_kirim AS kirim, l.tgl_confirm AS otorisasi, j.tanggal AS pengadaan, tanggal_terima AS terima, nama_penerima, z.`filename`, IF(h.status_terima IS NULL, IF(l.tgl_confirm IS NULL, 'OTORISASI', IF(j.`tanggal` IS NULL, 'PENGADAAN', 'PROSES PENGIRIMAN')), h.status_terima) AS status_terima, distributor_name, no_handphone";
+  let query = `SELECT ${col} FROM trx_transaksi_redeem a INNER JOIN mstr_outlet o ON a.no_id = o.outlet_id INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN trx_transaksi_redeem_barang f ON f.kd_transaksi = a.kd_transaksi LEFT JOIN trx_file_penukaran AS z ON z.id = a.file_id LEFT JOIN ms_status_penukaran AS yy ON yy.id = z.status_penukaran LEFT JOIN trx_transaksi_pulsa g ON g.kd_transaksi = a.kd_transaksi LEFT JOIN ( SELECT kd_transaksi, tanggal_kirim, tanggal_terima, nama_penerima, status_terima, id FROM ( SELECT kd_transaksi, tanggal_kirim, tanggal_terima, nama_penerima, status_terima, id FROM trx_status UNION SELECT transfer_id AS kd_transaksi, tgl_transfer AS tanggal_kirim, tgl_transfer AS tanggal_terima, noreferensi AS nama_penerima, IF( noreferensi IS NULL, NULL, 'TELAH DITERIMA' ) AS status_terima, id FROM trx_pc_list ) a GROUP BY kd_transaksi ) h ON h.kd_transaksi = a.kd_transaksi LEFT JOIN trx_pr_barang i ON i.kd_transaksi = a.kd_transaksi LEFT JOIN trx_pr j ON j.kode_pr = i.kode_pr LEFT JOIN trx_confirm_detail k ON k.kd_transaksi = a.kd_transaksi LEFT JOIN trx_confirm l ON l.id_confirm = k.id_confirm WHERE 1 = 1 AND a.status = 'R'`;
 
   if (month) {
     query += " AND MONTH(a.tgl_transaksi) = :month";
   }
   if (level) {
-    query += parseInt(level) === 1 ? " AND yy.`level` IS NULL" : " AND yy.`level` = :level";
+    query +=
+      parseInt(level) === 1
+        ? " AND yy.`level` IS NULL"
+        : " AND yy.`level` = :level";
     level = "Level " + level;
   }
   if (quarter_id) {
@@ -168,13 +182,36 @@ const getRedeemReportQuery = async (
   if (ass_id) {
     query += " AND dp.ass_id = :ass_id";
   }
+  if (status_terima) {
+    if (status_terima === 1) {
+      query +=
+        " AND l.`tgl_confirm` IS NULL AND j.`tanggal` IS NULL AND tanggal_kirim IS NULL AND tanggal_terima IS NULL";
+    } else if (status_terima === 2) {
+      query +=
+        " AND l.`tgl_confirm` IS NOT NULL AND j.`tanggal` IS NULL AND tanggal_kirim IS NULL AND tanggal_terima IS NULL";
+    } else if (status_terima === 3) {
+      query +=
+        " AND l.`tgl_confirm` IS NOT NULL AND j.`tanggal` IS NOT NULL AND tanggal_kirim IS NULL AND tanggal_terima IS NULL";
+    } else if (status_terima === 4) {
+      query +=
+        " AND l.`tgl_confirm` IS NOT NULL AND j.`tanggal` IS NOT NULL AND tanggal_kirim IS NOT NULL AND tanggal_terima IS NOT NULL";
+    }
+  }
+
+  if (status_redeem) {
+    if(+status_redeem === 1){
+      query += " AND status_penukaran IS NULL";
+    }else{
+      query += " AND status_penukaran = :status_redeem";
+    }
+  }
 
   if (!isCount) {
     query += ` ORDER BY ${order} ${sort}`;
   }
 
   if (!isCount && isPaging && show) {
-    thisPage = show * page - show
+    thisPage = show * page - show;
     query += ` LIMIT :show OFFSET :thisPage`;
   }
   return await db.query(query, {
@@ -193,11 +230,16 @@ const getRedeemReportQuery = async (
       month,
       quarter_id,
       level,
+      status_redeem
     },
   });
 };
 
-const getPointActivityQuery = async (data: any, isCount: boolean = false, isPaging: boolean = true) => {
+const getPointActivityQuery = async (
+  data: any,
+  isCount: boolean = false,
+  isPaging: boolean = true
+) => {
   let {
     month,
     level,
@@ -243,7 +285,7 @@ const getPointActivityQuery = async (data: any, isCount: boolean = false, isPagi
   }
 
   if (!isCount && isPaging && show) {
-    thisPage = show * page - show
+    thisPage = show * page - show;
     query += ` LIMIT :show OFFSET :thisPage`;
   }
   return await db.query(query, {
