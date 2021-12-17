@@ -172,7 +172,31 @@ class SalesHelper2 {
     hirarkiName: string,
     sort?: string
   ) {
-    // const { sort } = req.validated;
+    const { outlet_id } = req.validated;
+    let registThisPeriode: any = null;
+    // let registAllPeriode: any = null;
+    if (outlet_id && key === "outlet") {
+      registThisPeriode = await Registration.getRegistrationFileThisPeriode(
+        req
+      );
+      // registThisPeriode = registThisPeriode.map((e: any) => ({
+      //   status: e.status,
+      //   level: e.level,
+      //   periode: e.periode,
+      // }));
+      // registAllPeriode = await Registration.getRegistrationFile(req);
+      // registAllPeriode = ArrayOfObjToObj(
+      //   registAllPeriode,
+      //   "periode_id",
+      //   "level",
+      //   "status",
+      //   "periode"
+      // );
+      // Object.keys(registAllPeriode).map((key: any, label: any) => {
+      //   registAllPeriode[`registNoteP${label + 1}`] = registAllPeriode[key];
+      //   delete registAllPeriode[key];
+      // });
+    }
     const sumDataBy = (data: any[], key: string) =>
       _.sumBy(data, (o) => o[key]);
     let targets: any = await Sales.getTargetByHirarki(req, key);
@@ -205,6 +229,10 @@ class SalesHelper2 {
       const pencapaian = parseFloat(percen) || 0;
       return {
         ...e,
+        ...(outlet_id && key === "outlet" && {
+          registStatus:
+            registThisPeriode?.status || "Level 1A - Formulir Tidak Ada",
+        }),
         [hirarki]: e[hirarkiName],
         target,
         aktual,
@@ -231,17 +259,21 @@ class SalesHelper2 {
     //     : a.pencapaian - b.pencapaian;
     // })
     // .slice(0, 5);
-    
+
     const show = req.validated.show || 10;
     const page = req.validated.page || 1;
     const totalPage = Math.ceil(result.length / show);
 
-    let asc = result.sort((a: any, b: any) => {
-      return a.pencapaian - b.pencapaian;
-    }).slice((page - 1) * show, page * show);
-    let desc = result.sort((a: any, b: any) => {
-      return b.pencapaian - a.pencapaian;
-    }).slice((page - 1) * show, page * show);
+    let asc = result
+      .sort((a: any, b: any) => {
+        return a.pencapaian - b.pencapaian;
+      })
+      .slice((page - 1) * show, page * show);
+    let desc = result
+      .sort((a: any, b: any) => {
+        return b.pencapaian - a.pencapaian;
+      })
+      .slice((page - 1) * show, page * show);
 
     // asc = asc.slice((page - 1) * show, page * show);
     // desc = desc.slice((page - 1) * show, page * show);

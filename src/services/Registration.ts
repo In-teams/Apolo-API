@@ -1,6 +1,7 @@
 import { Request } from "express";
 import { QueryTypes } from "sequelize";
 import db from "../config/db";
+import DateFormat from "../helpers/DateFormat";
 import FilterParams from "../helpers/FilterParams";
 
 let queryOutletCount =
@@ -253,13 +254,31 @@ class Registration {
     const { outlet_id } = req.validated;
     if (!type_file) type_file = 0;
     let query =
-      "SELECT f.*, s.status, f.filename AS file FROM trx_file_registrasi AS f INNER JOIN ms_status_registrasi AS s ON s.id = f.status_registrasi WHERE outlet_id = ? AND type_file = ?";
+      "SELECT f.*, s.status, s.level, f.filename AS file, p.periode FROM trx_file_registrasi AS f INNER JOIN ms_status_registrasi AS s ON s.id = f.status_registrasi INNER JOIN ms_periode_registrasi as p ON p.id = f.periode_id WHERE outlet_id = ? AND type_file = ?";
 
     return await db.query(query, {
       raw: true,
       type: QueryTypes.SELECT,
       replacements: [outlet_id, type_file],
     });
+  }
+  async getRegistrationFileThisPeriode(
+    req: Request,
+    type_file?: number
+  ): Promise<any> {
+    const { outlet_id } = req.validated;
+    const today: string = DateFormat.getToday("YYYY-MM-DD");
+    if (!type_file) type_file = 0;
+    let query =
+      "SELECT f.*, s.status, s.level, f.filename AS file, p.periode FROM trx_file_registrasi AS f INNER JOIN ms_status_registrasi AS s ON s.id = f.status_registrasi INNER JOIN ms_periode_registrasi as p ON p.id = f.periode_id WHERE (:today BETWEEN tgl_mulai AND tgl_selesai OR :today BETWEEN tgl_mulai AND tgl_selesai) AND outlet_id = :outlet_id AND type_file = :type_file";
+
+    const get = await db.query(query, {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: {today, outlet_id, type_file},
+    });
+
+    return get.length > 0 ? get[0] : null
   }
   async getRegistrationHistory(req: Request): Promise<any> {
     const { file_id } = req.validated;
@@ -334,9 +353,9 @@ class Registration {
       ","
     )})`;
     const createHistories: any[] = data.map((e: any) => {
-      delete e.id
-      return Object.values(e)
-    })
+      delete e.id;
+      return Object.values(e);
+    });
     await db.query(
       "INSERT INTO trx_history_file_registrasi (outlet_id, filename, tgl_upload, periode_id, uploaded_by, type_file) VALUES ?",
       {
@@ -703,7 +722,7 @@ class Registration {
       select = "ass.kode_pic AS ass_id, ass.nama_pic";
       groupBy = "ass_id";
     }
-    const q = `SELECT DISTINCT ${select}, COUNT(fr.id) AS registrasi FROM mstr_outlet AS o INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON dp.distributor_id = d.distributor_id INNER JOIN ms_pic AS p ON p.kode_pic = dp.asm_id INNER JOIN ms_pic AS ass ON ass.kode_pic = dp.ass_id INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN ms_city_alias AS c ON c.city_id_alias = o.city_id_alias INNER JOIN ms_head_region AS hr ON hr.head_region_id = reg.head_region_id LEFT JOIN trx_file_registrasi AS fr ON fr.outlet_id = o.outlet_id AND fr.type_file = 0 WHERE o.outlet_id IS NOT NULL`;
+    const q = `SELECT DISTINCT ${select}, COUNT(DISTINCT fr.outlet_id) AS registrasi FROM mstr_outlet AS o INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON dp.distributor_id = d.distributor_id INNER JOIN ms_pic AS p ON p.kode_pic = dp.asm_id INNER JOIN ms_pic AS ass ON ass.kode_pic = dp.ass_id INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN ms_city_alias AS c ON c.city_id_alias = o.city_id_alias INNER JOIN ms_head_region AS hr ON hr.head_region_id = reg.head_region_id LEFT JOIN trx_file_registrasi AS fr ON fr.outlet_id = o.outlet_id AND fr.type_file = 0 WHERE o.outlet_id IS NOT NULL`;
 
     let { query, params } = FilterParams.query(req, q);
     return await db.query(query + ` GROUP BY ${groupBy}`, {
