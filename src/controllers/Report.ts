@@ -47,6 +47,7 @@ class Report {
         res,
         true,
         {
+          countData: counts[0].total,
           totalPage,
           data,
         },
@@ -70,6 +71,7 @@ class Report {
         res,
         true,
         {
+          countData: outletCount[0].total,
           totalPage,
           data,
         },
@@ -93,6 +95,7 @@ class Report {
         res,
         true,
         {
+          countData: outletCount[0].total,
           totalPage,
           data,
         },

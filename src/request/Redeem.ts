@@ -109,7 +109,7 @@ class Redeem {
       return response(res, false, null, error.message, 400);
     }
     req.validated = value;
-    const isUploaded = await service.getRedeemFileById(req);
+    const isUploaded = await service.getRedeemFileByIdWithoutMonthFilter(req);
     if (!isUploaded) return response(res, false, null, "file not found", 404);
     next();
   }
@@ -286,7 +286,7 @@ class Redeem {
       // const isRegis = await Outlet.outletIsRegist(value.outlet_id);
       // if (!["Yes+", "Yes"].includes(isRegis))
       //   return response(res, false, null, "Belum registrasi", 400);
-      const isUploaded = await service.getRedeemFileById(req);
+      const isUploaded = await service.getRedeemFileByIdWithoutMonthFilter(req);
       if (!isUploaded) return response(res, false, null, "file not found", 404);
       if (["Level 4"].includes(isUploaded?.level))
         return response(res, false, null, "File sudah tervalidasi", 400);

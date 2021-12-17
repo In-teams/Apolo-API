@@ -298,6 +298,21 @@ class Redeem {
       return findOne ? findOne[0] : null;
     } catch (error) {}
   }
+  async getRedeemFileByIdWithoutMonthFilter(req: Request): Promise<any> {
+    try {
+      const { file_id, outlet_id } = req.validated;
+      // const thisMonth = new Date().getMonth() + 1;
+      const findOne = await db.query(
+        "SELECT fp.*, sp.level FROM trx_file_penukaran AS fp INNER JOIN ms_status_penukaran AS sp ON fp.`status_penukaran` = sp.`id` WHERE fp.id = ? AND outlet_id = ? LIMIT 1",
+        {
+          raw: true,
+          type: QueryTypes.SELECT,
+          replacements: [file_id, outlet_id],
+        }
+      );
+      return findOne ? findOne[0] : null;
+    } catch (error) {}
+  }
   async getPointSummary(req: Request): Promise<any> {
     let { query: pq, params: pp } = FilterParams.aktual(req, getPointQuery);
     let { query: prq, params: prp } = FilterParams.aktual(
