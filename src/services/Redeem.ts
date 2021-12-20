@@ -182,13 +182,13 @@ class Redeem {
   }
   async updateRedeemFile(data: any, t: any): Promise<any> {
     try {
-      const { outlet_id, filename, tgl_upload, user_id } = data;
+      const { outlet_id, filename, tgl_upload, user_id, file_id } = data;
       await db.query(
-        "UPDATE trx_file_penukaran SET filename = ?, tgl_upload = ?, uploaded_by = ? WHERE outlet_id = ?",
+        "UPDATE trx_file_penukaran SET filename = ?, tgl_upload = ?, uploaded_by = ? WHERE outlet_id = ? AND id = ?",
         {
           raw: true,
           type: QueryTypes.UPDATE,
-          replacements: [filename, tgl_upload, user_id, outlet_id],
+          replacements: [filename, tgl_upload, user_id, outlet_id, file_id],
           transaction: t,
         }
       );

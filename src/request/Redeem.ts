@@ -347,7 +347,7 @@ class Redeem {
         if (levelUser !== "1")
           return response(res, false, null, "Upload hanya bisa sekali", 400);
         await service.updateRedeemFile(
-          { ...req.validated.file, ...req.decoded },
+          { ...req.validated.file, ...req.decoded, file_id: isUploaded.id },
           t
         );
         t.commit();
