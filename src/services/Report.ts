@@ -346,6 +346,9 @@ class Report {
   async exportRedeemReport(data: any): Promise<any> {
     return await getRedeemReportQuery(data, false, false);
   }
+  async exportPointActivityReport(data: any): Promise<any> {
+    return await getPointActivityQuery(data, false, false);
+  }
   async getRegistrationReportCount(data: any): Promise<any> {
     return await getRegistrationReportQuery(data, true);
   }

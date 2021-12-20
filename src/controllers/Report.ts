@@ -89,7 +89,6 @@ class Report {
     try {
       const outletCount = await Service.getPointActivityCount(req.validated);
       const data = await Service.getPointActivity(req.validated);
-      // const show = req.validated.show || 10;
       const totalPage = req.validated.show ? Math.ceil(outletCount[0].total / req.validated.show) : 1;
       return response(
         res,
@@ -103,6 +102,19 @@ class Report {
         200
       );
     } catch (error) {
+      return response(res, false, null, error, 500);
+    }
+  }
+  async exportPointActivityReport(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      const data = await Service.exportPointActivityReport(req.validated);
+      const columns = data.length > 0 ? Object.keys(data[0]) : []
+      return await ExportExcel(res, columns, data)
+    } catch (error) {
+      console.log(error)
       return response(res, false, null, error, 500);
     }
   }
