@@ -15,8 +15,8 @@ class Report {
   ): Promise<object | undefined> {
     try {
       const data = await Service.exportRegistrationReport(req.validated);
-      const columns = data.length > 0 ? Object.keys(data[0]) : []
-      return await ExportExcel(res, columns, data)
+      const columns = data.length > 0 ? Object.keys(data[0]) : [];
+      return await ExportExcel(res, columns, data);
     } catch (error) {
       return response(res, false, null, error, 500);
     }
@@ -27,10 +27,10 @@ class Report {
   ): Promise<object | undefined> {
     try {
       const data = await Service.exportRedeemReport(req.validated);
-      const columns = data.length > 0 ? Object.keys(data[0]) : []
-      return await ExportExcel(res, columns, data)
+      const columns = data.length > 0 ? Object.keys(data[0]) : [];
+      return await ExportExcel(res, columns, data);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return response(res, false, null, error, 500);
     }
   }
@@ -42,7 +42,9 @@ class Report {
       const counts = await Service.getRegistrationReportCount(req.validated);
       const data = await Service.getRegistrationReport(req.validated);
       // const show = req.validated.show || 10;
-      const totalPage = req.validated.show ? Math.ceil(counts[0].total / req.validated.show) : 1;
+      const totalPage = req.validated.show
+        ? Math.ceil(counts[0].total / req.validated.show)
+        : 1;
       return response(
         res,
         true,
@@ -66,7 +68,9 @@ class Report {
       const outletCount = await Service.getRedeemReportCount(req.validated);
       const data = await Service.getRedeemReport(req.validated);
       // const show = req.validated.show || 10;
-      const totalPage = req.validated.show ? Math.ceil(outletCount[0].total / req.validated.show) : 1;
+      const totalPage = req.validated.show
+        ? Math.ceil(outletCount[0].total / req.validated.show)
+        : 1;
       return response(
         res,
         true,
@@ -88,8 +92,20 @@ class Report {
   ): Promise<object | undefined> {
     try {
       const outletCount = await Service.getPointActivityCount(req.validated);
-      const data = await Service.getPointActivity(req.validated);
-      const totalPage = req.validated.show ? Math.ceil(outletCount[0].total / req.validated.show) : 1;
+      let data = await Service.getPointActivity(req.validated);
+      data = NumberFormat(data, true, "target", "aktual");
+      data = NumberFormat(
+        data,
+        false,
+        "bulanan",
+        "kuartal",
+        "poin_achieve",
+        "poin_redeem",
+        "tersedia"
+      );
+      const totalPage = req.validated.show
+        ? Math.ceil(outletCount[0].total / req.validated.show)
+        : 1;
       return response(
         res,
         true,
@@ -102,6 +118,7 @@ class Report {
         200
       );
     } catch (error) {
+      console.log(error);
       return response(res, false, null, error, 500);
     }
   }
@@ -111,10 +128,10 @@ class Report {
   ): Promise<object | undefined> {
     try {
       const data = await Service.exportPointActivityReport(req.validated);
-      const columns = data.length > 0 ? Object.keys(data[0]) : []
-      return await ExportExcel(res, columns, data)
+      const columns = data.length > 0 ? Object.keys(data[0]) : [];
+      return await ExportExcel(res, columns, data);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return response(res, false, null, error, 500);
     }
   }

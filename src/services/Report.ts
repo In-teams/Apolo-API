@@ -84,9 +84,9 @@ const getRegistrationReportQuery = async (
     query += " AND dp.ass_id = :ass_id";
   }
   if (status_registrasi) {
-    if(+status_registrasi === 1){
+    if (+status_registrasi === 1) {
       query += " AND status_registrasi IS NULL";
-    }else{
+    } else {
       query += " AND status_registrasi = :status_registrasi";
     }
   }
@@ -199,9 +199,9 @@ const getRedeemReportQuery = async (
   }
 
   if (status_redeem) {
-    if(+status_redeem === 1){
+    if (+status_redeem === 1) {
       query += " AND status_penukaran IS NULL";
-    }else{
+    } else {
       query += " AND status_penukaran = :status_redeem";
     }
   }
@@ -230,7 +230,7 @@ const getRedeemReportQuery = async (
       month,
       quarter_id,
       level,
-      status_redeem
+      status_redeem,
     },
   });
 };
@@ -253,6 +253,8 @@ const getPointActivityQuery = async (
     distributor_id,
     show,
     page = 1,
+    order = "outlet_id",
+    sort = "ASC",
   } = data;
   let thisPage = show * page - show;
   const filterMonth = month ? " AND b.id = :month" : "";
@@ -284,15 +286,27 @@ const getPointActivityQuery = async (
     query += " AND o.ass_id = :ass_id";
   }
   if (level) {
-    if(parseInt(level) === 1){
+    if (parseInt(level) === 1) {
       query += " AND level IS NULL";
-    }else{
-      level = `Level ${level}`
+    } else {
+      level = `Level ${level}`;
       query += " AND level = :level";
     }
   }
 
-  query += " ORDER BY o.outlet_id"
+  if (order === "outlet_id") {
+    query += ` ORDER BY o.${order} ${sort}`;
+  } else if (order === "pencapaian") {
+    query += ` ORDER BY ((IFNULL(aktual, 0) / target) * 100) ${sort}`;
+  } else if (order === "bulanan") {
+    query += ` ORDER BY poin_reguler ${sort}`;
+  } else if (order === "tersedia") {
+    query += ` ORDER BY (IFNULL(poin_achieve, 0) - IFNULL(poin_redeem, 0)) ${sort}`;
+  } else if (order === "kuartal") {
+    query += ` ORDER BY poin_bonus ${sort}`;
+  } else {
+    query += ` ORDER BY ${order} ${sort}`;
+  }
 
   if (!isCount && isPaging && show) {
     thisPage = show * page - show;

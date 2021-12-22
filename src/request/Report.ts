@@ -5,6 +5,19 @@ import response from "../helpers/Response";
 
 class Report {
   get(req: Request, res: Response, next: NextFunction): any {
+    const orders = [
+      "outlet_id",
+      "outlet_name",
+      "status",
+      "type",
+      "level",
+      "target",
+      "aktual",
+      "pencapaian",
+      "bulanan",
+      "kuartal",
+      "poin_redeem", "poin_achieve", "tersedia"
+    ];
     let status_registrasi = [];
     for (let i = 1; i <= 13; i++) {
       status_registrasi.push(i);
@@ -27,9 +40,7 @@ class Report {
       status_registrasi: joi.number().valid(...status_registrasi),
       status_redeem: joi.number().valid(...status_registrasi),
       asm_id: joi.string(),
-      order: joi
-        .string()
-        .valid("outlet_id", "outlet_name", "status", "type", "level"),
+      order: joi.string().valid(...orders),
       sort: joi.string().valid("asc", "desc"),
     });
 
