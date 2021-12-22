@@ -388,13 +388,29 @@ class Registration {
     res: Response
   ): Promise<object | undefined> {
     try {
-      const thisPeriode = await Periode.checkData(req)
+      const items = [
+        "1A",
+        "2A",
+        "3A",
+        "3B",
+        "3C",
+        "3D",
+        "3E",
+        "3F",
+        "3G",
+        "3H",
+        "4A",
+        "4B",
+        "4C",
+      ];
+      const thisPeriode = await Periode.checkData(req);
       req.validated = {
         ...req.validated,
-        periode_id: req.validated.periode_id || thisPeriode[0].id
-      }
+        periode_id: req.validated.periode_id || thisPeriode[0].id,
+      };
       let regist: any[] = await Service.getRegistrationSummaryByLevel(req);
       let status: any[] = await Service.getDistinctRegistrationStatus();
+      let statusLengkap: any[] = await Service.getRegistrationStatus();
       status = status
         .map((e: any) => {
           return e.level;
@@ -405,6 +421,45 @@ class Registration {
               level: e,
               total: 0,
               "1A": 0,
+              "1Astatus": statusLengkap
+                .find((z: any) => z.level_status.includes("1A"))
+                .status.substring(11),
+              "2Astatus": statusLengkap
+                .find((z: any) => z.level_status.includes("2A"))
+                .status.substring(11),
+              "3Astatus": statusLengkap
+                .find((z: any) => z.level_status.includes("3A"))
+                .status.substring(11),
+              "3Bstatus": statusLengkap
+                .find((z: any) => z.level_status.includes("3B"))
+                .status.substring(11),
+              "3Cstatus": statusLengkap
+                .find((z: any) => z.level_status.includes("3C"))
+                .status.substring(11),
+              "3Dstatus": statusLengkap
+                .find((z: any) => z.level_status.includes("3D"))
+                .status.substring(11),
+              "3Estatus": statusLengkap
+                .find((z: any) => z.level_status.includes("3E"))
+                .status.substring(11),
+              "3Fstatus": statusLengkap
+                .find((z: any) => z.level_status.includes("3F"))
+                .status.substring(11),
+              "3Gstatus": statusLengkap
+                .find((z: any) => z.level_status.includes("3G"))
+                .status.substring(11),
+              "3Hstatus": statusLengkap
+                .find((z: any) => z.level_status.includes("3H"))
+                .status.substring(11),
+              "4Astatus": statusLengkap
+                .find((z: any) => z.level_status.includes("4A"))
+                .status.substring(11),
+              "4Bstatus": statusLengkap
+                .find((z: any) => z.level_status.includes("4B"))
+                .status.substring(11),
+              "4Cstatus": statusLengkap
+                .find((z: any) => z.level_status.includes("4C"))
+                .status.substring(11),
               "2A": 0,
               "3A": 0,
               "3B": 0,
@@ -420,10 +475,25 @@ class Registration {
             });
           }
         });
-      regist = _.sortBy(regist, ['level'])
+      regist = _.sortBy(regist, ["level"]);
+      regist = regist.map((e: any) => {
+        let add: any = {};
+        items
+          .filter((x: any) => x.includes(e.level.split(" ").pop()))
+          .map((b: any) => {
+            add[b] = e[b];
+            add[`${b}percent`] = e[`${b}percent`];
+            add[`${b}status`] = e[`${b}status`] || statusLengkap
+            .find((z: any) => z.level_status.includes(b))
+            ?.status.substring(11);
+            // if (e[b] !== 0) {
+            // }
+          });
+        return { level: e.level, total: e.total, ...add };
+      });
       return response(res, true, regist, null, 200);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return response(res, false, null, error, 500);
     }
   }
