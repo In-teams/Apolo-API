@@ -249,7 +249,7 @@ class Registration {
     }
     let status: any[] = await this.getRegistrationStatus();
     let countLevelStatusQuery =
-      "COUNT(CASE WHEN level_status IS NULL THEN o.`outlet_id` END) AS 1A, CONCAT(TRUNCATE((COUNT(CASE WHEN level_status IS NULL THEN o.`outlet_id` END)/COUNT(o.outlet_id) * 100), 2), '%') AS 1Apercent";
+      "COUNT(CASE WHEN level_status IS NULL THEN o.`outlet_id` END) AS A1, CONCAT(TRUNCATE((COUNT(CASE WHEN level_status IS NULL THEN o.`outlet_id` END)/COUNT(o.outlet_id) * 100), 2), '%') AS A1percent";
     status.slice(1).forEach((e: any) => {
       countLevelStatusQuery += `, COUNT(CASE WHEN level_status = '${e.level_status}' THEN o.outlet_id END) AS ${e.level_status}, CONCAT(TRUNCATE((COUNT(CASE WHEN level_status = '${e.level_status}' THEN o.outlet_id END)/COUNT(o.outlet_id) * 100), 2), '%') AS ${e.level_status}percent`;
     });
