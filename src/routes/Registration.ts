@@ -25,6 +25,7 @@ class Registration implements IRouter {
     this.router.get("/summary/outlet", RegistrationRequest.get, RegistrationController.getRegistrationSummaryByOutlet); // summary by outlet
     this.router.get("/summary/asm", AccessMiddleware.area, RegistrationRequest.get, RegistrationController.getRegistrationSummaryByASM); // summary by asm
     this.router.get("/summary/ass", AccessMiddleware.distributor, RegistrationRequest.get, RegistrationController.getRegistrationSummaryByASS); // summary by ass
+    this.router.get("/summary/level", RegistrationRequest.get, RegistrationController.getRegistrationSummaryByLevel); // summary by level
     this.router.post("/", RegistrationRequest.post, RegistrationController.post); // upload registration file
     this.router.post("/bulky", RegistrationRequest.postBulky, Upload("registration"), RegistrationController.postBulky); // upload registration file
     this.router.put("/:outlet_id", RegistrationRequest.update, RegistrationController.update); // update outlet data

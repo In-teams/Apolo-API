@@ -333,6 +333,7 @@ class Sales {
       const match = outlet.map((e: any) => {
         const target = targets[e.outlet_id]?.target || 0;
         const aktual = +aktuals[e.outlet_id]?.aktual || 0;
+        const diff = aktual - target
         const outlet = targets[e.outlet_id]?.outlet || 0;
         const ao = aktuals[e.outlet_id]?.outlet || 0;
         const aoro = ((ao / outlet) * 100).toFixed(2) + "%";
@@ -345,6 +346,7 @@ class Sales {
           aoro,
           aktual,
           target,
+          diff,
           outlet,
           pencapaian: ((aktual / target) * 100).toFixed(2) + "%",
           cluster: getCluster(aktual, target).cluster,
@@ -359,6 +361,7 @@ class Sales {
           id: items[0].id,
           aktual: sumDataBy(items, "aktual"),
           target: sumDataBy(items, "target"),
+          diff: sumDataBy(items, "aktual") - sumDataBy(items, "target"),
           outlet: sumDataBy(items, "outlet"),
           ao: sumDataBy(items, "ao"),
           aoro: getPercentage(
@@ -380,6 +383,7 @@ class Sales {
           aktual: sumData(match, "aktual"),
           target: sumData(match, "target"),
           outlet: sumData(match, "outlet"),
+          diff: sumData(match, "outlet"),
           ao: sumData(match, "ao"),
           aoro: getPercentage(sumData(match, "ao"), sumData(match, "outlet")),
           bobot_outlet: getPercentage(
@@ -400,7 +404,7 @@ class Sales {
           ),
         })
         .value();
-      grouping = NumberFormat(grouping, true, "target", "aktual");
+      grouping = NumberFormat(grouping, true, "target", "aktual", "diff");
       return response(res, true, grouping, null, 200);
     } catch (error) {
       console.log(error);

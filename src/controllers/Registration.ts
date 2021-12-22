@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import _ from "lodash";
 import config from "../config/app";
 import db from "../config/db";
 import DateFormat from "../helpers/DateFormat";
@@ -8,6 +9,7 @@ import RegistrationHelper from "../helpers/RegistrationHelper";
 import response from "../helpers/Response";
 import Outlet from "../services/Outlet";
 import Service from "../services/Registration";
+import Periode from "../services/Periode";
 
 class Registration {
   async getFile(req: Request, res: Response): Promise<object | undefined> {
@@ -378,6 +380,50 @@ class Registration {
       regist = RegistrationHelper(regist, "nama_pic");
       return response(res, true, regist, null, 200);
     } catch (error) {
+      return response(res, false, null, error, 500);
+    }
+  }
+  async getRegistrationSummaryByLevel(
+    req: Request,
+    res: Response
+  ): Promise<object | undefined> {
+    try {
+      const thisPeriode = await Periode.checkData(req)
+      req.validated = {
+        ...req.validated,
+        periode_id: req.validated.periode_id || thisPeriode[0].id
+      }
+      let regist: any[] = await Service.getRegistrationSummaryByLevel(req);
+      let status: any[] = await Service.getDistinctRegistrationStatus();
+      status = status
+        .map((e: any) => {
+          return e.level;
+        })
+        .map((e: any) => {
+          if (!regist.find((a: any) => a.level === e)) {
+            regist.push({
+              level: e,
+              total: 0,
+              "1A": 0,
+              "2A": 0,
+              "3A": 0,
+              "3B": 0,
+              "3C": 0,
+              "3D": 0,
+              "3E": 0,
+              "3F": 0,
+              "3G": 0,
+              "3H": 0,
+              "4A": 0,
+              "4B": 0,
+              "4C": 0,
+            });
+          }
+        });
+      regist = _.sortBy(regist, ['level'])
+      return response(res, true, regist, null, 200);
+    } catch (error) {
+      console.log(error)
       return response(res, false, null, error, 500);
     }
   }

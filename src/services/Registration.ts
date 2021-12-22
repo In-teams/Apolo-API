@@ -238,6 +238,33 @@ class Registration {
       }
     );
   }
+  async getRegistrationSummaryByLevel(req: Request): Promise<any> {
+    const {periode_id, month_id, quarter_id} = req.validated
+    let subQueryForm = ''
+    if(month_id){
+      subQueryForm += ` AND MONTH(tgl_upload) = ${month_id}`
+    }
+    if(quarter_id){
+      subQueryForm += ` AND MONTH(tgl_upload) IN(${quarter_id})`
+    }
+    let status: any[] = await this.getRegistrationStatus();
+    let countLevelStatusQuery =
+      "COUNT(CASE WHEN level_status IS NULL THEN o.`outlet_id` END) AS 1A, CONCAT(TRUNCATE((COUNT(CASE WHEN level_status IS NULL THEN o.`outlet_id` END)/COUNT(o.outlet_id) * 100), 2), '%') AS 1Apercent";
+    status.slice(1).forEach((e: any) => {
+      countLevelStatusQuery += `, COUNT(CASE WHEN level_status = '${e.level_status}' THEN o.outlet_id END) AS ${e.level_status}, CONCAT(TRUNCATE((COUNT(CASE WHEN level_status = '${e.level_status}' THEN o.outlet_id END)/COUNT(o.outlet_id) * 100), 2), '%') AS ${e.level_status}percent`;
+    });
+
+    let query = `SELECT IFNULL(level, 'Level 1') AS level, COUNT(o.outlet_id) AS total, ${countLevelStatusQuery} FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN mstr_distributor AS d ON o.distributor_id = d.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN ms_pic AS pic ON pic.kode_pic = dp.ass_id LEFT JOIN (SELECT fp.*, sp.level, sp.status, sp.level_status FROM trx_file_registrasi AS fp LEFT JOIN ms_status_registrasi AS sp ON sp.id = fp.status_registrasi LEFT JOIN ms_periode_registrasi AS pr ON pr.id = fp.periode_id WHERE fp.type_file = 0 AND (periode_id = ? OR periode_id IS NULL)${subQueryForm}) AS a ON a.outlet_id = o.outlet_id WHERE 1=1`;
+
+    const {query: newQuery, params} = FilterParams.register(req, query, false)
+
+
+    return await db.query(newQuery + " GROUP BY level ORDER BY level", {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: [periode_id, ...params]
+    });
+  }
   async getLastRegistration(req: Request): Promise<any> {
     let q =
       "SELECT rf.outlet_id, rf.tgl_upload, o.outlet_name FROM trx_file_registrasi AS rf INNER JOIN mstr_outlet AS o ON o.outlet_id = rf.outlet_id INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg. pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE rf.type_file = 0";
@@ -275,10 +302,10 @@ class Registration {
     const get = await db.query(query, {
       raw: true,
       type: QueryTypes.SELECT,
-      replacements: {today, outlet_id, type_file},
+      replacements: { today, outlet_id, type_file },
     });
 
-    return get.length > 0 ? get[0] : null
+    return get.length > 0 ? get[0] : null;
   }
   async getRegistrationHistory(req: Request): Promise<any> {
     const { file_id } = req.validated;
@@ -527,8 +554,16 @@ class Registration {
       replacements: [filename, tgl_upload, 2, user_id, outlet_id, periode_id],
     });
   }
-  async getRegistrationStatus(req: Request): Promise<any> {
+  async getRegistrationStatus(req?: Request): Promise<any> {
     let query = "SELECT * FROM ms_status_registrasi";
+
+    return await db.query(query, {
+      raw: true,
+      type: QueryTypes.SELECT,
+    });
+  }
+  async getDistinctRegistrationStatus(req?: Request): Promise<any> {
+    let query = "SELECT DISTINCT level FROM ms_status_registrasi";
 
     return await db.query(query, {
       raw: true,
