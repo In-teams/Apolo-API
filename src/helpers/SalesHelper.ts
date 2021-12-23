@@ -45,6 +45,7 @@ class SalesHelper {
       {
         aktual,
         target,
+        diff: aktual - target,
         poin,
         outlets,
         [type]: type !== "Aktual" ? "Total Pencapaian" : "Total",
