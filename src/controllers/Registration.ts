@@ -408,6 +408,8 @@ class Registration {
         ...req.validated,
         periode_id: req.validated.periode_id || thisPeriode[0].id,
       };
+      let outletCount = await Outlet.getOutletCount(req)
+      outletCount = outletCount[0].total
       let regist: any[] = await Service.getRegistrationSummaryByLevel(req);
       let status: any[] = await Service.getDistinctRegistrationStatus();
       let statusLengkap: any[] = await Service.getRegistrationStatus();
@@ -482,7 +484,7 @@ class Registration {
           .filter((x: any) => x.includes(e.level.split(" ").pop()))
           .map((b: any) => {
             add[b] = e[b];
-            add[`${b}percent`] = e[`${b}percent`];
+            add[`${b}percent`] = ((e[b]/outletCount) * 100).toFixed(2) + '%';
             add[`${b}status`] = e[`${b}status`] || statusLengkap
             .find((z: any) => z.level_status.includes(b))
             ?.status.substring(11);
