@@ -26,9 +26,35 @@ class Report {
     res: Response
   ): Promise<object | undefined> {
     try {
-      const data = await Service.exportRedeemReport(req.validated);
-      const columns = data.length > 0 ? Object.keys(data[0]) : [];
-      return await ExportExcel(res, columns, data);
+      const data: any[] = await Service.exportRedeemReport(req.validated);
+      const custom: any[] = data.map((e: any) => ({
+        outlet_dms: "-",
+        outlet_scylla: e.outlet_id,
+        outlet_name: e.outlet_name,
+        kode: "-",
+        product_name: e.nama_produk,
+        qty: e.quantity,
+        poin: e.point_satuan,
+        total: e.point_total,
+        no_tujuan: e.no_handphone,
+        level: e.level,
+        status: e.status,
+        penukaran: e.penukaran,
+        proses: e.proses,
+        otorisasi: e.otorisasi,
+        pengadaan: e.pengadaan,
+        kirim: e.kirim,
+        terima: e.terima,
+        penerima: e.nama_penerima,
+        status_pengiriman: e.status_terima,
+        type: e.type,
+        nama_file: e.filename,
+        kode_transaksi: e.kd_transaksi,
+        pod: "-",
+        no_invoice: "-",
+      }));
+      const columns = data.length > 0 ? Object.keys(custom[0]) : [];
+      return await ExportExcel(res, columns, custom);
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
