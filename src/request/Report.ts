@@ -36,7 +36,7 @@ class Report {
       outlet_id: joi.string(),
       distributor_id: joi.string(),
       ass_id: joi.string(),
-      status_terima: joi.number().valid(1, 2, 3, 4),
+      status_terima: joi.number().valid(1, 2, 3, 4), // 1 = otorisasi. 2 = pengadaan. 3 = proses pengiriman. 4 = telah diterima 
       status_registrasi: joi.number().valid(...status_registrasi),
       status_redeem: joi.number().valid(...status_registrasi),
       asm_id: joi.string(),

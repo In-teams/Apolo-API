@@ -144,7 +144,7 @@ class Report {
         200
       );
     } catch (error) {
-      console.log(error);
+      console.log(error, "<<<<<<<");
       return response(res, false, null, error, 500);
     }
   }
