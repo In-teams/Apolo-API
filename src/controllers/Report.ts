@@ -50,7 +50,7 @@ class Report {
         type: e.type,
         nama_file: e.filename,
         kode_transaksi: e.kd_transaksi,
-        pod: "-",
+        pod: e.pod,
         no_invoice: "-",
       }));
       const columns = data.length > 0 ? Object.keys(custom[0]) : [];
