@@ -19,6 +19,78 @@ let queryAktualAndPoint: string =
 let queryOutletCount =
   "SELECT COUNT(DISTINCT ou.outlet_id) AS total FROM mstr_outlet AS ou INNER JOIN ms_pulau_alias AS r ON ou.`region_id` = r. `pulau_id_alias` INNER JOIN ms_dist_pic AS pic ON ou.`distributor_id` = pic.`distributor_id` WHERE ou.`outlet_id` IS NOT NULL";
 
+  const getTarget = (data: any, col: string) => {
+    let query = `SELECT ${col} FROM ( SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS st INNER JOIN ms_bulan AS b ON b.bulan = month_target WHERE 1 = 1`;
+  
+    const { month_id, quarter_id } = data;
+    if (month_id) {
+      query += " AND b.id = :month_id";
+    }
+    if (quarter_id) {
+      query += " AND b.id IN(:quarter_id)";
+    }
+    return query;
+  };
+  const getAktual = (data: any) => {
+    let query = `SELECT SUM(trb.sales) AS aktual, SUM(trb.point_satuan) AS achieve, tr.no_id FROM trx_transaksi tr INNER JOIN trx_transaksi_barang trb ON trb.kd_transaksi = tr.kd_transaksi INNER JOIN ms_bulan AS b ON b.id = MONTH(tr.tgl_transaksi) WHERE 1 = 1`;
+  
+    const { month_id, quarter_id } = data;
+    if (month_id) {
+      query += " AND b.id = :month_id";
+    }
+    if (quarter_id) {
+      query += " AND b.id IN(:quarter_id)";
+    }
+    return query;
+  };
+  let getOutlet =
+  "SELECT COUNT(outlet_id) FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = r.head_region_id INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id INNER JOIN mstr_distributor as d ON d.distributor_id = o.distributor_id INNER JOIN ms_city_alias as c ON c.city_id_alias = o.city_id_alias WHERE 1 = 1";
+
+  const getSalesByHirarki = (hirarki: string, payload: any, isCount: boolean = false) => {
+    const { sort = "DESC", show = 10, page = 1 } = payload;
+    const thisPage = show * page - show;
+    let cols = "",
+      groupBy = "";
+    if (hirarki === "wilayah") {
+      cols =
+        "mhr.head_region_id, mhr.head_region_name, mhr.head_region_name AS wilayah";
+      groupBy = "mhr.head_region_id";
+    } else if (hirarki === "region") {
+      cols =
+        "r.pulau_id_alias AS region_id, r.nama_pulau_alias AS region_name, r.nama_pulau_alias AS region";
+      groupBy = "region_id";
+    } else if (hirarki === "distributor") {
+      cols =
+        "d.distributor_name as distributor, d.distributor_id, d.distributor_name";
+      groupBy = "distributor";
+    } else if (hirarki === "area") {
+      cols = "c.city_name_alias as area_name, c.city_id_alias as area_id";
+      groupBy = "area_name";
+    } else if (hirarki === "outlet") {
+      cols = "o.outlet_name as outlet_name";
+      groupBy = "outlet_name";
+    } else if (hirarki === "asm") {
+      cols = "mp.nama_pic as nama_pic, pic.asm_id";
+      groupBy = "nama_pic";
+    } else if (hirarki === "ass") {
+      cols = "mp.nama_pic as nama_pic, pic.ass_id";
+      groupBy = "nama_pic";
+    }
+  
+    let target = getTarget(payload, "SUM(st.target_sales) AS target, outlet_id");
+    let aktual = getAktual(payload)
+    let totalTarget = getTarget(payload, "SUM(st.target_sales) AS target");
+    let outlets = filterParams.sales(getOutlet, payload);
+    let query = `SELECT ${cols}, CONCAT(TRUNCATE((SUM(aktual)/(${totalTarget})) * 100, 2), '%') AS kontribusi, SUM(target) AS target, SUM(aktual) AS aktual, TRUNCATE(SUM(aktual) / SUM(target) * 100, 2) AS pencapaian, CONCAT( TRUNCATE(SUM(aktual) / SUM(target) * 100, 2), '%' ) AS percentage, SUM(redeem) AS redeem, SUM(achieve) AS achieve, COUNT(o.outlet_id) AS outlet, IFNULL(SUM(registrasi), 0) AS regist, ( COUNT(o.outlet_id) - IFNULL(SUM(registrasi), 0) ) AS notregist, CONCAT( TRUNCATE( (IFNULL(SUM(registrasi), 0)) / COUNT(o.outlet_id) * 100, 2 ), '%' ) AS regist_progress, COUNT(a.no_id) AS ao, CONCAT( TRUNCATE(COUNT(a.no_id) / COUNT(o.outlet_id) * 100, 2), '%' ) AS aoro, SUM(achieve) - SUM(redeem) AS diff_point, SUM(aktual) - SUM(target) AS diff, (${totalTarget}) AS total_target, CONCAT( TRUNCATE( SUM(target) /(${totalTarget}) * 100, 2 ), '%' ) AS bobot_target, (${outlets}) AS total_outlet, CONCAT( TRUNCATE( ( COUNT(o.outlet_id) /(${outlets}) * 100 ), 2 ), '%' ) AS bobot_outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = r.head_region_id INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id INNER JOIN mstr_distributor as d ON d.distributor_id = o.distributor_id INNER JOIN ms_city_alias as c ON c.city_id_alias = o.city_id_alias LEFT JOIN ( ${target} GROUP BY outlet_id ) AS t ON t.outlet_id = o.outlet_id LEFT JOIN (${aktual} GROUP BY tr.no_id) AS a ON a.no_id = o.outlet_id LEFT JOIN ( SELECT CAST( SUM(trrb.point_satuan * trrb.quantity) AS DECIMAL(20, 2) ) AS redeem, tr.no_id FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trrb ON tr.kd_transaksi = trrb.kd_transaksi WHERE 1 = 1 GROUP BY tr.no_id ) AS b ON b.no_id = o.outlet_id LEFT JOIN ( SELECT COUNT(DISTINCT fr.outlet_id) AS registrasi, fr.outlet_id FROM trx_file_registrasi AS fr WHERE 1 = 1 GROUP BY fr.outlet_id ) AS d ON d.outlet_id = o.outlet_id WHERE 1 = 1`;
+  
+    query = filterParams.sales(query, payload);
+    query += ` GROUP BY ${groupBy} ORDER BY pencapaian ${sort}`;
+    if (!isCount) {
+      query += ` LIMIT ${show} OFFSET ${thisPage}`;
+    }
+    return query;
+  };
+
 class Sales {
   async getOutletCount(req: Request): Promise<{ target: number }[]> {
     let { query: newQuery, params } = filterParams.count(req, queryOutletCount);
@@ -192,34 +264,14 @@ class Sales {
       replacements: [...pt, ...pa, ...pt, ...pa, ...params],
     });
   }
-  async getSalesByAchiev(req: Request) {
-    const { month_id, quarter_id } = req.validated;
-    let { query: qt, params: pt } = filterParams.target(
-      req,
-      queryTargetByOutlet
-    );
+  async getSalesByAchiev(data: any) {
+    const sub = getSalesByHirarki("outlet", data, true);
+    const query = `SELECT CASE WHEN ((aktual / target) * 100) <= 0 OR ((aktual / target) * 100) IS NULL THEN 'ZERO ACHIEVER <= 0%' WHEN ((aktual / target) * 100) > 0 AND ((aktual / target) * 100) < 70 THEN 'LOW ACHIEVER > 0%' WHEN ((aktual / target) * 100) >= 70 AND ((aktual / target) * 100) < 90 THEN 'NEAR ACHIEVER >= 70%' WHEN ((aktual / target) * 100) >= 90 AND ((aktual / target) * 100) < 100 THEN 'HIGH ACHIEVER >= 90%' WHEN ((aktual / target) * 100) >= 100 THEN 'TOP ACHIEVER >= 100%' END AS cluster, CASE WHEN ((aktual / target) * 100) <= 0 OR ((aktual / target) * 100) IS NULL THEN '1' WHEN ((aktual / target) * 100) > 0 AND ((aktual / target) * 100) < 70 THEN '2' WHEN ((aktual / target) * 100) >= 70 AND ((aktual / target) * 100) < 90 THEN '3' WHEN ((aktual / target) * 100) >= 90 AND ((aktual / target) * 100) < 100 THEN '4' WHEN ((aktual / target) * 100) >= 100 THEN '5' END AS id, SUM(target) AS target, SUM(aktual) AS aktual, SUM(aktual) - SUM(target) AS diff, SUM(ao) AS ao, SUM(outlet) AS outlet, CONCAT(TRUNCATE(SUM(ao) / SUM(outlet) * 100, 2), '%') AS aoro, total_target, total_outlet, CONCAT( TRUNCATE(SUM(outlet) / total_outlet * 100, 2), '%' ) AS bobot_outlet, CONCAT( TRUNCATE(SUM(outlet) / total_outlet * 100, 2), '%' ) AS bobot_outlet FROM (${sub}) AS sub GROUP BY cluster`
 
-    qt += " GROUP BY outlet_id";
-    let query = `SELECT mst.target, o.outlet_id, SUM(trb.sales) AS sales, CASE WHEN ROUND((SUM(trb.sales) / mst.target) * 100, 5) < 25 OR trb.sales IS NULL THEN '0% - 25%' WHEN ROUND((SUM(trb.sales) / mst.target) * 100, 5) >= 25 AND ROUND((SUM(trb.sales) / mst.target) * 100, 5) < 50 THEN '25% - 50%' WHEN ROUND((SUM(trb.sales) / mst.target) * 100, 5) >= 50 AND ROUND((SUM(trb.sales) / mst.target) * 100, 5) < 75 THEN '50% - 75%' WHEN ROUND((SUM(trb.sales) / mst.target) * 100, 5) >= 75 AND ROUND((SUM(trb.sales) / mst.target) * 100, 5) < 95 THEN '75% - 95%' WHEN ROUND((SUM(trb.sales) / mst.target) * 100, 5) >= 95 AND ROUND((SUM(trb.sales) / mst.target) * 100, 5) < 100 THEN '95 - 100%' ELSE '>= 100%' END AS cluster, CASE WHEN ROUND((SUM(trb.sales) / mst.target) * 100, 5) < 25 OR trb.sales IS NULL THEN '1' WHEN ROUND((SUM(trb.sales) / mst.target) * 100, 5) >= 25 AND ROUND((SUM(trb.sales) / mst.target) * 100, 5) < 50 THEN '2' WHEN ROUND((SUM(trb.sales) / mst.target) * 100, 5) >= 50 AND ROUND((SUM(trb.sales) / mst.target) * 100, 5) < 75 THEN '2' WHEN ROUND((SUM(trb.sales) / mst.target) * 100, 5) >= 75 AND ROUND((SUM(trb.sales) / mst.target) * 100, 5) < 95 THEN '3' WHEN ROUND((SUM(trb.sales) / mst.target) * 100, 5) >= 95 AND ROUND((SUM(trb.sales) / mst.target) * 100, 5) < 100 THEN '4' ELSE '5' END AS cluster_id FROM mstr_outlet AS o LEFT JOIN trx_transaksi AS tr ON tr.no_id = o.outlet_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN ms_pulau_alias AS r ON o. region_id = r.pulau_id_alias INNER JOIN ms_head_region AS hr ON r.head_region_id = hr.head_region_id LEFT JOIN trx_transaksi_barang AS trb ON trb.kd_transaksi = tr.kd_transaksi INNER JOIN (${qt}) AS mst ON mst.outlet_id = o.outlet_id WHERE o.outlet_id IS NOT NULL`;
-
-    let { query: newQ, params: newP } = filterParams.query(req, query);
-    if (month_id) {
-      newQ += " AND MONTH(tr.tgl_transaksi) = ?";
-      newP.push(month_id);
-    }
-
-    if (quarter_id) {
-      newQ += " AND MONTH(tr.tgl_transaksi) IN(?)";
-      newP.push(quarter_id);
-    }
-    newQ += " GROUP BY outlet_id";
-
-    let newQuery = `SELECT cluster, SUM(target) AS target, SUM(sales) AS aktual, COUNT(outlet_id) AS outlet FROM (${newQ}) AS custom GROUP BY cluster ORDER BY cluster_id`;
-
-    return await db.query(newQuery, {
+    return await db.query(query, {
       raw: true,
       type: QueryTypes.SELECT,
-      replacements: [...pt, ...newP],
+      replacements: data,
     });
   }
   async getSummaryPerQuarter(req: Request) {
@@ -437,6 +489,14 @@ class Sales {
     });
 
     return ArrayOfObjToObj(data, "bulan", "target", "outlet")
+  }
+  async getSalesByHirarki(hirarki: string, data: any) {
+    const query = getSalesByHirarki(hirarki, data);
+    return await db.query(query, {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: data,
+    });
   }
 }
 

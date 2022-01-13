@@ -328,6 +328,41 @@ class filterParams {
 
     return { query, params };
   }
+  sales(query: string, data: any){
+    const {
+      outlet_id,
+      area_id,
+      wilayah_id,
+      distributor_id,
+      region_id,
+      ass_id,
+      asm_id,
+    } = data;
+
+    if (distributor_id) {
+      query += " AND o.distributor_id = :distributor_id";
+    }
+    if (region_id) {
+      query += " AND o.region_id = :region_id";
+    }
+    if (outlet_id) {
+      query += " AND o.outlet_id = :outlet_id";
+    }
+    if (area_id) {
+      query += " AND o.city_id_alias = :area_id";
+    }
+    if (wilayah_id) {
+      query += " AND r.head_region_id = :wilayah_id";
+    }
+    if (ass_id) {
+      query += " AND pic.ass_id = :ass_id";
+    }
+    if (asm_id) {
+      query += " AND pic.asm_id = :asm_id";
+    }
+
+    return query;
+  }
 }
 
 export default new filterParams();

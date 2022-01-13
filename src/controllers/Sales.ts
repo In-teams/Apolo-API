@@ -29,22 +29,51 @@ const getCluster = (
   return { cluster: "TOP ACHIEVER >= 100%", id: 1 };
 };
 
+const getSalesByHirarki = async (
+  hirarki: string,
+  payload: any
+): Promise<any> => {
+  // asc
+  let asc = await Service.getSalesByHirarki(hirarki, {
+    ...payload,
+    sort: "ASC",
+  });
+  asc = NumberFormat(asc, true, "aktual", "target", "diff");
+  asc = NumberFormat(asc, false, "achieve", "redeem", "diff_point");
+
+  // desc
+  let desc = await Service.getSalesByHirarki(hirarki, {
+    ...payload,
+    sort: "DESC",
+  });
+  desc = NumberFormat(desc, true, "aktual", "target", "diff");
+  desc = NumberFormat(desc, false, "achieve", "redeem", "diff_point");
+
+  return { asc, desc };
+};
+
 class Sales {
   async getSummaryByDistributor(
     req: Request,
     res: Response
   ): Promise<object | undefined> {
     try {
-      const distributors = await Distributor.get(req);
-      const result = await SalesHelper2(
-        req,
-        distributors,
-        "distributor",
-        "distributor_id",
-        "distributor",
-        "distributor_name"
-      );
-      return response(res, true, result, null, 200);
+      // asc
+      let asc = await Service.getSalesByHirarki("distributor", {
+        ...req.validated,
+        sort: "ASC",
+      });
+      asc = NumberFormat(asc, true, "aktual", "target", "diff");
+      asc = NumberFormat(asc, false, "achieve", "redeem", "diff_point");
+
+      // desc
+      let desc = await Service.getSalesByHirarki("distributor", {
+        ...req.validated,
+        sort: "DESC",
+      });
+      desc = NumberFormat(desc, true, "aktual", "target", "diff");
+      desc = NumberFormat(desc, false, "achieve", "redeem", "diff_point");
+      return response(res, true, {asc, desc}, null, 200)
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
@@ -55,16 +84,22 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
-      const cities = await Area.get(req);
-      const result = await SalesHelper2(
-        req,
-        cities,
-        "area",
-        "area_id",
-        "area_name",
-        "area_name"
-      );
-      return response(res, true, result, null, 200);
+      // asc
+      let asc = await Service.getSalesByHirarki("area", {
+        ...req.validated,
+        sort: "ASC",
+      });
+      asc = NumberFormat(asc, true, "aktual", "target", "diff");
+      asc = NumberFormat(asc, false, "achieve", "redeem", "diff_point");
+
+      // desc
+      let desc = await Service.getSalesByHirarki("area", {
+        ...req.validated,
+        sort: "DESC",
+      });
+      desc = NumberFormat(desc, true, "aktual", "target", "diff");
+      desc = NumberFormat(desc, false, "achieve", "redeem", "diff_point");
+      return response(res, true, {asc, desc}, null, 200)
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
@@ -75,16 +110,22 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
-      const asm: any[] = await User.getAsm(req);
-      const result = await SalesHelper2(
-        req,
-        asm,
-        "asm",
-        "asm_id",
-        "nama_pic",
-        "nama_pic"
-      );
-      return response(res, true, result, null, 200);
+      // asc
+      let asc = await Service.getSalesByHirarki("asm", {
+        ...req.validated,
+        sort: "ASC",
+      });
+      asc = NumberFormat(asc, true, "aktual", "target", "diff");
+      asc = NumberFormat(asc, false, "achieve", "redeem", "diff_point");
+
+      // desc
+      let desc = await Service.getSalesByHirarki("asm", {
+        ...req.validated,
+        sort: "DESC",
+      });
+      desc = NumberFormat(desc, true, "aktual", "target", "diff");
+      desc = NumberFormat(desc, false, "achieve", "redeem", "diff_point");
+      return response(res, true, {asc, desc}, null, 200)
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
@@ -95,16 +136,22 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
-      const ass: any[] = await User.getAss(req);
-      const result = await SalesHelper2(
-        req,
-        ass,
-        "ass",
-        "ass_id",
-        "nama_pic",
-        "nama_pic"
-      );
-      return response(res, true, result, null, 200);
+      // asc
+      let asc = await Service.getSalesByHirarki("ass", {
+        ...req.validated,
+        sort: "ASC",
+      });
+      asc = NumberFormat(asc, true, "aktual", "target", "diff");
+      asc = NumberFormat(asc, false, "achieve", "redeem", "diff_point");
+
+      // desc
+      let desc = await Service.getSalesByHirarki("ass", {
+        ...req.validated,
+        sort: "DESC",
+      });
+      desc = NumberFormat(desc, true, "aktual", "target", "diff");
+      desc = NumberFormat(desc, false, "achieve", "redeem", "diff_point");
+      return response(res, true, {asc, desc}, null, 200)
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
@@ -115,16 +162,22 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
-      const outlet: any[] = await Outlet.get(req);
-      const result: any = await SalesHelper2(
-        req,
-        outlet,
-        "outlet",
-        "outlet_id",
-        "outlet_name",
-        "outlet_name"
-      );
-      return response(res, true, result, null, 200);
+      // asc
+      let asc = await Service.getSalesByHirarki("outlet", {
+        ...req.validated,
+        sort: "ASC",
+      });
+      asc = NumberFormat(asc, true, "aktual", "target", "diff");
+      asc = NumberFormat(asc, false, "achieve", "redeem", "diff_point");
+
+      // desc
+      let desc = await Service.getSalesByHirarki("outlet", {
+        ...req.validated,
+        sort: "DESC",
+      });
+      desc = NumberFormat(desc, true, "aktual", "target", "diff");
+      desc = NumberFormat(desc, false, "achieve", "redeem", "diff_point");
+      return response(res, true, {asc, desc}, null, 200)
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
@@ -135,16 +188,22 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
-      const regions = await Region.get(req);
-      const result = await SalesHelper2(
-        req,
-        regions,
-        "region",
-        "region_id",
-        "region",
-        "region_name"
-      );
-      return response(res, true, result, null, 200);
+      // asc
+      let asc = await Service.getSalesByHirarki("region", {
+        ...req.validated,
+        sort: "ASC",
+      });
+      asc = NumberFormat(asc, true, "aktual", "target", "diff");
+      asc = NumberFormat(asc, false, "achieve", "redeem", "diff_point");
+
+      // desc
+      let desc = await Service.getSalesByHirarki("region", {
+        ...req.validated,
+        sort: "DESC",
+      });
+      desc = NumberFormat(desc, true, "aktual", "target", "diff");
+      desc = NumberFormat(desc, false, "achieve", "redeem", "diff_point");
+      return response(res, true, {asc, desc}, null, 200)
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
@@ -155,16 +214,22 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let hr: any[] = await Wilayah.get(req);
-      let result = await SalesHelper2(
-        req,
-        hr,
-        "hr",
-        "head_region_id",
-        "wilayah",
-        "head_region_name"
-      );
-      return response(res, true, result, null, 200);
+      // asc
+      let asc = await Service.getSalesByHirarki("wilayah", {
+        ...req.validated,
+        sort: "ASC",
+      });
+      asc = NumberFormat(asc, true, "aktual", "target", "diff");
+      asc = NumberFormat(asc, false, "achieve", "redeem", "diff_point");
+
+      // desc
+      let desc = await Service.getSalesByHirarki("wilayah", {
+        ...req.validated,
+        sort: "DESC",
+      });
+      desc = NumberFormat(desc, true, "aktual", "target", "diff");
+      desc = NumberFormat(desc, false, "achieve", "redeem", "diff_point");
+      return response(res, true, {asc, desc}, null, 200)
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
@@ -175,14 +240,9 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let data: any = await Service.getSalesByAchiev(req);
-      data = data.map((e: any) => ({
-        ...e,
-        aktual: +e.aktual,
-      }));
-      // data = NumberFormat(data, true, 'aktual', 'target')
-      data = await SalesHelper(req, data, "cluster");
-      return response(res, true, data, null, 200);
+      let result = await Service.getSalesByAchiev(req.validated);
+      result = NumberFormat(result, true, "aktual", "target", "diff");
+      return response(res, true, result, null, 200);
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
@@ -333,7 +393,7 @@ class Sales {
       const match = outlet.map((e: any) => {
         const target = targets[e.outlet_id]?.target || 0;
         const aktual = +aktuals[e.outlet_id]?.aktual || 0;
-        const diff = aktual - target
+        const diff = aktual - target;
         const outlet = targets[e.outlet_id]?.outlet || 0;
         const ao = aktuals[e.outlet_id]?.outlet || 0;
         const aoro = ((ao / outlet) * 100).toFixed(2) + "%";
