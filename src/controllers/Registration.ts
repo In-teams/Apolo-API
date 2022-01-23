@@ -59,12 +59,12 @@ class Registration {
       );
 
       if (program.length > 0) {
-        if (program.filter((e: any) => e.jenis_hadiah === "MULTI")) {
+        if (program.find((e: any) => e.jenis_hadiah === "MULTI")) {
           data[0].fill_alamat = 1;
           data[0].fill_data_bank = 1;
-        } else if (program.filter((e: any) => e.jenis_hadiah === "DIGITAL")) {
+        } else if (program.find((e: any) => e.jenis_hadiah === "DIGITAL")) {
           data[0].fill_data_bank = 1;
-        } else if (program.filter((e: any) => e.jenis_hadiah === "FISIK")) {
+        } else if (program.find((e: any) => e.jenis_hadiah === "FISIK")) {
           data[0].fill_alamat = 1;
         }
       }

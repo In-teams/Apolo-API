@@ -163,7 +163,7 @@ class Sales {
   ): Promise<object | undefined> {
     try {
       // asc
-      let asc = await Service.getSalesByHirarki("outlet", {
+      let asc: any[] = await Service.getSalesByHirarki("outlet", {
         ...req.validated,
         sort: "ASC",
       });
@@ -171,7 +171,7 @@ class Sales {
       asc = NumberFormat(asc, false, "achieve", "redeem", "diff_point");
 
       // desc
-      let desc = await Service.getSalesByHirarki("outlet", {
+      let desc: any[] = await Service.getSalesByHirarki("outlet", {
         ...req.validated,
         sort: "DESC",
       });
