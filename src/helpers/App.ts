@@ -29,6 +29,8 @@ let quarters: quarter[] = [
 ];
 
 class App {
+	public months: month[] = months
+	public quarters: quarter[] = quarters
     getQuarter(month: number): quarter[]{
         let data = quarters
         if ([1, 2, 3].includes(month)) {

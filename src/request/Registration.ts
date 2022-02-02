@@ -1,14 +1,46 @@
+import cryptoRandomString from "crypto-random-string";
 import { NextFunction, Request, Response } from "express";
 import joi from "joi";
-import { pathRegistration } from "../config/app";
+import config from "../config/app";
+import db from "../config/db";
+import appHelper from "../helpers/App";
+import DateFormat from "../helpers/DateFormat";
 import FileSystem from "../helpers/FileSystem";
 import GetFileExtention from "../helpers/GetFileExtention";
 import response from "../helpers/Response";
+import City from "../services/City";
+import District from "../services/District";
+import Outlet from "../services/Outlet";
 import PeriodeService from "../services/Periode";
-import OutletService from "../services/Outlet";
+import Province from "../services/Province";
 import RegistrationService from "../services/Registration";
+import SubDistrict from "../services/SubDistrict";
 
 class Registration {
+  getHistory(req: Request, res: Response, next: NextFunction): any {
+    const schema = joi.object({
+      file_id: joi.number().required(),
+    });
+
+    const { value, error } = schema.validate(req.params);
+    if (error) {
+      return response(res, false, null, error.message, 400);
+    }
+    req.validated = value;
+    next();
+  }
+  getFile(req: Request, res: Response, next: NextFunction): any {
+    const schema = joi.object({
+      outlet_id: joi.string().required(),
+    });
+
+    const { value, error } = schema.validate(req.params);
+    if (error) {
+      return response(res, false, null, error.message, 400);
+    }
+    req.validated = value;
+    next();
+  }
   get(req: Request, res: Response, next: NextFunction): any {
     const schema = joi.object({
       region_id: joi.string(),
@@ -19,8 +51,8 @@ class Registration {
       ass_id: joi.string(),
       asm_id: joi.string(),
       salesman_id: joi.string(),
-      sort: joi.string(),
       quarter_id: joi.number().valid(1, 2, 3, 4),
+      sort: joi.string(),
       month: joi.string(),
     });
 
@@ -28,32 +60,58 @@ class Registration {
     if (error) {
       return response(res, false, null, error.message, 400);
     }
+    let quarter: string[] | undefined = value.quarter_id
+      ? appHelper.getMonthIdByQuarter(value.quarter_id)
+      : undefined;
+    req.validated = {
+      ...value,
+      sort: value.sort || "ASC",
+      quarter: value.quarter_id,
+      month: appHelper.getMonthName(value.month),
+      month_id: value.month,
+      ...(value.quarter_id && { quarter_id: quarter }),
+    };
+    next();
+  }
+  getOutletData(req: Request, res: Response, next: NextFunction): any {
+    const schema = joi.object({
+      outlet_id: joi.string(),
+    });
+
+    const { value, error } = schema.validate(req.params);
+    if (error) {
+      return response(res, false, null, error.message, 400);
+    }
     req.validated = { ...value, sort: value.sort || "ASC" };
     next();
   }
+  async postBulky(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      const check = await PeriodeService.checkData(req);
+      if (check.length < 1)
+        return response(res, false, null, "bukan periode upload", 400);
+      req.validated = {periode_id: check[0].id};
+      next();
+    } catch (error) {
+      console.log(error);
+    }
+  }
   async post(req: Request, res: Response, next: NextFunction): Promise<any> {
+    const t = await db.transaction();
     try {
       const schema = joi.object({
         file: joi.string().base64().required(),
         outlet_id: joi.string().required(),
-        type_file: joi.string().required(),
-        ektp: joi.string(),
-        npwp: joi.string(),
-        nama_konsumen: joi.string().required(),
-        telepon1: joi.string().required(),
-        alamat1: joi.string(),
-        rtrw: joi.string(),
-        kodepos: joi.string(),
-        propinsi: joi.string(),
-        kabupaten: joi.string(),
-        kecamatan: joi.string(),
-        kelurahan: joi.string(),
-        nomor_rekening: joi.string().required(),
-        nama_rekening: joi.string().required(),
-        cabang_bank: joi.string().required(),
-        nama_bank: joi.string().required(),
-        kota_bank: joi.string().required(),
       });
+
+      req.body = {
+        ...req.body,
+        file: req.body.file.replace("data:", "").replace(/^.+,/, ""),
+      };
 
       const { value, error } = schema.validate(req.body);
       if (error) {
@@ -61,22 +119,40 @@ class Registration {
       }
 
       req.validated = value;
+      const outletCheck = await Outlet.getOutlet(req);
+      if (outletCheck.length < 1)
+        return response(res, false, null, "outlet id not found", 404);
       const check = await PeriodeService.checkData(req);
       if (check.length < 1)
         return response(res, false, null, "bukan periode upload", 400);
       const ext = GetFileExtention(value.file);
+      if (!ext)
+        return response(
+          res,
+          false,
+          null,
+          "only pdf and image extention will be allowed",
+          400
+        );
+      const { level: levelUser } = req.decoded;
       let { periode, id: periode_id } = check[0];
-      periode = `p-${periode.split(" ")[1]}`;
-      const filename = `${periode}-${value.type_file}-${Date.now()}-${
-        value.outlet_id
-      }${ext}`;
-      const path = pathRegistration + "/" + filename;
-      req.validated = { ...req.validated, filename, periode_id, path };
+      periode = `p-${periode_id}`;
+      const random = cryptoRandomString({ length: 10, type: "alphanumeric" });
+      const filename = `f-${periode}-${random}${ext}`;
+      // const path = "/" + filename;
+      const path = config.pathRegistration + "/" + filename;
+      req.validated = {
+        ...req.validated,
+        filename,
+        periode_id,
+        path,
+        tgl_upload: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),
+      };
       delete req.validated.file;
       const uploaded = await RegistrationService.getRegistrationForm(req);
       if (uploaded.length > 0) {
-        const { status_registrasi: status } = uploaded[0];
-        if (status === 7 || status === 8) {
+        const { level } = uploaded[0];
+        if (level === "Level 4") {
           return response(
             res,
             false,
@@ -86,23 +162,238 @@ class Registration {
           );
         } else {
           const { id, filename } = uploaded[0];
-          await FileSystem.DeleteFile(`${pathRegistration}/${filename}`);
-          await FileSystem.WriteFile(path, value.file, true);
+          if (levelUser !== "1")
+            return response(
+              res,
+              false,
+              null,
+              "Upload hanya bisa sekali perbulan",
+              400
+            );
+          // await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
+          await FileSystem.WriteFile(path, value.file, true, ext);
           req.validated.id = id;
-          await RegistrationService.update(req);
-          return response(
-            res,
-            true,
-            "success post registration form",
-            null,
-            200
+          await RegistrationService.updateRegistrationForm(
+            { ...req.validated, ...req.decoded },
+            t
           );
+          t.commit();
+          return response(res, true, "Form successfully uploaded", null, 200);
         }
       }
-      await FileSystem.WriteFile(path, value.file, true);
+      await FileSystem.WriteFile(path, value.file, true, ext);
       next();
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error), 400)
+      t.rollback();
+      console.log(error)
+      // FileSystem.DeleteFile(req.validated.path)
+      return response(res, false, null, error, 500);
+    }
+  }
+  async update(req: Request, res: Response, next: NextFunction): Promise<any> {
+    try {
+      const schema = joi.object({
+        outlet_id: joi.string().required(),
+        jenis_badan: joi.string().valid("personal", "PT/CV/FIRMA").required(),
+        type: joi.string().valid("ektp", "npwp").required(),
+        // nama: joi.string().required(),
+        ...(req.body.type === "ektp"
+          ? {
+              ektp: joi.string().min(16).max(16).required(),
+              ektp_file: joi.string().base64(),
+            }
+          : {
+              npwp: joi.string().min(15).max(15).required(),
+              npwp_file: joi.string().base64(),
+            }),
+        bank_file: joi.string().base64(),
+        no_wa: joi.string().min(11).max(13).required(),
+        alamat1: joi.string().required(),
+        rtrw: joi.string().required(),
+        kodepos: joi.string().min(5).max(5).required(),
+        propinsi: joi.string().required(),
+        kabupaten: joi.string().required(),
+        kecamatan: joi.string().required(),
+        kelurahan: joi.string().required(),
+        nama_rekening: joi.string().required(),
+        nomor_rekening: joi.string().required(),
+        nama_bank: joi.string().required(),
+        cabang_bank: joi.string().required(),
+        kota_bank: joi.string().required(),
+        // jenis_badan: joi.string(),
+      });
+
+      req.body = {
+        ...req.body,
+        ...(req.body.bank_file && {
+          bank_file: req.body.bank_file
+            .replace("data:", "")
+            .replace(/^.+,/, ""),
+        }),
+        ...(req.body[req.body.type + "_file"] && {
+          [req.body.type + "_file"]: req.body[req.body.type + "_file"]
+            .replace("data:", "")
+            .replace(/^.+,/, ""),
+        }),
+      };
+
+      const { value, error } = schema.validate({ ...req.body, ...req.params });
+      if (error) {
+        return response(res, false, null, error.message, 400);
+      }
+
+      const { type } = req.body;
+      if (value.jenis_badan === "PT/CV/FIRMA" && type === "ektp")
+        return response(
+          res,
+          false,
+          null,
+          "Type PT/CV/FIRMA hanya bisa upload NPWP",
+          400
+        );
+
+      req.validated = value;
+      const outletCheck = await Outlet.getOutlet(req);
+      if (outletCheck.length < 1)
+        return response(res, false, null, "outlet id not found", 404);
+      const check = await PeriodeService.checkData(req);
+      if (check.length < 1)
+        return response(res, false, null, "bukan periode upload", 400);
+      let { periode, id: periode_id } = check[0];
+      req.validated.periode_id = periode_id;
+      periode = `p-${periode_id}`;
+      const uploaded = await RegistrationService.getRegistrationForm(req);
+      if (uploaded.length < 1)
+        return response(
+          res,
+          false,
+          null,
+          "please upload registration form!",
+          400
+        );
+      // req.validated.outlet = req.validated;
+      req.validated.file = {
+        type: req.body.type,
+      };
+      delete req.validated.type;
+      const FileId = await RegistrationService.getRegistrationForm(
+        req,
+        type === "npwp" ? 2 : 1
+      );
+
+      const bankFile = await RegistrationService.getRegistrationForm(req, 3);
+      const deletedFileType = type === "npwp" ? 1 : 2;
+
+      const deletedFile = await RegistrationService.getRegistrationForm(
+        req,
+        deletedFileType
+      );
+      if (deletedFile.length) {
+        await RegistrationService.deleteRegistrationFile(deletedFile[0].id);
+      }
+
+      if (FileId.length < 1 && !value[`${type}_file`])
+        return response(res, false, null, `${type + "_file"} is required`, 400);
+      if (bankFile.length < 1 && !value.bank_file)
+        return response(res, false, null, "bank_file is required", 400);
+
+      if (value[`${type}_file`]) {
+        const extFile = GetFileExtention(value[`${type}_file`]);
+        if (!extFile)
+          return response(
+            res,
+            false,
+            null,
+            "only pdf and image extention will be allowed",
+            400
+          );
+
+        const IdType = type === "npwp" ? "n" : "e";
+        const random = cryptoRandomString({ length: 10, type: "alphanumeric" });
+        const file = `${IdType}-${periode}-${random}${extFile}`;
+
+        if (FileId.length > 0 && value[type + "_file"]) {
+          const { filename, id } = FileId[0];
+          await RegistrationService.deleteRegistrationFile(id);
+          // await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
+        }
+
+        await FileSystem.WriteFile(
+          config.pathRegistration + "/" + file,
+          value[`${req.body.type}_file`],
+          true,
+          extFile
+        );
+        delete req.validated[`${req.body.type}_file`];
+
+        // delete req.validated.outlet.periode_id;
+        // delete req.validated.outlet.type;
+
+        req.validated.file = {
+          type,
+          [type + "_file"]: file,
+        };
+      }
+
+      if (value.bank_file) {
+        const extBank = GetFileExtention(value.bank_file);
+        if (!extBank)
+          return response(
+            res,
+            false,
+            null,
+            "only pdf and image extention will be allowed",
+            400
+          );
+        const random = cryptoRandomString({ length: 10, type: "alphanumeric" });
+        const bank = `b-${periode}-${random}${extBank}`;
+
+        if (bankFile.length > 0 && value.bank_file) {
+          const { filename, id } = bankFile[0];
+          await RegistrationService.deleteRegistrationFile(id);
+          // await FileSystem.DeleteFile(`${config.pathRegistration}/${filename}`);
+        }
+        await FileSystem.WriteFile(
+          config.pathRegistration + "/" + bank,
+          value.bank_file,
+          true,
+          extBank
+        );
+        delete req.validated.bank_file;
+        req.validated.file = {
+          ...req.validated.file,
+          type,
+          bank,
+        };
+      }
+
+      // const kelurahan = await SubDistrict.getNameById(req.validated.kelurahan);
+      // if (!kelurahan)
+      //   return response(res, false, null, "kelurahan not found", 404);
+      // const kecamatan = await District.getNameById(req.validated.kecamatan);
+      // if (!kecamatan)
+      //   return response(res, false, null, "kecamatan not found", 404);
+      // const propinsi = await Province.getNameById(req.validated.propinsi);
+      // if (!propinsi)
+      //   return response(res, false, null, "propinsi not found", 404);
+      // const kabupaten = await City.getNameById(req.validated.kabupaten);
+      // if (!kabupaten)
+      //   return response(res, false, null, "kota/kabupaten not found", 404);
+      req.validated.file.tgl_upload = DateFormat.getToday(
+        "YYYY-MM-DD HH:mm:ss"
+      );
+      // req.validated = {
+      //   ...req.validated,
+      //   propinsi,
+      //   kabupaten,
+      //   kecamatan,
+      //   kelurahan
+      // };
+      next();
+    } catch (error) {
+      console.log(error);
+      // FileSystem.DeleteFile(req.validated.path)
+      return response(res, false, null, error, 400);
     }
   }
   async validation(
@@ -113,7 +404,7 @@ class Registration {
     try {
       const schema = joi.object({
         status_registrasi: joi.number().required(),
-        periode_id: joi.number().required(),
+        file_id: joi.number().required(),
         outlet_id: joi.string().required(),
       });
 
@@ -122,16 +413,22 @@ class Registration {
         return response(res, false, null, error.message, 400);
       }
 
-      req.validated = value;
+      if (req.decoded.level !== "1")
+        return response(res, false, null, "Access Denied", 403);
+
+      req.validated = {
+        ...value,
+        validated_at: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),
+      };
       const isUploaded = await RegistrationService.getRegistrationForm(req);
       if (isUploaded.length < 1)
         return response(res, false, null, "registration is not uploaded", 400);
-      const { status_registrasi: status } = isUploaded[0];
-      if (status === 7 || status === 8)
+      const { level } = isUploaded[0];
+      if (level === "Level 4")
         return response(res, false, null, "registration was validated", 400);
       next();
     } catch (error) {
-      return response(res, false, null, JSON.stringify(error), 400)
+      return response(res, false, null, error, 400);
     }
   }
 }

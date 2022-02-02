@@ -15,6 +15,7 @@ class App implements IRouter {
     this.router.get("/month", AppRequest.get, AppController.getMonth);
     this.router.get("/quarter", AppRequest.get, AppController.getQuarter);
     this.router.get("/year", AppController.getYear);
+    this.router.get("/bank", AppController.getBanks);
   }
 }
 

@@ -8,7 +8,7 @@ class User {
 			const { level } = req.validated;
 			let add = {};
 			let key = '';
-			let data: string[] = [];
+			let data: any[] = [];
 			if (level === 'asm') {
 				data = await Service.getAsm(req);
 				add = {
@@ -31,7 +31,7 @@ class User {
 
 			return response(res, true, [add, ...data], null, 200);
 		} catch (error) {
-			return response(res, false, null, JSON.stringify(error), 500);
+			return response(res, false, null, error, 500);
 		}
 	}
 }

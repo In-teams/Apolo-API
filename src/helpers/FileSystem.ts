@@ -1,10 +1,30 @@
 import { readFile, writeFile, unlink } from "fs";
+import sharp from "sharp";
+import { Buffer } from "buffer";
+import Jimp from "jimp";
 
 class FileSystem {
-  WriteFile(path: string, row: string, buffer: boolean = false) {
+  WriteFile(path: string, row: string, buffer: boolean = false, ext?: string) {
     return new Promise<boolean>((resolve, reject) => {
       writeFile(path, row, { ...(buffer && { encoding: "base64" }) }, (err) => {
         if (err) reject(err);
+        if (ext !== ".pdf") {
+          Jimp.read(path)
+            .then((img) => {
+              return img
+                .quality(20) // set JPEG quality
+                .write(path); // save
+            })
+            .catch((err) => {
+              console.error(err);
+            });
+        }
+        // sharp(Buffer.from(row, "base64"))
+        //   .toFormat("png")
+        //   .png({ quality: 1 })
+        //   .toFile(path)
+        //   .then((res) => console.log(res))
+        //   .catch((err) => console.log(err));
         resolve(true);
       });
     });
@@ -33,9 +53,8 @@ class FileSystem {
   }
   async ReadExcelFile(path: string): Promise<any> {
     try {
-      
     } catch (error) {
-      return error
+      return error;
     }
   }
 }

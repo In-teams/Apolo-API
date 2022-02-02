@@ -1,13 +1,17 @@
-export const pathLogger: string = "./temp/logger";
-export const pathExcel: string = "./temp/excel";
-export const pathRegistration: string = "./temp/file/registration";
-export const pathRedeem: string = "./temp/file/redeem";
-export const deleteLogger: number = 1; // day
-export const jwtKey: string = "inosis111213"; // JWT_KEY
-export const ExpKey = "24h"; // Exp JWT_KEY
-export const ExpRefreshKey: string = "24h"; // Exp JWT_KEY refresh token
-export const dataPerPage: number = 10;
-export const DB_HOST: string = "localhost";
-export const DB_NAME: string = "apolo.v2";
-export const DB_USER: string = "root";
-export const DB_PASS: string = "";
+class App {
+	public pathLogger: string = './temp/logger';
+	public pathExcel: string = './temp/excel';
+	public pathRegistration: string = 'temp/file/registration';
+	public pathRedeem: string = 'temp/file/redeem';
+	public deleteLogger: number = 1; // day
+	public jwtKey: string = 'inosis111213'; // JWT_KEY
+	public ExpKey = '24h'; // Exp JWT_KEY
+	public ExpRefreshKey: string = '24h'; // Exp JWT_KEY refresh token
+	public dataPerPage: number = 10;
+	public DB_HOST: string = 'localhost';
+	public DB_NAME: string = 'apolo2022';
+	public DB_USER: string = 'root';
+	public DB_PASS: string = '';
+}
+
+export default new App();

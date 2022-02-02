@@ -1,50 +1,24 @@
 import { Request } from "express";
+import { QueryTypes } from "sequelize";
 import db from "../config/db";
+import FilterParams from "../helpers/FilterParams";
 
 class Distributor {
-  get(req: Request): any {
-    const {
-      outlet_id,
-      area_id,
-      region_id,
-      wilayah_id,
-      ass_id,
-      asm_id,
-      salesman_id,
-    } = req.validated;
-    const {scope, level} = req.body.decoded
-		let addWhere : string = ''
-		if(level === "4") addWhere = 'o.distributor_id'
-		if(level === "2") addWhere = 'o.region_id'
-		if(level === "3") addWhere = 'o.city_id_alias'
-		if(level === "5") addWhere = 'o.outlet_id'
-    const query = db()
-      .select("d.distributor_name")
-      .distinct("d.distributor_id")
-      .from("mstr_distributor as d")
-      .innerJoin(
-        "mstr_outlet as o",
-        "d.distributor_id",
-        "o.distributor_id"
-      )
-      .innerJoin("ms_pulau_alias as r", "o.region_id", "r.pulau_id_alias")
-      .innerJoin("ms_user_scope as us", "o.outlet_id", "us.scope")
-      .innerJoin(
-        "ms_dist_pic as pic",
-        "o.distributor_id",
-        "pic.distributor_id"
-      )
-      .where({
-        ...(outlet_id && { "o.outlet_id": outlet_id }),
-        ...(area_id && { "o.city_id_alias": area_id }),
-        ...(region_id && { "o.region_id": region_id }),
-        ...(wilayah_id && { "r.head_region_id": wilayah_id }),
-        ...(ass_id && { "pic.ass_id": ass_id }),
-        ...(asm_id && { "pic.asm_id": asm_id }),
-        ...(salesman_id && { "us.user_id": salesman_id }),
-      }).whereIn(addWhere, scope.split(','))
-      .orderBy("distributor_id");
-    return query;
+  async get(req: Request): Promise<any> {
+    let query =
+      "select distinct d.distributor_name, d.distributor_id from mstr_distributor as d INNER JOIN mstr_outlet as o on d.distributor_id = o.distributor_id INNER JOIN ms_pulau_alias as reg on o.region_id = reg.pulau_id_alias INNER JOIN ms_user_scope as us on o.outlet_id = us.scope INNER JOIN ms_dist_pic as dp on o.distributor_id = dp.distributor_id WHERE d.distributor_id IS NOT NULL";
+
+    let { query: newQuery, params } = FilterParams.query(req, query);
+    if (req.validated.keyword) {
+      newQuery += " AND d.distributor_name LIKE ?";
+      params.push(`%${req.validated.keyword}%`);
+    }
+
+    return await db.query(newQuery + " order by d.distributor_id ASC", {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: params,
+    });
   }
 }
 

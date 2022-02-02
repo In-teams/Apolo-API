@@ -1,47 +1,24 @@
 import { Request } from "express";
+import { QueryTypes } from "sequelize";
 import db from "../config/db";
+import FilterParams from "../helpers/FilterParams";
 
 class Area {
-  get(req: Request): any {
-    const {
-      outlet_id,
-      region_id,
-      wilayah_id,
-      distributor_id,
-      ass_id,
-      asm_id,
-      salesman_id,
-    } = req.validated;
-    const {scope, level} = req.body.decoded
-		let addWhere : string = ''
-		if(level === "4") addWhere = 'o.distributor_id'
-		if(level === "2") addWhere = 'o.region_id'
-		if(level === "3") addWhere = 'o.city_id_alias'
-		if(level === "5") addWhere = 'o.outlet_id'
-    const query = db()
-      .select("c.city_name_alias as area_name")
-      .distinct("c.city_id_alias as area_id")
-      .from("ms_city_alias as c")
-      .innerJoin("mstr_outlet as o", "c.city_id_alias", "o.city_id_alias")
-      .innerJoin("ms_pulau_alias as r", "o.region_id", "r.pulau_id_alias")
-      .innerJoin("ms_user_scope as us", "o.outlet_id", "us.scope")
-      .innerJoin(
-        "ms_dist_pic as pic",
-        "o.distributor_id",
-        "pic.distributor_id"
-      )
-      .where({
-        ...(outlet_id && { "o.outlet_id": outlet_id }),
-        ...(region_id && { "o.region_id": region_id }),
-        ...(distributor_id && { "o.distributor_id": distributor_id }),
-        ...(wilayah_id && { "r.head_region_id": wilayah_id }),
-        ...(ass_id && { "pic.ass_id": ass_id }),
-        ...(asm_id && { "pic.asm_id": asm_id }),
-        ...(salesman_id && { "us.user_id": salesman_id }),
-      }).whereIn(addWhere, scope.split(','))
-      .orderBy("area_id");
-    // console.log(query.toSQL().toNative());
-    return query;
+  async get(req: Request): Promise<any> {
+    let query =
+      "select distinct c.city_name_alias as area_name, c.city_id_alias as area_id from ms_city_alias as c inner join mstr_outlet as o on c.city_id_alias = o.city_id_alias inner join ms_pulau_alias as reg on o.region_id = reg.pulau_id_alias inner join ms_user_scope as us on o.outlet_id = us.scope inner join ms_dist_pic as dp on o.distributor_id = dp.distributor_id WHERE c.city_id_alias IS NOT NULL";
+
+    let { query: newQuery, params } = FilterParams.query(req, query);
+    if (req.validated.keyword) {
+      newQuery += " AND c.city_name_alias LIKE ?";
+      params.push(`%${req.validated.keyword}%`);
+    }
+
+    return await db.query(newQuery + " order by area_id asc", {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: params,
+    });
   }
 }
 
