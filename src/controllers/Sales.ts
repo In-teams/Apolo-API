@@ -58,6 +58,10 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
+      let count: any = await Service.countSalesByHirarki("distributor", req.validated)
+      count = count[0]?.total || 0
+      const {show = 10, page = 1} = req.validated
+      let totalPage = Math.ceil(count / show);
       // asc
       let asc = await Service.getSalesByHirarki("distributor", {
         ...req.validated,
@@ -73,7 +77,7 @@ class Sales {
       });
       desc = NumberFormat(desc, true, "aktual", "target", "diff");
       desc = NumberFormat(desc, false, "achieve", "redeem", "diff_point");
-      return response(res, true, {asc, desc}, null, 200)
+      return response(res, true, {totalPage, asc, desc}, null, 200)
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
@@ -85,6 +89,11 @@ class Sales {
   ): Promise<object | undefined> {
     try {
       // asc
+      let count: any = await Service.countSalesByHirarki("area", req.validated)
+      count = count[0]?.total || 0
+      const {show = 10, page = 1} = req.validated
+      let totalPage = Math.ceil(count / show);
+
       let asc = await Service.getSalesByHirarki("area", {
         ...req.validated,
         sort: "ASC",
@@ -99,7 +108,7 @@ class Sales {
       });
       desc = NumberFormat(desc, true, "aktual", "target", "diff");
       desc = NumberFormat(desc, false, "achieve", "redeem", "diff_point");
-      return response(res, true, {asc, desc}, null, 200)
+      return response(res, true, {totalPage, asc, desc}, null, 200)
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
@@ -110,6 +119,11 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
+      let count: any = await Service.countSalesByHirarki("asm", req.validated)
+      count = count[0]?.total || 0
+      const {show = 10, page = 1} = req.validated
+      let totalPage = Math.ceil(count / show);
+
       // asc
       let asc = await Service.getSalesByHirarki("asm", {
         ...req.validated,
@@ -125,7 +139,7 @@ class Sales {
       });
       desc = NumberFormat(desc, true, "aktual", "target", "diff");
       desc = NumberFormat(desc, false, "achieve", "redeem", "diff_point");
-      return response(res, true, {asc, desc}, null, 200)
+      return response(res, true, {totalPage, asc, desc}, null, 200)
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
@@ -136,6 +150,11 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
+      let count: any = await Service.countSalesByHirarki("ass", req.validated)
+      count = count[0]?.total || 0
+      const {show = 10, page = 1} = req.validated
+      let totalPage = Math.ceil(count / show);
+
       // asc
       let asc = await Service.getSalesByHirarki("ass", {
         ...req.validated,
@@ -151,7 +170,7 @@ class Sales {
       });
       desc = NumberFormat(desc, true, "aktual", "target", "diff");
       desc = NumberFormat(desc, false, "achieve", "redeem", "diff_point");
-      return response(res, true, {asc, desc}, null, 200)
+      return response(res, true, {totalPage, asc, desc}, null, 200)
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
@@ -162,6 +181,11 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
+      let count: any = await Service.countSalesByHirarki("outlet", req.validated)
+      count = count[0]?.total || 0
+      const {show = 10, page = 1} = req.validated
+      let totalPage = Math.ceil(count / show);
+
       // asc
       let asc: any[] = await Service.getSalesByHirarki("outlet", {
         ...req.validated,
@@ -177,7 +201,7 @@ class Sales {
       });
       desc = NumberFormat(desc, true, "aktual", "target", "diff");
       desc = NumberFormat(desc, false, "achieve", "redeem", "diff_point");
-      return response(res, true, {asc, desc}, null, 200)
+      return response(res, true, {totalPage, asc, desc}, null, 200)
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
@@ -188,6 +212,11 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
+      let count: any = await Service.countSalesByHirarki("region", req.validated)
+      count = count[0]?.total || 0
+      const {show = 10, page = 1} = req.validated
+      let totalPage = Math.ceil(count / show);
+
       // asc
       let asc = await Service.getSalesByHirarki("region", {
         ...req.validated,
@@ -203,7 +232,7 @@ class Sales {
       });
       desc = NumberFormat(desc, true, "aktual", "target", "diff");
       desc = NumberFormat(desc, false, "achieve", "redeem", "diff_point");
-      return response(res, true, {asc, desc}, null, 200)
+      return response(res, true, {totalPage, asc, desc}, null, 200)
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
@@ -214,6 +243,11 @@ class Sales {
     res: Response
   ): Promise<object | undefined> {
     try {
+      let count: any = await Service.countSalesByHirarki("wilayah", req.validated)
+      count = count[0]?.total || 0
+      const {show = 10, page = 1} = req.validated
+      let totalPage = Math.ceil(count / show);
+
       // asc
       let asc = await Service.getSalesByHirarki("wilayah", {
         ...req.validated,
@@ -229,7 +263,7 @@ class Sales {
       });
       desc = NumberFormat(desc, true, "aktual", "target", "diff");
       desc = NumberFormat(desc, false, "achieve", "redeem", "diff_point");
-      return response(res, true, {asc, desc}, null, 200)
+      return response(res, true, {totalPage, asc, desc}, null, 200)
     } catch (error) {
       console.log(error);
       return response(res, false, null, error, 500);
