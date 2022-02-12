@@ -293,7 +293,7 @@ class Sales {
         aktual: +e.aktual,
       }));
       // data = NumberFormat(data, true, 'aktual', 'target')
-      // data = await SalesHelper(req, data, "bulan");
+      data = await SalesHelper(req, data, "bulan");
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);

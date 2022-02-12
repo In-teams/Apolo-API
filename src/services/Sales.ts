@@ -96,7 +96,7 @@ const getSalesByHirarki = (
 		cols = 'c.city_name_alias as area_name, c.city_id_alias as area_id';
 		groupBy = 'c.city_name_alias';
 	} else if (hirarki === 'outlet') {
-		cols = 'o.outlet_name as outlet_name';
+		cols = 'o.outlet_name as outlet_name, o.outlet_id';
 		groupBy = 'o.outlet_name';
 	} else if (hirarki === 'asm') {
 		cols = 'mp.nama_pic as nama_pic, pic.asm_id';
