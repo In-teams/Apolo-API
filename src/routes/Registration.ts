@@ -15,6 +15,7 @@ class Registration implements IRouter {
 
   public routes(): void {
     this.router.get("/status-list", RegistrationController.getRegistrationStatus); // get status list
+    // this.router.get("/formulir", RegistrationRequest.getForm, RegistrationController.printFormulir); // print formulir
     this.router.get("/", RegistrationRequest.get, RegistrationController.get); // summary (all)
     this.router.get("/last", RegistrationRequest.get, RegistrationController.getLastRegistration); // last 5 registration
     this.router.get("/summary/month", RegistrationRequest.get, RegistrationController.getSummaryByMonth); // summary (all)
@@ -32,7 +33,7 @@ class Registration implements IRouter {
     this.router.get("/:outlet_id", RegistrationRequest.getOutletData, RegistrationController.getOutletData); // get outlet data
     this.router.post("/validation", RegistrationRequest.validation, RegistrationController.validation); // registration file validation
     this.router.get("/history/:file_id", RegistrationRequest.getHistory, RegistrationController.getHistory); // get history validation
-    this.router.get("/file/:outlet_id", RegistrationRequest.getFile, RegistrationController.getFile); // get registration file
+    this.router.get("/file/:outlet_id", RegistrationRequest.getForm, RegistrationController.getFile); // get registration file
   }
 }
 
