@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import _ from "lodash";
+import _, { isNull } from "lodash";
 import config from "../config/app";
 import db from "../config/db";
 import DateFormat from "../helpers/DateFormat";
@@ -10,6 +10,8 @@ import response from "../helpers/Response";
 import Outlet from "../services/Outlet";
 import Service from "../services/Registration";
 import Periode from "../services/Periode";
+// import CreatePdf from "../helpers/CreatePdf";
+import NumberFormat from "../helpers/NumberFormat";
 
 class Registration {
   async getFile(req: Request, res: Response): Promise<object | undefined> {
@@ -511,6 +513,108 @@ class Registration {
       return response(res, false, null, error, 500);
     }
   }
+  // async printFormulir(req: Request, res: Response): Promise<any> {
+  //   try {
+  //     const {outlet_id, periode} = req.validated
+  //     let detailOutlet = await Service.getDetailOutlet(outlet_id)
+  //     if(!detailOutlet) return response(res, false, null, 'outlet not found', 400)
+      
+  //     const targetOutlet = await Service.getTargetOutlet(outlet_id, periode)
+  //     let {get1, get2} = await Service.getTargetOutletPerQuarter(outlet_id, periode)
+  //     get1 = NumberFormat(get1, true, 'target_sales')
+  //     get2 = NumberFormat(get2, true, 'target_sales')
+
+  //     let quarterA = periode.toLowerCase() === "h1" ? 'Quarter 1' : 'Quarter 3'
+  //     let quarterB = periode.toLowerCase() === "h1" ? 'Quarter 2' : 'Quarter 4'
+      
+  //     const targetBiscuit = await Service.getTargetBiscuitOutlet(outlet_id)
+      
+  //     detailOutlet.get1Count = Intl.NumberFormat("id").format(_.reduce(get1, function(sum, n) {
+  //         return sum + n.target_sales || 0;
+  //       }, 0));
+  //     detailOutlet.get2Count = Intl.NumberFormat("id").format(_.reduce(get2, function(sum, n) {
+  //         return sum + n.target_sales || 0;
+  //       }, 0));
+
+  //     if(isNull(detailOutlet.kodepos)){
+  //       detailOutlet.isKodeposNull = 'ada isinya'
+  //       delete detailOutlet.kodepos
+  //     }
+      
+  //     if(isNull(detailOutlet.npwp)){
+  //       detailOutlet.isNpwpNull = 'ada isinya'
+  //       delete detailOutlet.npwp
+  //     }
+  //     if(isNull(detailOutlet.rtrw)){
+  //       detailOutlet.isrtrwNull = 'ada isinya'
+  //       delete detailOutlet.rtrw
+  //     }
+  //     if(isNull(detailOutlet.telepon1)){
+  //       detailOutlet.istelepon1Null = 'ada isinya'
+  //       delete detailOutlet.telepon1
+  //     }
+  //     if(isNull(detailOutlet.telepon2)){
+  //       detailOutlet.istelepon2Null = 'ada isinya'
+  //       delete detailOutlet.telepon2
+  //     }
+  //     if(isNull(detailOutlet.no_wa)){
+  //       detailOutlet.isno_waNull = 'ada isinya'
+  //       delete detailOutlet.no_wa
+  //     }
+  //     if(isNull(detailOutlet.nomor_rekening)){
+  //       detailOutlet.isnomor_rekeningNull = 'ada isinya'
+  //       delete detailOutlet.nomor_rekening
+  //     }
+      
+  //     let months1: any = []
+  //     get1.map((e: any) => e.month_target).map((e: any, i: number) => {
+  //       if(i !== 1){
+  //         months1.push(e)
+  //       }
+  //     })
+  //     months1 = months1.map((e: any) => e.substr(0,3)).join('-')
+  //     let months2: any = []
+  //     get2.map((e: any) => e.month_target).map((e: any, i: number) => {
+  //       if(i !== 1){
+  //         months2.push(e)
+  //       }
+  //     })
+  //     months2 = months2.map((e: any) => e.substr(0,3)).join('-')
+
+  //     for (const key in detailOutlet) {
+  //       if (detailOutlet.hasOwnProperty(key)) {
+  //         detailOutlet = {
+  //           ...detailOutlet,
+  //           [key]: detailOutlet[key] || '.........................................'
+  //         };
+          
+  //       }
+  //     }
+  //     const pdf = new CreatePdf()
+  //     await pdf.pdf({
+  //       ...detailOutlet, 
+  //       quarterA,
+  //       quarterB,
+  //       get1,
+  //       get2,
+  //       months1,
+  //       targetBiscuit,
+  //       months2,
+  //       periode: periode.toUpperCase(),
+  //       filename: detailOutlet.filename.split('.')[0],
+  //       wa_number: detailOutlet.wa_number.match(/.{1,4}/g)?.join("-"),
+  //       nama_program: 'Vaganza 2022',
+  //       tanggal_cetak: DateFormat.getToday("DD MMMM YYYY HH:mm:ss"),
+  //       peserta: detailOutlet.valid.includes("Yes") ? 'EXISTING' : 'NEW',
+  //       logo_client: 'https://imgkub.com/images/2022/02/12/2560px-Mondelez_international_2012_logo.svg.png',
+  //       alamat_client: 'MONDELEZ INDONESIA Graha Inti Fauzi, 10th Floor , Jl. Buncit Raya No.22, Jakarta 12510 Call Center: +6221 296 738 92, Fax: +6221 2967 3882',
+  //     }, './public/template_registrasi.html')
+  //     const file = `${req.protocol}://${req.headers.host}/formulir/registration/${outlet_id}.pdf`
+  //     return response(res, false, {file}, null, 200)
+  //   } catch (error: any) {
+  //     return response(res, false, null, JSON.stringify(error), 500)
+  //   }
+  // }
 }
 
 export default new Registration();

@@ -1,10 +1,12 @@
+import cluster from "cluster";
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
-import Route from "./routes";
-import cluster from "cluster";
+import userAgent from "express-useragent";
+import fs from 'fs';
+import cron from 'node-cron';
 import totalCPUs from "os";
-import config from './config/app'
-import userAgent from "express-useragent"
+import config from './config/app';
+import Route from "./routes";
 
 const total = totalCPUs.cpus().length;
 const port: number = 2000;
@@ -16,6 +18,7 @@ class App {
     this.app = express();
     this.secure();
     this.routes();
+    this.cron()
     // this.clustering()
   }
 
@@ -27,6 +30,7 @@ class App {
     this.app.use(express.urlencoded({ limit: "200mb", extended: true }));
     this.app.use(express.json({ limit: "200mb" }));
     this.app.use('/file/registration', express.static(config.pathRegistration))
+    this.app.use('/formulir/registration', express.static(config.pathFormRegistration))
     this.app.use('/file/redeem', express.static(config.pathRedeem))
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       next();
@@ -64,6 +68,38 @@ class App {
       console.log(`Worker ${process.pid} started`);
       this.app.listen(port, () => console.log(`running on ${port}`));
     }
+  }
+  protected cron() {
+    // cron
+    // # ┌────────────── second (optional)
+    // # │ ┌──────────── minute
+    // # │ │ ┌────────── hour
+    // # │ │ │ ┌──────── day of month
+    // # │ │ │ │ ┌────── month
+    // # │ │ │ │ │ ┌──── day of week
+    // # │ │ │ │ │ │
+    // # │ │ │ │ │ │
+    // # * * * * * *
+
+    cron.schedule('*/1 * * * *', () => {
+      console.log('running a task every two minutes');
+      fs.readdir(config.pathFormRegistration, (err, files) => {
+        if (err) throw err;
+      
+        for (const file of files) {
+          if(fs.existsSync(`${config.pathFormRegistration}/${file}`)){
+            fs.unlink(`${config.pathFormRegistration}/${file}`, (err) => {
+              if (err){
+                console.log(err)
+              }else{
+                console.log('successfull deleted')
+              }
+            });
+          }
+        }
+      });
+    });
+
   }
 }
 

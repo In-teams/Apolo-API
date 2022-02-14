@@ -431,6 +431,17 @@ class Registration {
       return response(res, false, null, error, 400);
     }
   }
+  getForm(req: Request, res: Response, next: NextFunction): any {
+		const schema = joi.object({
+			periode: joi.string().valid('h1', 'h2').required(),
+			outlet_id: joi.string().required(),
+		});
+
+		const { value, error } = schema.validate(req.query);
+		if (error) return response(res, false, null, error.message, 400);
+    req.validated = value
+		next();
+	}
 }
 
 export default new Registration();

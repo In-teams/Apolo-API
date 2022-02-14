@@ -767,6 +767,68 @@ class Registration {
 
     // GROUP BY o.outlet_id
   }
+  async getDetailOutlet(outlet_id: string): Promise<any> {
+    const get = await db.query('SELECT *, a.outlet_id, h.nama_bank as bank_nama, i.wa_number as wa_number FROM mstr_outlet a INNER JOIN mstr_distributor b ON a.distributor_id = b.distributor_id INNER JOIN ms_city_alias c ON c.city_id_alias = a.city_id_alias LEFT JOIN indonesia.propinsi d ON d.id = a.propinsi LEFT JOIN indonesia.kabupaten e ON e.id = a.kabupaten LEFT JOIN indonesia.kecamatan f ON f.id = a.kecamatan LEFT JOIN indonesia.desa g ON g.id = a.kelurahan LEFT JOIN indonesia.ms_bank h on h.id_bank = a.nama_bank LEFT JOIN ms_wa_admin i on i.region_id = a.region_id LEFT JOIN ms_program_addon j on j.outlet_id = a.outlet_id LEFT JOIN trx_file_registrasi fr ON fr.outlet_id = a.outlet_id WHERE a.outlet_id = :outlet_id', {
+      type: QueryTypes.SELECT,
+      replacements: {outlet_id},
+    })
+
+    return get.length > 0 ? get[0] : null
+  }
+  async getTargetBiscuitOutlet(outlet_id: string): Promise<any> {
+    const get = await db.query('SELECT * FROM `mstr_sales_target_biskuit` WHERE outlet_id = :outlet_id', {
+      type: QueryTypes.SELECT,
+      replacements: {outlet_id},
+    })
+
+    return get.length > 0 ? get : null
+  }
+  async getTargetOutlet(outlet_id: string, periode: string): Promise<any> {
+    let query = ''
+    if(periode.toLowerCase() === 'h1'){
+      query = 'SELECT c.outlet_id, c.target_month as target_month1, c.target_annual as target_annual1, c.last_month as last_month1, c.last_annual as last_annual1, d.target_month as target_month2, d.target_annual as target_annual2, d.last_month as last_month2, d.last_annual as last_annual2 FROM mstr_target_outlet_q1 c LEFT JOIN mstr_target_outlet_q2 d ON c.outlet_id = d.outlet_id WHERE c.outlet_id = :outlet_id'
+    }
+    if(periode.toLowerCase() === 'h2'){
+      query = 'SELECT c.outlet_id, c.target_month as target_month3, c.target_annual as target_annual3, c.last_month as last_month3, c.last_annual as last_annual3, d.target_month as target_month4, d.target_annual as target_annual4, d.last_month as last_month4, d.last_annual as last_annual4 FROM mstr_target_outlet_q3 c LEFT JOIN mstr_target_outlet_q4 d ON c.outlet_id = d.outlet_id WHERE c.outlet_id = :outlet_id'
+    }
+    const get = await db.query(query, {
+      type: QueryTypes.SELECT,
+      replacements: {outlet_id},
+    })
+
+    return get.length > 0 ? get[0] : null
+  }
+  async getTargetOutletPerQuarter(outlet_id: string, periode: string): Promise<any> {
+    if(periode.toLowerCase() === 'h1'){
+      let query1 = 'SELECT * FROM mstr_sales_target WHERE outlet_id = :outlet_id'
+      let query2 = 'SELECT * FROM mstr_sales_target2 WHERE outlet_id = :outlet_id'
+      const get1 = await db.query(query1, {
+        type: QueryTypes.SELECT,
+        replacements: {outlet_id},
+      })
+      const get2 = await db.query(query2, {
+        type: QueryTypes.SELECT,
+        replacements: {outlet_id},
+      })
+  
+      return {get1: get1.length > 0 ? get1 : null, get2: get2.length > 0 ? get2 : null}
+    }
+    if(periode.toLowerCase() === 'h2'){
+      let query1 = 'SELECT * FROM mstr_sales_target3 WHERE outlet_id = :outlet_id'
+      let query2 = 'SELECT * FROM mstr_sales_target4 WHERE outlet_id = :outlet_id'
+      const get1 = await db.query(query1, {
+        type: QueryTypes.SELECT,
+        replacements: {outlet_id},
+      })
+      const get2 = await db.query(query2, {
+        type: QueryTypes.SELECT,
+        replacements: {outlet_id},
+      })
+  
+      return {get1: get1.length > 0 ? get1 : null, get2: get2.length > 0 ? get2 : null}
+    }
+    
+  }
 }
 
 export default new Registration();
