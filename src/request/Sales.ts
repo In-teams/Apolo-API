@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import {NextFunction, Request, Response} from 'express';
 import joi from 'joi';
 import response from '../helpers/Response';
 import appHelper from '../helpers/App';
@@ -25,7 +25,7 @@ class Auth {
 			keyword: joi.string(),
 		});
 
-		const { value, error } = schema.validate(req.query);
+		const {value, error} = schema.validate(req.query);
 		if (error) {
 			return response(res, false, null, error.message, 400);
 		}
@@ -35,7 +35,7 @@ class Auth {
 		let semester: number[] | undefined = value.sem
 			? appHelper.getMonthIdBySemester(value.sem)
 			: undefined;
-		const { page = 1, sort = 'ASC' } = value;
+		const {page = 1, sort = undefined} = value;
 		req.validated = {
 			...value,
 			page,
@@ -43,8 +43,8 @@ class Auth {
 			quarter: value.quarter_id,
 			month: appHelper.getMonthName(value.month),
 			month_id: value.month,
-			...(value.sem && { semester_id: semester }),
-			...(value.quarter_id && { quarter_id: quarter }),
+			...(value.sem && {semester_id: semester}),
+			...(value.quarter_id && {quarter_id: quarter}),
 		};
 		next();
 	}

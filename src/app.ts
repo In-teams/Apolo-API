@@ -1,12 +1,13 @@
 import cluster from "cluster";
 import cors from "cors";
-import express, { Application, NextFunction, Request, Response } from "express";
+import express, {Application, NextFunction, Request, Response} from "express";
 import userAgent from "express-useragent";
 import fs from 'fs';
 import cron from 'node-cron';
 import totalCPUs from "os";
 import config from './config/app';
 import Route from "./routes";
+import RouteV2 from "./routes/routes-v2";
 
 const total = totalCPUs.cpus().length;
 const port: number = 2000;
@@ -40,6 +41,7 @@ class App {
   protected routes(): void {
     const route = this.app;
     route.use("/api/v1", Route);
+    route.use("/api/v2", RouteV2);
     route.get("/", (req: Request, res: Response) => res.send("Server running"));
     route.get("*", (req: Request, res: Response) => {
       res.status(404).send("not found");
@@ -85,7 +87,7 @@ class App {
       console.log('running a task every two minutes');
       fs.readdir(config.pathFormRegistration, (err, files) => {
         if (err) throw err;
-      
+
         for (const file of files) {
           if(fs.existsSync(`${config.pathFormRegistration}/${file}`)){
             fs.unlink(`${config.pathFormRegistration}/${file}`, (err) => {
@@ -106,6 +108,6 @@ class App {
 
 
 export default new App().app
-new App().app.listen(port, () => console.log(`running on ${port}`));;
+new App().app.listen(port, () => console.log(`running on ${port}`));
 
 // app.listen(port, () => console.log(`running on ${port}`));

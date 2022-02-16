@@ -10,9 +10,9 @@ class App {
 	public ExpRefreshKey: string = '24h'; // Exp JWT_KEY refresh token
 	public dataPerPage: number = 10;
 	public DB_HOST: string = 'localhost';
-	public DB_NAME: string = 'apolo2022';
+	public DB_NAME: string = 'apolonew';
 	public DB_USER: string = 'root';
-	public DB_PASS: string = '';
+	public DB_PASS: string = 'root';
 }
 
 export default new App();
