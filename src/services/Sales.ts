@@ -91,6 +91,10 @@ const getSalesByHirarki = (
                 'INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias ' +
                 'INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = r.head_region_id ' +
                 'GROUP BY mhr.head_region_id';
+
+            if (keyword) {
+                groupBy += ` WHERE mhr.head_region_name like "%${keyword}%"`
+            }
         } else {
             groupBy = 'mhr.head_region_id, mhr.head_region_name, mhr.head_region_name';
         }
@@ -98,7 +102,12 @@ const getSalesByHirarki = (
         cols =
             'r.pulau_id_alias AS region_id, r.nama_pulau_alias AS region_name, r.nama_pulau_alias AS region';
         if (isCount) {
-            groupBy = `SELECT COUNT(DISTINCT o.region_id) AS total FROM mstr_outlet AS o GROUP BY o.region_id`
+            groupBy = `SELECT COUNT(DISTINCT o.region_id) AS total FROM mstr_outlet AS o GROUP BY o.region_id 
+            INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias `
+
+            if (keyword) {
+                groupBy += ` WHERE r.nama_pulau_alias like "%${keyword}%"`
+            }
         } else {
             groupBy = 'r.pulau_id_alias, r.nama_pulau_alias';
         }
@@ -106,14 +115,24 @@ const getSalesByHirarki = (
         cols =
             'd.distributor_name as distributor, d.distributor_id, d.distributor_name';
         if (isCount) {
-            groupBy = 'SELECT COUNT(DISTINCT o.distributor_id) AS total FROM mstr_outlet AS o GROUP BY o.distributor_id';
+            groupBy = 'SELECT COUNT(DISTINCT o.distributor_id) AS total FROM mstr_outlet AS o GROUP BY o.distributor_id ' +
+                'INNER JOIN mstr_distributor as d ON d.distributor_id = o.distributor_id ';
+
+            if (keyword) {
+                groupBy += ` WHERE d.distributor_name like "%${keyword}%"`
+            }
         } else {
             groupBy = 'd.distributor_name, d.distributor_id';
         }
     } else if (hirarki === 'area') {
         cols = 'c.city_name_alias as area_name, c.city_id_alias as area_id';
         if (isCount) {
-            groupBy = `SELECT COUNT(DISTINCT o.city_id_alias) AS total FROM mstr_outlet AS o GROUP BY o.city_id_alias`
+            groupBy = `SELECT COUNT(DISTINCT o.city_id_alias) AS total FROM mstr_outlet AS o GROUP BY o.city_id_alias 
+            INNER JOIN ms_city_alias as c ON c.city_id_alias = o.city_id_alias `
+
+            if (keyword) {
+                groupBy += ` WHERE c.city_name_alias like "%${keyword}%"`
+            }
         } else {
             groupBy = 'c.city_name_alias, c.city_id_alias';
         }
@@ -121,6 +140,10 @@ const getSalesByHirarki = (
         cols = 'o.outlet_name as outlet_name, o.outlet_id';
         if (isCount) {
             groupBy = `SELECT COUNT(DISTINCT o.outlet_id) AS total FROM mstr_outlet AS o`
+
+            if (keyword) {
+                groupBy += ` WHERE o.outlet_name like "%${keyword}%"`
+            }
         } else {
             groupBy = 'o.outlet_name, o.outlet_id';
         }
@@ -129,7 +152,12 @@ const getSalesByHirarki = (
         if (isCount) {
             groupBy = `SELECT COUNT(DISTINCT pic.asm_id) AS total FROM mstr_outlet AS o 
             INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id 
+            INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id
             GROUP BY pic.asm_id`
+
+            if (keyword) {
+                groupBy += ` WHERE mp.nama_pic like "%${keyword}%"`
+            }
         } else {
             groupBy = 'mp.nama_pic, pic.asm_id';
         }
@@ -138,7 +166,12 @@ const getSalesByHirarki = (
         if (isCount) {
             groupBy = `SELECT COUNT(DISTINCT pic.ass_id) AS total FROM mstr_outlet AS o
             INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id 
+            INNER JOIN ms_pic as mp ON mp.kode_pic = pic.ass_id
             GROUP BY pic.ass_id`
+
+            if (keyword) {
+                groupBy += ` WHERE mp.nama_pic like "%${keyword}%"`
+            }
         } else {
             groupBy = 'mp.nama_pic, pic.ass_id';
         }
@@ -179,10 +212,10 @@ const getSalesByHirarki = (
         // LEFT JOIN (${regist}) AS d ON d.outlet_id = o.outlet_id
         // WHERE 1 = 1`;
         query = groupBy
-        if (keyword) {
-            query += ` AND ${groupBy} LIKE '%${keyword}%'`
-        }
         query = filterParams.sales(query, payload);
+        // if (keyword) {
+        //     query += ` AND ${groupBy} LIKE '%${keyword}%'`
+        // }
         // query += ` GROUP BY ${groupBy}`;
         return query;
     }
