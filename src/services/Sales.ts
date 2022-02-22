@@ -80,6 +80,12 @@ const getSalesByHirarki = (
     const sortBy = sort.split(",")[0];
     const sortDesc = sort.split(",")[1];
 
+    const {
+        wilayah_id,
+        ass_id,
+        asm_id,
+    } = payload;
+
     const thisPage = show * page - show;
     let cols = '',
         groupBy = '';
@@ -89,8 +95,21 @@ const getSalesByHirarki = (
         if (isCount) {
             groupBy = 'SELECT COUNT(DISTINCT mhr.head_region_id) AS total FROM mstr_outlet AS o ' +
                 'INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias ' +
-                'INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = r.head_region_id ' +
-                'WHERE 1=1';
+                'INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = r.head_region_id ';
+
+            if (ass_id || asm_id) {
+                groupBy += ` INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id `
+            }
+
+            if (ass_id) {
+                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.ass_id `
+            }
+
+            if (asm_id) {
+                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id `
+            }
+
+            groupBy += ' WHERE 1=1 '
 
             if (keyword) {
                 groupBy += ` AND mhr.head_region_name like "%${keyword}%"`
@@ -107,8 +126,25 @@ const getSalesByHirarki = (
             'r.pulau_id_alias AS region_id, r.nama_pulau_alias AS region_name, r.nama_pulau_alias AS region';
         if (isCount) {
             groupBy = `SELECT COUNT(DISTINCT o.region_id) AS total FROM mstr_outlet AS o 
-            INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias 
-            WHERE 1=1 `
+            INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias `
+
+            if (ass_id || asm_id) {
+                groupBy += ` INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id `
+            }
+
+            if (ass_id) {
+                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.ass_id `
+            }
+
+            if (asm_id) {
+                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id `
+            }
+
+            if (wilayah_id) {
+                groupBy += ` INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = r.head_region_id `
+            }
+
+            groupBy += ' WHERE 1=1 '
 
             if (keyword) {
                 groupBy += ` AND r.nama_pulau_alias like "%${keyword}%"`
@@ -125,8 +161,26 @@ const getSalesByHirarki = (
             'd.distributor_name as distributor, d.distributor_id, d.distributor_name';
         if (isCount) {
             groupBy = 'SELECT COUNT(DISTINCT o.distributor_id) AS total FROM mstr_outlet AS o ' +
-                'INNER JOIN mstr_distributor as d ON d.distributor_id = o.distributor_id ' +
-                'WHERE 1=1 ';
+                'INNER JOIN mstr_distributor as d ON d.distributor_id = o.distributor_id ';
+
+            if (ass_id || asm_id) {
+                groupBy += ` INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id `
+            }
+
+            if (ass_id) {
+                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.ass_id `
+            }
+
+            if (asm_id) {
+                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id `
+            }
+
+            if (wilayah_id) {
+                groupBy += ` INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias 
+                INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = r.head_region_id `
+            }
+
+            groupBy += ' WHERE 1=1 '
 
             if (keyword) {
                 groupBy += ` AND d.distributor_name like "%${keyword}%"`
@@ -142,8 +196,26 @@ const getSalesByHirarki = (
         cols = 'c.city_name_alias as area_name, c.city_id_alias as area_id';
         if (isCount) {
             groupBy = `SELECT COUNT(DISTINCT o.city_id_alias) AS total FROM mstr_outlet AS o  
-            INNER JOIN ms_city_alias as c ON c.city_id_alias = o.city_id_alias 
-            WHERE 1=1 `
+            INNER JOIN ms_city_alias as c ON c.city_id_alias = o.city_id_alias `
+
+            if (ass_id || asm_id) {
+                groupBy += ` INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id `
+            }
+
+            if (ass_id) {
+                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.ass_id `
+            }
+
+            if (asm_id) {
+                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id `
+            }
+
+            if (wilayah_id) {
+                groupBy += ` INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias 
+                INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = r.head_region_id `
+            }
+
+            groupBy += ' WHERE 1=1 '
 
             if (keyword) {
                 groupBy += ` AND c.city_name_alias like "%${keyword}%"`
@@ -158,7 +230,26 @@ const getSalesByHirarki = (
     } else if (hirarki === 'outlet') {
         cols = 'o.outlet_name as outlet_name, o.outlet_id';
         if (isCount) {
-            groupBy = `SELECT COUNT(DISTINCT o.outlet_id) AS total FROM mstr_outlet AS o WHERE 1=1 `
+            groupBy = `SELECT COUNT(DISTINCT o.outlet_id) AS total FROM mstr_outlet AS o `
+
+            if (ass_id || asm_id) {
+                groupBy += ` INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id `
+            }
+
+            if (ass_id) {
+                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.ass_id `
+            }
+
+            if (asm_id) {
+                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id `
+            }
+
+            if (wilayah_id) {
+                groupBy += ` INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias 
+                INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = r.head_region_id `
+            }
+
+            groupBy += ' WHERE 1=1 '
 
             if (keyword) {
                 groupBy += ` AND o.outlet_name like "%${keyword}%"`
@@ -173,8 +264,22 @@ const getSalesByHirarki = (
         if (isCount) {
             groupBy = `SELECT COUNT(DISTINCT pic.asm_id) AS total FROM mstr_outlet AS o 
             INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id 
-            INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id 
-            WHERE 1=1 `
+            INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id `
+
+            if (ass_id || asm_id) {
+                groupBy += ` INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id `
+            }
+
+            if (ass_id) {
+                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.ass_id `
+            }
+
+            if (wilayah_id) {
+                groupBy += ` INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias 
+                INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = r.head_region_id `
+            }
+
+            groupBy += ' WHERE 1=1 '
 
             if (keyword) {
                 groupBy += ` AND mp.nama_pic like "%${keyword}%"`
@@ -191,8 +296,22 @@ const getSalesByHirarki = (
         if (isCount) {
             groupBy = `SELECT COUNT(DISTINCT pic.ass_id) AS total FROM mstr_outlet AS o
             INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id 
-            INNER JOIN ms_pic as mp ON mp.kode_pic = pic.ass_id 
-            WHERE 1=1 `
+            INNER JOIN ms_pic as mp ON mp.kode_pic = pic.ass_id  `
+
+            if (ass_id || asm_id) {
+                groupBy += ` INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id `
+            }
+
+            if (asm_id) {
+                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id `
+            }
+
+            if (wilayah_id) {
+                groupBy += ` INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias 
+                INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = r.head_region_id `
+            }
+
+            groupBy += ' WHERE 1=1 '
 
             if (keyword) {
                 groupBy += ` AND mp.nama_pic like "%${keyword}%"`
@@ -456,9 +575,35 @@ class Sales {
     }
 
     async getSalesByAchiev(data: any) {
-        const sub = getSalesByHirarki('outlet', data, false, false);
+        let sub = getSalesByHirarki('outlet', data, false, false);
         let totalTarget = getTarget(data, 'SUM(st.target_sales) AS target');
-        const query = `SELECT CONCAT(TRUNCATE((SUM(aktual)/(${totalTarget})) * 100, 2), '%') AS kontribusi, CONCAT( TRUNCATE( SUM(target) /(${totalTarget}) * 100, 2 ), '%' ) AS bobot_target, SUM(aktual) AS aktual, TRUNCATE(SUM(aktual) / SUM(target) * 100, 2) AS pencapaian, CONCAT( TRUNCATE(SUM(aktual) / SUM(target) * 100, 2), '%' ) AS percentage, CASE WHEN ((aktual / target) * 100) <= 0 OR ((aktual / target) * 100) IS NULL THEN 'ZERO ACHIEVER <= 0%' WHEN ((aktual / target) * 100) > 0 AND ((aktual / target) * 100) < 70 THEN 'LOW ACHIEVER > 0%' WHEN ((aktual / target) * 100) >= 70 AND ((aktual / target) * 100) < 90 THEN 'NEAR ACHIEVER >= 70%' WHEN ((aktual / target) * 100) >= 90 AND ((aktual / target) * 100) < 100 THEN 'HIGH ACHIEVER >= 90%' WHEN ((aktual / target) * 100) >= 100 THEN 'TOP ACHIEVER >= 100%' END AS cluster, CASE WHEN ((aktual / target) * 100) <= 0 OR ((aktual / target) * 100) IS NULL THEN '1' WHEN ((aktual / target) * 100) > 0 AND ((aktual / target) * 100) < 70 THEN '2' WHEN ((aktual / target) * 100) >= 70 AND ((aktual / target) * 100) < 90 THEN '3' WHEN ((aktual / target) * 100) >= 90 AND ((aktual / target) * 100) < 100 THEN '4' WHEN ((aktual / target) * 100) >= 100 THEN '5' END AS id, SUM(target) AS target, SUM(aktual) AS aktual, SUM(aktual) - SUM(target) AS diff, SUM(ao) AS ao, SUM(outlet) AS outlet, CONCAT(TRUNCATE(SUM(ao) / SUM(outlet) * 100, 2), '%') AS aoro, total_target, total_outlet, CONCAT( TRUNCATE(SUM(outlet) / total_outlet * 100, 2), '%' ) AS bobot_outlet, CONCAT( TRUNCATE(SUM(outlet) / total_outlet * 100, 2), '%' ) AS bobot_outlet FROM (${sub}) AS sub GROUP BY cluster ORDER BY id DESC`;
+        const query = `SELECT CONCAT(TRUNCATE((SUM(aktual)/(${totalTarget})) * 100, 2), '%') AS kontribusi, 
+        CONCAT( TRUNCATE( SUM(target) /(${totalTarget}) * 100, 2 ), '%' ) AS bobot_target, 
+        SUM(aktual) AS aktual, TRUNCATE(SUM(aktual) / SUM(target) * 100, 2) AS pencapaian, 
+        CONCAT( TRUNCATE(SUM(aktual) / SUM(target) * 100, 2), '%' ) AS percentage, 
+        CASE WHEN ((aktual / target) * 100) <= 0 OR ((aktual / target) * 100) IS NULL THEN 'ZERO ACHIEVER <= 0%' 
+        WHEN ((aktual / target) * 100) > 0 AND ((aktual / target) * 100) < 70 THEN 'LOW ACHIEVER > 0%' 
+        WHEN ((aktual / target) * 100) >= 70 AND ((aktual / target) * 100) < 90 THEN 'NEAR ACHIEVER >= 70%' 
+        WHEN ((aktual / target) * 100) >= 90 AND ((aktual / target) * 100) < 100 THEN 'HIGH ACHIEVER >= 90%' 
+        WHEN ((aktual / target) * 100) >= 100 THEN 'TOP ACHIEVER >= 100%' END AS cluster, 
+        CASE WHEN ((aktual / target) * 100) <= 0 OR ((aktual / target) * 100) IS NULL THEN '1' 
+        WHEN ((aktual / target) * 100) > 0 AND ((aktual / target) * 100) < 70 THEN '2' 
+        WHEN ((aktual / target) * 100) >= 70 AND ((aktual / target) * 100) < 90 THEN '3' 
+        WHEN ((aktual / target) * 100) >= 90 AND ((aktual / target) * 100) < 100 THEN '4' 
+        WHEN ((aktual / target) * 100) >= 100 THEN '5' END AS id, 
+        SUM(target) AS target, 
+        SUM(aktual) AS aktual, 
+        SUM(aktual) - SUM(target) AS diff, 
+        SUM(ao) AS ao, 
+        SUM(outlet) AS outlet, 
+        CONCAT(TRUNCATE(SUM(ao) / SUM(outlet) * 100, 2), '%') AS aoro, 
+        total_target, 
+        total_outlet, 
+        CONCAT( TRUNCATE(SUM(outlet) / total_outlet * 100, 2), '%' ) AS bobot_outlet, 
+        CONCAT( TRUNCATE(SUM(outlet) / total_outlet * 100, 2), '%' ) AS bobot_outlet 
+        FROM (${sub}) AS sub 
+        GROUP BY cluster, id, bobot_outlet, bobot_outlet, total_target, total_outlet
+        ORDER BY id DESC`;
 
         return await db.query(query, {
             raw: true,
