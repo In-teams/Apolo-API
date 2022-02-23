@@ -3,6 +3,7 @@ import AccessMiddleware from "../helpers/AccessMiddleware";
 import {SalesControllerV2} from "../controllers/sales-controller-v2";
 import SalesRequest from "../request/Sales";
 import IRouter from "../types/RouterInterface";
+import SalesController from "../controllers/Sales";
 
 class SalesV2 implements IRouter {
     public router: Router;
@@ -15,6 +16,7 @@ class SalesV2 implements IRouter {
 
     routes() {
         const controller = new SalesControllerV2;
+        this.router.get("/", SalesRequest.get, SalesController.get); // summary (all)
         this.router.get("/summary/hr", AccessMiddleware.wilayah, SalesRequest.get, controller.getSummaryByHR);
         this.router.get("/summary/region", AccessMiddleware.region, SalesRequest.get, controller.getSummaryByRegion);
         this.router.get("/summary/distributor", AccessMiddleware.wilayah, SalesRequest.get, controller.getSummaryByDistributor);
