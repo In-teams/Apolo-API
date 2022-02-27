@@ -33,7 +33,7 @@ class Registration implements IRouter {
     this.router.get("/:outlet_id", RegistrationRequest.getOutletData, RegistrationController.getOutletData); // get outlet data
     this.router.post("/validation", RegistrationRequest.validation, RegistrationController.validation); // registration file validation
     this.router.get("/history/:file_id", RegistrationRequest.getHistory, RegistrationController.getHistory); // get history validation
-    this.router.get("/file/:outlet_id", RegistrationRequest.getForm, RegistrationController.getFile); // get registration file
+    this.router.get("/file/:outlet_id", RegistrationRequest.getFile, RegistrationController.getFile); // get registration file
   }
 }
 
