@@ -148,6 +148,6 @@ const Outlet = db.define("outlet", {
 Outlet.belongsTo(DistributorModel, {foreignKey: "distributor_id", as: "distributor"})
 Outlet.belongsTo(CityModel, {foreignKey: "city_id_alias", as: "city"})
 Outlet.belongsTo(RegionModel, {foreignKey: "region_id", as: "region"})
-Outlet.hasMany(OutletRegistrationModel, {foreignKey: "outlet_id", as: "registration"})
+Outlet.hasMany(OutletRegistrationModel, {foreignKey: "outlet_id", as: "registrations"})
 
 export const OutletModel = Outlet

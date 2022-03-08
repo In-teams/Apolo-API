@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "fbc66549-862e-4a34-b5fd-086bbfd825d8",
+		"_postman_id": "47673e76-606d-46a6-b732-4ba33e268f9a",
 		"name": "Apolo API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -332,6 +332,108 @@
 									"value": "NI",
 									"description": "wilayah_id",
 									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get outlet by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get outlet redemptions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJfaWQiOiJzdXBlciIsIm5hbWUiOm51bGwsInVzZXJfcHJvZmlsZSI6IiIsImxldmVsIjoiMSIsImVtYWlsIjpudWxsLCJzY29wZSI6bnVsbCwicGhvdG8iOm51bGwsInJlZ2lkIjpudWxsfSwiaWF0IjoxNjQ1NTM2MDgyfQ.7rcPrts6hED5XKTV_NsSxgoSgSweDlA5yxPb7CoPpzA",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{live-url}}/api/v1/outlet/{{outletId}}/redemptions",
+							"host": [
+								"{{live-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"outlet",
+								"{{outletId}}",
+								"redemptions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get outlet redemption by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJfaWQiOiJzdXBlciIsIm5hbWUiOm51bGwsInVzZXJfcHJvZmlsZSI6IiIsImxldmVsIjoiMSIsImVtYWlsIjpudWxsLCJzY29wZSI6bnVsbCwicGhvdG8iOm51bGwsInJlZ2lkIjpudWxsfSwiaWF0IjoxNjQ1NTM2MDgyfQ.7rcPrts6hED5XKTV_NsSxgoSgSweDlA5yxPb7CoPpzA",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:2000/api/v1/outlet/300015-101274/redemptions/MV2021-1-00001687?include[]=status_transaksi&include[]=items.product&include[]=program&include[]=outlet.region&include[]=outlet.registration.periode&include[]=outlet.city&include[]=outlet.distributor&attributes[]=kd_transaksi",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								"api",
+								"v1",
+								"outlet",
+								"300015-101274",
+								"redemptions",
+								"MV2021-1-00001687"
+							],
+							"query": [
+								{
+									"key": "include[]",
+									"value": "status_transaksi"
+								},
+								{
+									"key": "include[]",
+									"value": "items.product"
+								},
+								{
+									"key": "include[]",
+									"value": "program"
+								},
+								{
+									"key": "include[]",
+									"value": "outlet.region"
+								},
+								{
+									"key": "include[]",
+									"value": "outlet.registration.periode"
+								},
+								{
+									"key": "include[]",
+									"value": "outlet.city"
+								},
+								{
+									"key": "include[]",
+									"value": "outlet.distributor"
+								},
+								{
+									"key": "attributes[]",
+									"value": "kd_transaksi"
 								}
 							]
 						}
@@ -1931,6 +2033,26 @@
 			]
 		}
 	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
 	"variable": [
 		{
 			"key": "url",
@@ -1938,7 +2060,7 @@
 		},
 		{
 			"key": "live-url",
-			"value": "https://apolo-api.inosis.id/api/v1"
+			"value": "https://api.apolo.v2.inosis.id"
 		},
 		{
 			"key": "dev-url",
@@ -1955,6 +2077,14 @@
 		{
 			"key": "live2-url",
 			"value": "http://api.apolo.inosis.id/api/v1"
+		},
+		{
+			"key": "outletId",
+			"value": "101000-MSM3353"
+		},
+		{
+			"key": "redemptionId",
+			"value": "MV2021-1-00001687"
 		}
 	]
 }
