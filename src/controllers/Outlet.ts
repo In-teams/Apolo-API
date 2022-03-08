@@ -13,6 +13,48 @@ import {CityModel} from "../models/city-model";
 import {RegionModel} from "../models/region-model";
 import {OutletRegistrationPeriodModel} from "../models/outlet-registration-period";
 
+function mapRelations(include: any) {
+    if (!include) {
+        return undefined
+    }
+
+    if (typeof include !== "string") {
+        const modelMapping: { [s: string]: any } = {
+            status_transaksi: RedeemStatusModel,
+            items: RedeemItemModel,
+            product: RewardModel,
+            program: ProgramModel,
+            outlet: OutletModel,
+            distributor: DistributorModel,
+            city: CityModel,
+            region: RegionModel,
+            registration: OutletRegistrationModel,
+            periode: OutletRegistrationPeriodModel,
+        }
+
+        const mapper = (model: string): any => {
+            if (model.includes(".")) {
+                const relations = model.split(".")
+
+                const related = relations.shift();
+
+                if (!related) {
+                    return null;
+                }
+
+                return {model: modelMapping[related], as: related, include: mapper(relations.join("."))}
+            }
+
+            return {model: modelMapping[model], as: model};
+        }
+
+        include = include.map(mapper)
+    }
+
+    return include;
+}
+
+
 class Outlet {
     async get(req: Request, res: Response): Promise<object | undefined> {
         try {
@@ -71,20 +113,23 @@ class Outlet {
         }
     }
 
-    async getRedemptions(req: Request<{ id: string }, any, any, { page?: number; per_page?: number }>, res: Response) {
+    async getRedemptions(req: Request<{ id: string }, any, any, { page?: number; per_page?: number; include?: any }>, res: Response) {
         const {id: no_id} = req.params;
 
-        const {page = 1, per_page: limit = 10} = req.query
+        let {page = 1, per_page: limit = 10, include} = req.query
 
         const offset = limit * (Math.max(page - 1, 0))
 
         const to = limit * page;
 
+        include = mapRelations(include);
+
         try {
             const {count: total, rows: data} = await RedeemTransactionModel.findAndCountAll({
                 where: {no_id},
                 limit,
-                offset
+                offset,
+                include
             })
 
             return res.status(200).json({data, total, from: offset + 1, to})
@@ -99,38 +144,7 @@ class Outlet {
 
         let {attributes, include} = req.query
 
-        if (include !== null && typeof include !== "string") {
-            const modelMapping: { [s: string]: any } = {
-                status_transaksi: RedeemStatusModel,
-                items: RedeemItemModel,
-                product: RewardModel,
-                program: ProgramModel,
-                outlet: OutletModel,
-                distributor: DistributorModel,
-                city: CityModel,
-                region: RegionModel,
-                registration: OutletRegistrationModel,
-                periode: OutletRegistrationPeriodModel,
-            }
-
-            const mapper = (model: string): any => {
-                if (model.includes(".")) {
-                    const relations = model.split(".")
-
-                    const related = relations.shift();
-
-                    if (!related) {
-                        return null;
-                    }
-
-                    return {model: modelMapping[related], as: related, include: mapper(relations.join("."))}
-                }
-
-                return {model: modelMapping[model], as: model};
-            }
-
-            include = include.map(mapper)
-        }
+        include = mapRelations(include);
 
         try {
             const data = await RedeemTransactionModel.findByPk(id, {attributes, include: include})
@@ -140,6 +154,20 @@ class Outlet {
             console.error(error)
             return res.status(500).json({error})
         }
+    }
+
+    async update(req: Request<{ id: string }>, res: Response) {
+        const {id} = req.params;
+
+        const data = req.body;
+
+        const outlet = await OutletModel.findByPk(id);
+
+        if (outlet == null) {
+            return res.status(404).json({message: "Not Found."})
+        }
+
+        return res.status(200).json({data: await outlet.update(data)})
     }
 }
 
