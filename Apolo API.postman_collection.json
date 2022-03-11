@@ -2031,6 +2031,468 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Provinces",
+			"item": [
+				{
+					"name": "Provinces Index",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJfaWQiOiJNZGx6MDEiLCJuYW1lIjoiIiwidXNlcl9wcm9maWxlIjoiUkVHSU9OICBKQVZBIDEgLSBHUkVBVEVSIEpBS0FSVEEiLCJsZXZlbCI6IjIiLCJlbWFpbCI6IiIsInNjb3BlIjoiUjEiLCJwaG90byI6bnVsbCwicmVnaWQiOiJjZU1yNEM3aGFvMDpBUEE5MWJINXc4OG51REYyWGs0eXpYN2dMWWh1b180Mkt1S1Bma0dqNkduc2p1dmFIcDg3SjY4MjF6ZnVLOXMwV1o2MURNUS03bHV6Skp2TkpnYU5wUVFOT1RjcGlKRXlzTzlBOWJ0MUNNdm82a3Ribmhna1FIV0Ridkc5TGVMTlZ2TUlUVVZoNzJGZyJ9LCJpYXQiOjE2NDY5OTI1MTJ9.lpc9gDrRZN1uLngKTd-OV2wRYusDRtdywYIVIBZ5g24",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:2000/api/v2/provinces?search=&page=1&include[]=kabupaten",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								"api",
+								"v2",
+								"provinces"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "include[]",
+									"value": "kabupaten"
+								},
+								{
+									"key": "include[]",
+									"value": "kecamatan",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Province Show",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJfaWQiOiJNZGx6MDEiLCJuYW1lIjoiIiwidXNlcl9wcm9maWxlIjoiUkVHSU9OICBKQVZBIDEgLSBHUkVBVEVSIEpBS0FSVEEiLCJsZXZlbCI6IjIiLCJlbWFpbCI6IiIsInNjb3BlIjoiUjEiLCJwaG90byI6bnVsbCwicmVnaWQiOiJjZU1yNEM3aGFvMDpBUEE5MWJINXc4OG51REYyWGs0eXpYN2dMWWh1b180Mkt1S1Bma0dqNkduc2p1dmFIcDg3SjY4MjF6ZnVLOXMwV1o2MURNUS03bHV6Skp2TkpnYU5wUVFOT1RjcGlKRXlzTzlBOWJ0MUNNdm82a3Ribmhna1FIV0Ridkc5TGVMTlZ2TUlUVVZoNzJGZyJ9LCJpYXQiOjE2NDY5OTI1MTJ9.lpc9gDrRZN1uLngKTd-OV2wRYusDRtdywYIVIBZ5g24",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:2000/api/v2/provinces/10?include[]=kabupaten",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								"api",
+								"v2",
+								"provinces",
+								"10"
+							],
+							"query": [
+								{
+									"key": "include[]",
+									"value": "kabupaten"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Province Kabupaten (City)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJfaWQiOiJNZGx6MDEiLCJuYW1lIjoiIiwidXNlcl9wcm9maWxlIjoiUkVHSU9OICBKQVZBIDEgLSBHUkVBVEVSIEpBS0FSVEEiLCJsZXZlbCI6IjIiLCJlbWFpbCI6IiIsInNjb3BlIjoiUjEiLCJwaG90byI6bnVsbCwicmVnaWQiOiJjZU1yNEM3aGFvMDpBUEE5MWJINXc4OG51REYyWGs0eXpYN2dMWWh1b180Mkt1S1Bma0dqNkduc2p1dmFIcDg3SjY4MjF6ZnVLOXMwV1o2MURNUS03bHV6Skp2TkpnYU5wUVFOT1RjcGlKRXlzTzlBOWJ0MUNNdm82a3Ribmhna1FIV0Ridkc5TGVMTlZ2TUlUVVZoNzJGZyJ9LCJpYXQiOjE2NDY5OTI1MTJ9.lpc9gDrRZN1uLngKTd-OV2wRYusDRtdywYIVIBZ5g24",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:2000/api/v2/provinces/11/kabupaten?search=&page=1&per_page=20",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								"api",
+								"v2",
+								"provinces",
+								"11",
+								"kabupaten"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "20"
+								},
+								{
+									"key": "include[]",
+									"value": "kecamatan",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Province Cities",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJfaWQiOiJNZGx6MDEiLCJuYW1lIjoiIiwidXNlcl9wcm9maWxlIjoiUkVHSU9OICBKQVZBIDEgLSBHUkVBVEVSIEpBS0FSVEEiLCJsZXZlbCI6IjIiLCJlbWFpbCI6IiIsInNjb3BlIjoiUjEiLCJwaG90byI6bnVsbCwicmVnaWQiOiJjZU1yNEM3aGFvMDpBUEE5MWJINXc4OG51REYyWGs0eXpYN2dMWWh1b180Mkt1S1Bma0dqNkduc2p1dmFIcDg3SjY4MjF6ZnVLOXMwV1o2MURNUS03bHV6Skp2TkpnYU5wUVFOT1RjcGlKRXlzTzlBOWJ0MUNNdm82a3Ribmhna1FIV0Ridkc5TGVMTlZ2TUlUVVZoNzJGZyJ9LCJpYXQiOjE2NDY5OTI1MTJ9.lpc9gDrRZN1uLngKTd-OV2wRYusDRtdywYIVIBZ5g24",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:2000/api/v2/provinces/11/cities?search=&page=1&per_page=20",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								"api",
+								"v2",
+								"provinces",
+								"11",
+								"cities"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "20"
+								},
+								{
+									"key": "include[]",
+									"value": "kecamatan",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Alias for /kabupaten"
+					},
+					"response": []
+				},
+				{
+					"name": "City Show",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJfaWQiOiJNZGx6MDEiLCJuYW1lIjoiIiwidXNlcl9wcm9maWxlIjoiUkVHSU9OICBKQVZBIDEgLSBHUkVBVEVSIEpBS0FSVEEiLCJsZXZlbCI6IjIiLCJlbWFpbCI6IiIsInNjb3BlIjoiUjEiLCJwaG90byI6bnVsbCwicmVnaWQiOiJjZU1yNEM3aGFvMDpBUEE5MWJINXc4OG51REYyWGs0eXpYN2dMWWh1b180Mkt1S1Bma0dqNkduc2p1dmFIcDg3SjY4MjF6ZnVLOXMwV1o2MURNUS03bHV6Skp2TkpnYU5wUVFOT1RjcGlKRXlzTzlBOWJ0MUNNdm82a3Ribmhna1FIV0Ridkc5TGVMTlZ2TUlUVVZoNzJGZyJ9LCJpYXQiOjE2NDY5OTI1MTJ9.lpc9gDrRZN1uLngKTd-OV2wRYusDRtdywYIVIBZ5g24",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:2000/api/v2/provinces/11/kabupaten/1102?include[]=kecamatan",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								"api",
+								"v2",
+								"provinces",
+								"11",
+								"kabupaten",
+								"1102"
+							],
+							"query": [
+								{
+									"key": "include[]",
+									"value": "kecamatan"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Kecamatan index",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJfaWQiOiJNZGx6MDEiLCJuYW1lIjoiIiwidXNlcl9wcm9maWxlIjoiUkVHSU9OICBKQVZBIDEgLSBHUkVBVEVSIEpBS0FSVEEiLCJsZXZlbCI6IjIiLCJlbWFpbCI6IiIsInNjb3BlIjoiUjEiLCJwaG90byI6bnVsbCwicmVnaWQiOiJjZU1yNEM3aGFvMDpBUEE5MWJINXc4OG51REYyWGs0eXpYN2dMWWh1b180Mkt1S1Bma0dqNkduc2p1dmFIcDg3SjY4MjF6ZnVLOXMwV1o2MURNUS03bHV6Skp2TkpnYU5wUVFOT1RjcGlKRXlzTzlBOWJ0MUNNdm82a3Ribmhna1FIV0Ridkc5TGVMTlZ2TUlUVVZoNzJGZyJ9LCJpYXQiOjE2NDY5OTI1MTJ9.lpc9gDrRZN1uLngKTd-OV2wRYusDRtdywYIVIBZ5g24",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:2000/api/v2/provinces/11/kabupaten/1102/kecamatan?search=Pulau&page=1&per_page=20&includes[]=kelurahan",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								"api",
+								"v2",
+								"provinces",
+								"11",
+								"kabupaten",
+								"1102",
+								"kecamatan"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "Pulau"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "20"
+								},
+								{
+									"key": "includes[]",
+									"value": "kelurahan"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Districts index",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJfaWQiOiJNZGx6MDEiLCJuYW1lIjoiIiwidXNlcl9wcm9maWxlIjoiUkVHSU9OICBKQVZBIDEgLSBHUkVBVEVSIEpBS0FSVEEiLCJsZXZlbCI6IjIiLCJlbWFpbCI6IiIsInNjb3BlIjoiUjEiLCJwaG90byI6bnVsbCwicmVnaWQiOiJjZU1yNEM3aGFvMDpBUEE5MWJINXc4OG51REYyWGs0eXpYN2dMWWh1b180Mkt1S1Bma0dqNkduc2p1dmFIcDg3SjY4MjF6ZnVLOXMwV1o2MURNUS03bHV6Skp2TkpnYU5wUVFOT1RjcGlKRXlzTzlBOWJ0MUNNdm82a3Ribmhna1FIV0Ridkc5TGVMTlZ2TUlUVVZoNzJGZyJ9LCJpYXQiOjE2NDY5OTI1MTJ9.lpc9gDrRZN1uLngKTd-OV2wRYusDRtdywYIVIBZ5g24",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:2000/api/v2/provinces/11/cities/1102/districts?search=Pulau&page=1&per_page=20&includes[]=kelurahan",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								"api",
+								"v2",
+								"provinces",
+								"11",
+								"cities",
+								"1102",
+								"districts"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "Pulau"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "20"
+								},
+								{
+									"key": "includes[]",
+									"value": "kelurahan"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "District show",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJfaWQiOiJNZGx6MDEiLCJuYW1lIjoiIiwidXNlcl9wcm9maWxlIjoiUkVHSU9OICBKQVZBIDEgLSBHUkVBVEVSIEpBS0FSVEEiLCJsZXZlbCI6IjIiLCJlbWFpbCI6IiIsInNjb3BlIjoiUjEiLCJwaG90byI6bnVsbCwicmVnaWQiOiJjZU1yNEM3aGFvMDpBUEE5MWJINXc4OG51REYyWGs0eXpYN2dMWWh1b180Mkt1S1Bma0dqNkduc2p1dmFIcDg3SjY4MjF6ZnVLOXMwV1o2MURNUS03bHV6Skp2TkpnYU5wUVFOT1RjcGlKRXlzTzlBOWJ0MUNNdm82a3Ribmhna1FIV0Ridkc5TGVMTlZ2TUlUVVZoNzJGZyJ9LCJpYXQiOjE2NDY5OTI1MTJ9.lpc9gDrRZN1uLngKTd-OV2wRYusDRtdywYIVIBZ5g24",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:2000/api/v2/provinces/11/cities/1102/districts/1102011?include[]=kelurahan",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								"api",
+								"v2",
+								"provinces",
+								"11",
+								"cities",
+								"1102",
+								"districts",
+								"1102011"
+							],
+							"query": [
+								{
+									"key": "include[]",
+									"value": "kelurahan"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Kecamatan show",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJfaWQiOiJNZGx6MDEiLCJuYW1lIjoiIiwidXNlcl9wcm9maWxlIjoiUkVHSU9OICBKQVZBIDEgLSBHUkVBVEVSIEpBS0FSVEEiLCJsZXZlbCI6IjIiLCJlbWFpbCI6IiIsInNjb3BlIjoiUjEiLCJwaG90byI6bnVsbCwicmVnaWQiOiJjZU1yNEM3aGFvMDpBUEE5MWJINXc4OG51REYyWGs0eXpYN2dMWWh1b180Mkt1S1Bma0dqNkduc2p1dmFIcDg3SjY4MjF6ZnVLOXMwV1o2MURNUS03bHV6Skp2TkpnYU5wUVFOT1RjcGlKRXlzTzlBOWJ0MUNNdm82a3Ribmhna1FIV0Ridkc5TGVMTlZ2TUlUVVZoNzJGZyJ9LCJpYXQiOjE2NDY5OTI1MTJ9.lpc9gDrRZN1uLngKTd-OV2wRYusDRtdywYIVIBZ5g24",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:2000/api/v2/provinces/11/kabupaten/1102/kecamatan/1102011?include[]=kelurahan",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								"api",
+								"v2",
+								"provinces",
+								"11",
+								"kabupaten",
+								"1102",
+								"kecamatan",
+								"1102011"
+							],
+							"query": [
+								{
+									"key": "include[]",
+									"value": "kelurahan"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Kelurahan index",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJfaWQiOiJNZGx6MDEiLCJuYW1lIjoiIiwidXNlcl9wcm9maWxlIjoiUkVHSU9OICBKQVZBIDEgLSBHUkVBVEVSIEpBS0FSVEEiLCJsZXZlbCI6IjIiLCJlbWFpbCI6IiIsInNjb3BlIjoiUjEiLCJwaG90byI6bnVsbCwicmVnaWQiOiJjZU1yNEM3aGFvMDpBUEE5MWJINXc4OG51REYyWGs0eXpYN2dMWWh1b180Mkt1S1Bma0dqNkduc2p1dmFIcDg3SjY4MjF6ZnVLOXMwV1o2MURNUS03bHV6Skp2TkpnYU5wUVFOT1RjcGlKRXlzTzlBOWJ0MUNNdm82a3Ribmhna1FIV0Ridkc5TGVMTlZ2TUlUVVZoNzJGZyJ9LCJpYXQiOjE2NDY5OTI1MTJ9.lpc9gDrRZN1uLngKTd-OV2wRYusDRtdywYIVIBZ5g24",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:2000/api/v2/provinces/11/kabupaten/1102/kecamatan/1102011/kelurahan?search=Ujung&page=1&per_page=20",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								"api",
+								"v2",
+								"provinces",
+								"11",
+								"kabupaten",
+								"1102",
+								"kecamatan",
+								"1102011",
+								"kelurahan"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "Ujung"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "20"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Kelurahan Show",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJfaWQiOiJNZGx6MDEiLCJuYW1lIjoiIiwidXNlcl9wcm9maWxlIjoiUkVHSU9OICBKQVZBIDEgLSBHUkVBVEVSIEpBS0FSVEEiLCJsZXZlbCI6IjIiLCJlbWFpbCI6IiIsInNjb3BlIjoiUjEiLCJwaG90byI6bnVsbCwicmVnaWQiOiJjZU1yNEM3aGFvMDpBUEE5MWJINXc4OG51REYyWGs0eXpYN2dMWWh1b180Mkt1S1Bma0dqNkduc2p1dmFIcDg3SjY4MjF6ZnVLOXMwV1o2MURNUS03bHV6Skp2TkpnYU5wUVFOT1RjcGlKRXlzTzlBOWJ0MUNNdm82a3Ribmhna1FIV0Ridkc5TGVMTlZ2TUlUVVZoNzJGZyJ9LCJpYXQiOjE2NDY5OTI1MTJ9.lpc9gDrRZN1uLngKTd-OV2wRYusDRtdywYIVIBZ5g24",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:2000/api/v2/provinces/11/kabupaten/1102/kecamatan/1102011/kelurahan/1102011002",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								"api",
+								"v2",
+								"provinces",
+								"11",
+								"kabupaten",
+								"1102",
+								"kecamatan",
+								"1102011",
+								"kelurahan",
+								"1102011002"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [

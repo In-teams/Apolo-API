@@ -1,7 +1,7 @@
 import db from "../config/db"
 import {DataTypes} from "sequelize";
 
-const City = db.define("city", {
+const SalesCity = db.define("sales_city", {
     city_id_alias: {
         type: DataTypes.STRING,
         primaryKey: true,
@@ -16,4 +16,4 @@ const City = db.define("city", {
     timestamps: false
 })
 
-export const CityModel = City
+export const SalesCityModel = SalesCity
