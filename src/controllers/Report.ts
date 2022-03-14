@@ -153,7 +153,12 @@ class Report {
     res: Response
   ): Promise<object | undefined> {
     try {
-      const data = await Service.exportPointActivityReport(req.validated);
+      let data = await Service.exportPointActivityReport(req.validated);
+      data = data.map((e: any) => ({
+        ...e,
+        target: +e.target,
+        aktual: +e.aktual,
+      }))
       const columns = data.length > 0 ? Object.keys(data[0]) : [];
       return await ExportExcel(res, columns, data);
     } catch (error) {
