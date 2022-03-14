@@ -1,4 +1,4 @@
-import {QueryTypes} from "sequelize";
+import { QueryTypes } from "sequelize";
 import db from "../config/db";
 
 const getRegistrationReportQuery = async (
@@ -279,25 +279,9 @@ const getPointActivityQuery = async (
   const filterMonth = month ? " AND b.id = :month" : "";
   const filterQuarter = quarter_id ? " AND b.id IN(:quarter_id)" : "";
   const col = isCount
-      ? "COUNT(o.outlet_id) AS total"
-      : "a.outlet_id, " +
-      "o.outlet_name, " +
-      "a.target, " +
-      "IFNULL(b.aktual, 0) AS aktual, " +
-      "CONCAT(IFNULL(TRUNCATE(((IFNULL(aktual, 0) / target) * 100), 2), 0), '%') AS pencapaian, " +
-      "IFNULL(poin_achieve, 0) AS tersedia, IFNULL(poin_redeem, 0) AS poin_redeem, " +
-      "IFNULL(poin_bonus, 0) AS kuartal, IFNULL(poin_reguler, 0) AS bulanan, " +
-      "(IFNULL(poin_achieve, 0) - IFNULL(poin_redeem, 0)) AS sisa, " +
-      "IFNULL(level, 'Level 1') AS level, " +
-      "IFNULL(status, 'Level 1A - Formulir Tidak Ada') AS status";
-  let query = `SELECT ${col} FROM (
-  SELECT SUM(st.target_sales) AS target, 
-  st.outlet_id, 
-  b.bulan AS month_name, 
-  b.id AS month_id FROM (SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS st 
-  INNER JOIN ms_bulan AS b ON b.bulan = st.month_target WHERE 1=1 ${filterMonth} ${filterQuarter} GROUP BY outlet_id) a 
-  LEFT JOIN ((SELECT tr.no_id, b.bulan, SUM(trb.sales) AS aktual, SUM(trb.point_satuan) AS poin_achieve FROM trx_transaksi AS tr 
-  INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN ms_bulan AS b ON b.id = MONTH(tr.tgl_transaksi) WHERE 1=1 ${filterMonth} ${filterQuarter} GROUP BY tr.no_id)) AS b ON a.outlet_id = b.no_id LEFT JOIN (SELECT CAST(SUM(trrb.point_satuan * trrb.quantity) AS DECIMAL(20, 2)) AS poin_redeem, tr.no_id, b.bulan AS bulan FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trrb ON tr.kd_transaksi = trrb.kd_transaksi INNER JOIN ms_bulan AS b ON b.id = MONTH(tr.tgl_transaksi) WHERE 1=1 ${filterMonth} ${filterQuarter} GROUP BY no_id) AS c ON c.no_id = a.outlet_id LEFT JOIN ((SELECT tr.no_id, b.bulan, SUM(trb.point_satuan) AS poin_bonus FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN ms_bulan AS b ON b.id = MONTH(tr.tgl_transaksi) WHERE tr.status = 'B' ${filterMonth} ${filterQuarter} GROUP BY tr.no_id) ) AS d ON a.outlet_id = d.no_id LEFT JOIN ((SELECT tr.no_id, b.bulan, SUM(trb.point_satuan) AS poin_reguler FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN ms_bulan AS b ON b.id = MONTH(tr.tgl_transaksi) WHERE tr.status = 'A' ${filterMonth} ${filterQuarter} GROUP BY tr.no_id) ) AS e ON a.outlet_id = e.no_id LEFT JOIN (SELECT * FROM (SELECT o.outlet_id, (SELECT sp.level FROM trx_file_penukaran AS fp LEFT JOIN ms_status_penukaran AS sp ON sp.id = fp.status_penukaran WHERE fp.outlet_id = o.outlet_id ORDER BY fp.id DESC LIMIT 1) AS LEVEL, (SELECT sp.status FROM trx_file_penukaran AS fp LEFT JOIN ms_status_penukaran AS sp ON sp.id = fp.status_penukaran WHERE fp.outlet_id = o.outlet_id ORDER BY fp.id DESC LIMIT 1) AS STATUS FROM mstr_outlet AS o GROUP BY outlet_id) AS a) AS k ON k.outlet_id = a.outlet_id RIGHT JOIN (SELECT o.* FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id) AS o ON o.outlet_id = a.outlet_id WHERE 1=1`;
+    ? "COUNT(o.outlet_id) AS total"
+    : "a.outlet_id, o.outlet_name, a.target, IFNULL(b.aktual, 0) AS aktual, CONCAT(IFNULL(TRUNCATE(((IFNULL(aktual, 0) / target) * 100), 2), 0), '%') AS pencapaian, IFNULL(poin_achieve, 0) AS tersedia, IFNULL(poin_redeem, 0) AS poin_redeem, IFNULL(poin_bonus, 0) AS kuartal, IFNULL(poin_reguler, 0) AS bulanan, (IFNULL(poin_achieve, 0) - IFNULL(poin_redeem, 0)) AS sisa, IFNULL(level, 'Level 1') AS level, IFNULL(status, 'Level 1A - Formulir Tidak Ada') AS status";
+  let query = `SELECT ${col} FROM (SELECT SUM(st.target_sales) AS target, st.outlet_id, b.bulan AS month_name, b.id AS month_id FROM (SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS st INNER JOIN ms_bulan AS b ON b.bulan = st.month_target WHERE 1=1 ${filterMonth} ${filterQuarter} GROUP BY outlet_id) a LEFT JOIN ((SELECT tr.no_id, b.bulan, SUM(trb.sales) AS aktual, SUM(trb.point_satuan) AS poin_achieve FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN ms_bulan AS b ON b.id = MONTH(tr.tgl_transaksi) WHERE 1=1 ${filterMonth} ${filterQuarter} GROUP BY tr.no_id)) AS b ON a.outlet_id = b.no_id LEFT JOIN (SELECT CAST(SUM(trrb.point_satuan * trrb.quantity) AS DECIMAL(20, 2)) AS poin_redeem, tr.no_id, b.bulan AS bulan FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trrb ON tr.kd_transaksi = trrb.kd_transaksi INNER JOIN ms_bulan AS b ON b.id = MONTH(tr.tgl_transaksi) WHERE 1=1 ${filterMonth} ${filterQuarter} GROUP BY no_id) AS c ON c.no_id = a.outlet_id LEFT JOIN ((SELECT tr.no_id, b.bulan, SUM(trb.point_satuan) AS poin_bonus FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN ms_bulan AS b ON b.id = MONTH(tr.tgl_transaksi) WHERE tr.status = 'B' ${filterMonth} ${filterQuarter} GROUP BY tr.no_id) ) AS d ON a.outlet_id = d.no_id LEFT JOIN ((SELECT tr.no_id, b.bulan, SUM(trb.point_satuan) AS poin_reguler FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN ms_bulan AS b ON b.id = MONTH(tr.tgl_transaksi) WHERE tr.status = 'A' ${filterMonth} ${filterQuarter} GROUP BY tr.no_id) ) AS e ON a.outlet_id = e.no_id LEFT JOIN (SELECT * FROM (SELECT o.outlet_id, (SELECT sp.level FROM trx_file_penukaran AS fp LEFT JOIN ms_status_penukaran AS sp ON sp.id = fp.status_penukaran WHERE fp.outlet_id = o.outlet_id ORDER BY fp.id DESC LIMIT 1) AS LEVEL, (SELECT sp.status FROM trx_file_penukaran AS fp LEFT JOIN ms_status_penukaran AS sp ON sp.id = fp.status_penukaran WHERE fp.outlet_id = o.outlet_id ORDER BY fp.id DESC LIMIT 1) AS STATUS FROM mstr_outlet AS o GROUP BY outlet_id) AS a) AS k ON k.outlet_id = a.outlet_id RIGHT JOIN (SELECT o.*, reg.*, dp.asm_id, dp.ass_id FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id) AS o ON o.outlet_id = a.outlet_id WHERE 1=1`;
 
   if (area_id) {
     query += " AND o.city_id_alias = :area_id";
