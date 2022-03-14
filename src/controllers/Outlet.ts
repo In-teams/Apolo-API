@@ -9,7 +9,7 @@ import {RedeemItemModel} from "../models/redeem-items";
 import {RewardModel} from "../models/reward";
 import {ProgramModel} from "../models/program";
 import {DistributorModel} from "../models/distributor-model";
-import {CityModel} from "../models/city-model";
+import {SalesCityModel} from "../models/sales-city-model";
 import {RegionModel} from "../models/region-model";
 import {OutletRegistrationPeriodModel} from "../models/outlet-registration-period";
 
@@ -26,7 +26,7 @@ function mapRelations(include: any) {
             program: ProgramModel,
             outlet: OutletModel,
             distributor: DistributorModel,
-            city: CityModel,
+            city: SalesCityModel,
             region: RegionModel,
             registration: OutletRegistrationModel,
             periode: OutletRegistrationPeriodModel,

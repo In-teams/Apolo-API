@@ -1,7 +1,7 @@
 import db from "../config/db"
 import {DataTypes} from "sequelize";
 import {DistributorModel} from "./distributor-model";
-import {CityModel} from "./city-model";
+import {SalesCityModel} from "./sales-city-model";
 import {RegionModel} from "./region-model";
 import {OutletRegistrationModel} from "./outlet-registration-model";
 
@@ -42,18 +42,18 @@ const Outlet = db.define("outlet", {
     rtrw: {
         type: DataTypes.STRING(10)
     },
-    kelurahan: {
-        type: DataTypes.STRING(100)
-    },
-    kecamatan: {
-        type: DataTypes.STRING(100)
-    },
-    kabupaten: {
-        type: DataTypes.STRING(100)
-    },
-    propinsi: {
-        type: DataTypes.STRING(100)
-    },
+    // kelurahan: {
+    //     type: DataTypes.STRING(100)
+    // },
+    // kecamatan: {
+    //     type: DataTypes.STRING(100)
+    // },
+    // kabupaten: {
+    //     type: DataTypes.STRING(100)
+    // },
+    // propinsi: {
+    //     type: DataTypes.STRING(100)
+    // },
     kota: {
         type: DataTypes.STRING(100)
     },
@@ -146,7 +146,7 @@ const Outlet = db.define("outlet", {
 })
 
 Outlet.belongsTo(DistributorModel, {foreignKey: "distributor_id", as: "distributor"})
-Outlet.belongsTo(CityModel, {foreignKey: "city_id_alias", as: "city"})
+Outlet.belongsTo(SalesCityModel, {foreignKey: "city_id_alias", as: "sales_city"})
 Outlet.belongsTo(RegionModel, {foreignKey: "region_id", as: "region"})
 Outlet.hasMany(OutletRegistrationModel, {foreignKey: "outlet_id", as: "registrations"})
 
