@@ -4,6 +4,10 @@ import {DistributorModel} from "./distributor-model";
 import {SalesCityModel} from "./sales-city-model";
 import {RegionModel} from "./region-model";
 import {OutletRegistrationModel} from "./outlet-registration-model";
+import {CityModel} from "./admin-city-model";
+import {DistrictModel} from "./admin-district-model";
+import {SubdistrictModel} from "./admin-subdistrict-model";
+import {ProvinceModel} from "./admin-provice-model";
 
 const Outlet = db.define("outlet", {
     outlet_id: {
@@ -149,5 +153,9 @@ Outlet.belongsTo(DistributorModel, {foreignKey: "distributor_id", as: "distribut
 Outlet.belongsTo(SalesCityModel, {foreignKey: "city_id_alias", as: "sales_city"})
 Outlet.belongsTo(RegionModel, {foreignKey: "region_id", as: "region"})
 Outlet.hasMany(OutletRegistrationModel, {foreignKey: "outlet_id", as: "registrations"})
+Outlet.belongsTo(ProvinceModel, {foreignKey: "propinsi", as: "province"})
+Outlet.belongsTo(CityModel, {foreignKey: "kabupaten", as: "city"})
+Outlet.belongsTo(DistrictModel, {foreignKey: "kecamatan", as: "district"})
+Outlet.belongsTo(SubdistrictModel, {foreignKey: "kelurahan", as: "subdistrict"})
 
 export const OutletModel = Outlet
