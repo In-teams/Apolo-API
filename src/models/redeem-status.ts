@@ -19,6 +19,12 @@ const RedeemStatus = db.define("redeem_status", {
     },
     tanggal_terima: {
         type: DataTypes.DATEONLY,
+    },
+    tanggal_propses: {
+        type: DataTypes.DATEONLY,
+    },
+    tanggal_tolak: {
+        type: DataTypes.DATEONLY,
     }
 }, {tableName: "trx_status", timestamps: false})
 

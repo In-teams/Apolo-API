@@ -3,6 +3,7 @@ import Token from "../helpers/Token";
 import routes from "./sales-v2";
 import ProvincesV2 from "./provinces.v2";
 import IRouter from "../types/RouterInterface";
+import RedeemRouter from "./redeem.v2";
 
 class RoutesV2 implements IRouter {
   public router: Router;
@@ -14,8 +15,8 @@ class RoutesV2 implements IRouter {
 
   routes() {
     this.router.use("/sales", Token.checkToken, routes);
-
     this.router.use("/provinces", Token.checkToken, ProvincesV2);
+    this.router.use("/redeem", Token.checkToken, RedeemRouter);
   }
 }
 

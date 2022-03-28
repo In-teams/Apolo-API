@@ -3,9 +3,8 @@ import response from "../helpers/Response";
 import Service from "../services/Outlet";
 import {OutletModel} from "../models/outlet-model";
 import {OutletRegistrationModel} from "../models/outlet-registration-model";
-import {RedeemTransactionModel} from "../models/redeem-transaction";
+import {RedeemItemModel, RedeemTransactionModel,} from "../models/redeem-transaction";
 import {RedeemStatusModel} from "../models/redeem-status";
-import {RedeemItemModel} from "../models/redeem-items";
 import {RewardModel} from "../models/reward";
 import {ProgramModel} from "../models/program";
 import {DistributorModel} from "../models/distributor-model";
@@ -26,6 +25,7 @@ function mapRelations(include: any) {
     const modelMapping: { [s: string]: any } = {
       status_transaksi: RedeemStatusModel,
       items: RedeemItemModel,
+      transaction: RedeemTransactionModel,
       product: RewardModel,
       program: ProgramModel,
       outlet: OutletModel,
