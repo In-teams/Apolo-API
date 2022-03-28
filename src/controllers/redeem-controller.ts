@@ -12,8 +12,6 @@ export class RedeemController {
     try {
       const [options, meta] = this.filters.filter(req.query);
 
-      console.log(options);
-
       const {
         rows: data,
         count: total,
@@ -22,21 +20,21 @@ export class RedeemController {
       const to = Math.min(total, meta.to);
       const last_page = Math.ceil(total / meta.per_page);
 
-      return res.status(200).json({data, ...meta, to, total, last_page});
+      return res.status(200).json({ data, ...meta, to, total, last_page });
     } catch (e: any) {
       console.error(e);
-      return res.status(500).json({message: e.message});
+      return res.status(500).json({ message: e.message });
     }
   }
 
   async authorize(req: AuthorizeRedeemRequest, res: Response) {
     try {
-      const {transactions} = req.body;
+      const { transactions } = req.body;
 
       const validTransactions = await RedeemTransactionModel.findAll({
         attributes: ["kd_transaksi"],
         where: {
-          kd_transaksi: {[Op.in]: transactions},
+          kd_transaksi: { [Op.in]: transactions },
           [Op.and]: Sequelize.literal(`${CountPRSubQuery} <= 0`),
         },
       });
@@ -44,7 +42,7 @@ export class RedeemController {
       if (!validTransactions || validTransactions.length === 0) {
         return res.status(400).json({
           message: "Transactions already authorized.",
-          data: {transactions},
+          data: { transactions },
         });
       }
 
@@ -54,34 +52,34 @@ export class RedeemController {
       });
 
       const runningNumber =
-          Number(
-              latestPurchaseRequest == null
-                  ? 0
-                  : // @ts-ignore
-                  latestPurchaseRequest.kode_pr.replace("LV", "")
-          ) + 1;
+        Number(
+          latestPurchaseRequest == null
+            ? 0
+            : // @ts-ignore
+              latestPurchaseRequest.kode_pr.replace("LV", "")
+        ) + 1;
 
       const kode_pr = "LV" + padStart(String(runningNumber), 4, "0");
 
-      const data = await PurchaseRequestModel.create({kode_pr});
+      const data = await PurchaseRequestModel.create({ kode_pr });
 
       const items = await PurchaseRequestItemModel.bulkCreate(
-          validTransactions.map(({kd_transaksi}: any) => ({
-            kode_pr,
-            kd_transaksi,
-          }))
+        validTransactions.map(({ kd_transaksi }: any) => ({
+          kode_pr,
+          kd_transaksi,
+        }))
       );
 
       res.status(201).json({
-        data: {...data.toJSON(), items},
+        data: { ...data.toJSON(), items },
         skipped: transactions.filter(
-            (
-                item // @ts-ignore
-            ) => !items.some((i) => i.kd_transaksi === item)
+          (
+            item // @ts-ignore
+          ) => !items.some((i) => i.kd_transaksi === item)
         ),
       });
     } catch (e: any) {
-      return res.status(500).json({message: e.message});
+      return res.status(500).json({ message: e.message });
     }
   }
 }
