@@ -2544,7 +2544,7 @@
 									}
 								],
 								"url": {
-									"raw": "localhost:2000/api/v2/redeem?page=2&per_page=15",
+									"raw": "localhost:2000/api/v2/redeem?page=1&per_page=15&has_pr=true&sort=outlet.region_id,desc",
 									"host": [
 										"localhost"
 									],
@@ -2557,7 +2557,7 @@
 									"query": [
 										{
 											"key": "page",
-											"value": "2"
+											"value": "1"
 										},
 										{
 											"key": "per_page",
@@ -2565,8 +2565,7 @@
 										},
 										{
 											"key": "has_pr",
-											"value": "false",
-											"disabled": true
+											"value": "true"
 										},
 										{
 											"key": "wilayah",
@@ -2617,7 +2616,47 @@
 											"key": "outlet",
 											"value": "201020-3100022739",
 											"disabled": true
+										},
+										{
+											"key": "sort",
+											"value": "outlet.region_id,desc"
 										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Authorize Redeem",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJfaWQiOiJNZGx6MDEiLCJuYW1lIjoiIiwidXNlcl9wcm9maWxlIjoiUkVHSU9OICBKQVZBIDEgLSBHUkVBVEVSIEpBS0FSVEEiLCJsZXZlbCI6IjIiLCJlbWFpbCI6IiIsInNjb3BlIjoiUjEiLCJwaG90byI6bnVsbCwicmVnaWQiOiJjZU1yNEM3aGFvMDpBUEE5MWJINXc4OG51REYyWGs0eXpYN2dMWWh1b180Mkt1S1Bma0dqNkduc2p1dmFIcDg3SjY4MjF6ZnVLOXMwV1o2MURNUS03bHV6Skp2TkpnYU5wUVFOT1RjcGlKRXlzTzlBOWJ0MUNNdm82a3Ribmhna1FIV0Ridkc5TGVMTlZ2TUlUVVZoNzJGZyJ9LCJpYXQiOjE2NDg0NTk4NTJ9.iWVjZL2N2UPgWF6YQNiAx7xp4X6fIckSUmMK4cXjeb8",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"transactions\": [\"MV2021-1-00006645\", \"MV2021-1-00006646\", \"MV2021-1-00006647\", \"MV2021-1-00006648\", \"MV2021-1-00006649\"]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "localhost:2000/api/v2/redeem/authorize",
+									"host": [
+										"localhost"
+									],
+									"port": "2000",
+									"path": [
+										"api",
+										"v2",
+										"redeem",
+										"authorize"
 									]
 								}
 							},
