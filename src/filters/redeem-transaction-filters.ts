@@ -3,13 +3,13 @@ import keys from "lodash/keys";
 import {RedeemIndexQuery} from "../types/redeem-transaction-types";
 import {PaginationMeta} from "../types/restful-types";
 import {OutletModel} from "../models/outlet-model";
-import {PurchaseRequestItemModel, RedeemItemModel,} from "../models/redeem-transaction";
+import {PurchaseRequestItemModel, PurchaseRequestModel, RedeemItemModel,} from "../models/redeem-transaction";
 import {RegionModel} from "../models/region-model";
 import {DistributorModel, DistributorPicModel,} from "../models/distributor-model";
 
-export class RedeemTransactionFilters {
-  subQuery = `(SELECT COUNT(items.kd_transaksi) FROM trx_pr_barang AS items WHERE items.kd_transaksi = redeem_transaction.kd_transaksi)`;
+export const CountPRSubQuery = `(SELECT COUNT(items.kd_transaksi) FROM trx_pr_barang AS items WHERE items.kd_transaksi = redeem_transaction.kd_transaksi)`;
 
+export class RedeemTransactionFilters {
   filter(query: RedeemIndexQuery): [FindAndCountOptions, PaginationMeta] {
     const where: any = {};
     const include: any[] = [];
@@ -18,6 +18,17 @@ export class RedeemTransactionFilters {
     const offset = page * limit - limit;
     const from = offset + 1;
     const to = offset + limit;
+    const sort = query.sort;
+
+    const order: any[] = [];
+
+    if (sort) {
+      order.push(
+          sort
+              .split(",")
+              .map((v, i) => (i === 0 ? Sequelize.literal(`\`${v}\``) : v))
+      );
+    }
 
     const outletRelation: any = {
       model: OutletModel,
@@ -109,12 +120,13 @@ export class RedeemTransactionFilters {
         case "has_pr":
           const opr = query[key] === "true" ? ">" : "<=";
 
-          where[Op.and] = Sequelize.literal(`${this.subQuery} ${opr} 0`);
+          where[Op.and] = Sequelize.literal(`${CountPRSubQuery} ${opr} 0`);
 
           if (opr === ">") {
             include.push({
               model: PurchaseRequestItemModel,
               as: "purchase_request_item",
+              include: {model: PurchaseRequestModel, as: "purchase_request", required: true},
               required: true,
             });
           }
@@ -127,7 +139,7 @@ export class RedeemTransactionFilters {
     include.push(itemsRelation);
 
     return [
-      {where, include, limit, offset, distinct: true},
+      {where, include, limit, offset, order, distinct: true},
       {page, per_page: limit, from, to},
     ];
   }

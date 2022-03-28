@@ -1,5 +1,5 @@
 import cryptoRandomString from "crypto-random-string";
-import { NextFunction, Request, Response } from "express";
+import {NextFunction, Request, Response} from "express";
 import joi from "joi";
 import config from "../config/app";
 import db from "../config/db";
@@ -9,9 +9,7 @@ import FileSystem from "../helpers/FileSystem";
 import GetFileExtention from "../helpers/GetFileExtention";
 import response from "../helpers/Response";
 import Outlet from "../services/Outlet";
-import Periode from "../services/Periode";
 import service from "../services/Redeem";
-import Registration from "../services/Registration";
 
 class Redeem {
   getProduct(req: Request, res: Response, next: NextFunction): any {

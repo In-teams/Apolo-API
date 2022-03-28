@@ -1,5 +1,6 @@
-import db from "../config/db";
+import moment from "moment/moment";
 import {DataTypes} from "sequelize";
+import db from "../config/db";
 import {ProgramModel} from "./program";
 import {OutletModel} from "./outlet-model";
 import {RedeemStatusModel} from "./redeem-status";
@@ -87,6 +88,11 @@ const PurchaseRequest = db.define(
         tanggal: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW,
+            get() {
+                const v = this.getDataValue("tanggal");
+
+                return v && moment(v).format("YYYY-MM-DD HH:mm:ss");
+            },
         },
     },
     {tableName: "trx_pr", timestamps: false}

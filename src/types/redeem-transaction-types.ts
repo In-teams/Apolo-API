@@ -14,8 +14,17 @@ export interface RedeemIndexQuery {
   dates?: string;
   product?: string;
   has_pr?: string;
+  sort?: string;
+}
+
+export interface AuthorizeRedeemBody {
+  transactions: string[];
 }
 
 export interface RedeemRequest
     extends Request<any, any, any, RedeemIndexQuery> {
+}
+
+export interface AuthorizeRedeemRequest
+    extends Request<any, any, AuthorizeRedeemBody, any> {
 }
