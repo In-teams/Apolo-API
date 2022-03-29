@@ -5,7 +5,8 @@ import {PaginationMeta} from "../types/restful-types";
 import {OutletModel} from "../models/outlet-model";
 import {PurchaseRequestItemModel, PurchaseRequestModel, RedeemItemModel,} from "../models/redeem-transaction";
 import {RegionModel} from "../models/region-model";
-import {DistributorModel, DistributorPicModel,} from "../models/distributor-model";
+import {DistributorModel, DistributorPicModel, PicModel,} from "../models/distributor-model";
+import {SalesCityModel} from "../models/sales-city-model";
 
 export const CountPRSubQuery = `(SELECT COUNT(items.kd_transaksi) FROM trx_pr_barang AS items WHERE items.kd_transaksi = redeem_transaction.kd_transaksi)`;
 
@@ -24,9 +25,9 @@ export class RedeemTransactionFilters {
 
     if (sort) {
       order.push(
-          sort
-              .split(",")
-              .map((v, i) => (i === 0 ? Sequelize.literal(`\`${v}\``) : v))
+        sort
+          .split(",")
+          .map((v, i) => (i === 0 ? Sequelize.literal(`\`${v}\``) : v))
       );
     }
 
@@ -41,13 +42,34 @@ export class RedeemTransactionFilters {
         "distributor_id",
         "city_id_alias",
       ],
-      include: [],
+      include: [
+        {
+          model: DistributorModel,
+          as: "distributor",
+          include: [
+            {
+              model: DistributorPicModel,
+              as: "pics",
+              include: [
+                { model: PicModel, as: "asm" },
+                { model: PicModel, as: "ass" },
+              ],
+            },
+          ],
+        },
+        {
+          model: RegionModel,
+          as: "region",
+          // include: [{ model: HeadRegionModel, as: "head_region" }],
+        },
+        { model: SalesCityModel, as: "sales_city" },
+      ],
       required: true,
     };
 
     const itemsRelation: any = {
       model: RedeemItemModel,
-      as: "items",
+      as: "item",
       required: true,
     };
 
@@ -64,7 +86,7 @@ export class RedeemTransactionFilters {
 
     for (let key of keys(query)) {
       const distIsLoaded = outletRelation.include.some(
-          ({as}: any) => as === "distributor"
+        ({ as }: any) => as === "distributor"
       );
 
       switch (key) {
@@ -107,13 +129,13 @@ export class RedeemTransactionFilters {
           where["$outlet.distributor.pics.ass_id$"] = query[key];
           break;
         case "product":
-          itemsRelation.where = {kd_produk: query[key]};
+          itemsRelation.where = { kd_produk: query[key] };
           break;
         case "dates":
           const dates = query[key];
 
           if (dates && dates.length == 2) {
-            where.tgl_transaksi = {[Op.between]: dates};
+            where.tgl_transaksi = { [Op.between]: dates };
           }
 
           break;
@@ -126,7 +148,11 @@ export class RedeemTransactionFilters {
             include.push({
               model: PurchaseRequestItemModel,
               as: "purchase_request_item",
-              include: {model: PurchaseRequestModel, as: "purchase_request", required: true},
+              include: {
+                model: PurchaseRequestModel,
+                as: "purchase_request",
+                required: true,
+              },
               required: true,
             });
           }
@@ -139,8 +165,8 @@ export class RedeemTransactionFilters {
     include.push(itemsRelation);
 
     return [
-      {where, include, limit, offset, order, distinct: true},
-      {page, per_page: limit, from, to},
+      { where, include, limit, offset, order, distinct: true },
+      { page, per_page: limit, from, to },
     ];
   }
 }
