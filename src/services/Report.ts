@@ -1,4 +1,4 @@
-import { QueryTypes } from "sequelize";
+import {QueryTypes} from "sequelize";
 import db from "../config/db";
 
 const getRegistrationReportQuery = async (
@@ -144,8 +144,8 @@ const getRedeemReportQuery = async (
   } = data;
   let thisPage = 0;
   const col = isCount
-      ? "COUNT(no_id) AS total"
-      : "a.kd_transaksi, no_id AS outlet_id, MONTHNAME(a.`tgl_transaksi`) AS bulan, outlet_name, nama_produk, quantity, point_satuan, (CAST(quantity AS UNSIGNED) * CAST(point_satuan AS UNSIGNED)) as point_total, no_batch, IF(no_batch = 'PPR', 'BY PAPER', 'BY MICROSITE') AS type, a.`file_id`, IFNULL(yy.`level`, 'Level 1') AS level, IFNULL(yy.`status`, 'Level 1A - Formulir Tidak Ada') AS status, tgl_transaksi AS proses, z.`tgl_upload` AS penukaran, h.tanggal_kirim AS kirim, l.tgl_confirm AS otorisasi, j.tanggal AS pengadaan, h.tanggal_terima AS terima, h.nama_penerima, z.`filename`, IF(h.status_terima IS NULL, IF(l.tgl_confirm IS NULL, 'OTORISASI', IF(j.`tanggal` IS NULL, 'PENGADAAN', 'PROSES PENGIRIMAN')), h.status_terima) AS status_terima, distributor_name, no_handphone, s.id AS pod";
+    ? "COUNT(no_id) AS total"
+    : "a.kd_transaksi, no_id AS outlet_id, MONTHNAME(a.`tgl_transaksi`) AS bulan, outlet_name, nama_produk, quantity, point_satuan, (CAST(quantity AS UNSIGNED) * CAST(point_satuan AS UNSIGNED)) as point_total, no_batch, IF(no_batch = 'PPR', 'BY PAPER', 'BY MICROSITE') AS type, a.`file_id`, IFNULL(yy.`level`, 'Level 1') AS level, IFNULL(yy.`status`, 'Level 1A - Formulir Tidak Ada') AS status, tgl_transaksi AS tanggal_redeem, z.`tgl_upload` AS penukaran, h.tanggal_kirim AS kirim, l.tgl_confirm AS otorisasi, j.tanggal AS pengadaan, h.tanggal_terima AS tanggal_terima, s.tanggal_proses AS tanggal_proses, s.tanggal_tolak AS tanggal_tolak, pr.tanggal as tanggal_otorisasi, h.nama_penerima, z.`filename`, IF(h.status_terima IS NULL, IF(l.tgl_confirm IS NULL, 'OTORISASI', IF(j.`tanggal` IS NULL, 'PENGADAAN', 'PROSES PENGIRIMAN')), h.status_terima) AS status_terima, distributor_name, no_handphone, s.id AS pod";
   let query = `SELECT ${col} 
   FROM trx_transaksi_redeem a 
   INNER JOIN mstr_outlet o ON a.no_id = o.outlet_id 
@@ -153,6 +153,8 @@ const getRedeemReportQuery = async (
   INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id 
   INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id 
   INNER JOIN trx_transaksi_redeem_barang f ON f.kd_transaksi = a.kd_transaksi 
+  LEFT JOIN trx_pr_barang pr_items ON pr_items.kd_transaksi = a.kd_transaksi 
+  INNER JOIN trx_pr pr ON pr.kode_pr = pr_items.kode_pr 
   LEFT JOIN trx_file_penukaran AS z ON z.id = a.file_id 
   LEFT JOIN ms_status_penukaran AS yy ON yy.id = z.status_penukaran 
   LEFT JOIN trx_transaksi_pulsa g ON g.kd_transaksi = a.kd_transaksi 
@@ -160,7 +162,7 @@ const getRedeemReportQuery = async (
   FROM ( SELECT kd_transaksi, tanggal_kirim, tanggal_terima, nama_penerima, status_terima, id 
   FROM trx_status 
   UNION SELECT transfer_id AS kd_transaksi, tgl_transfer AS tanggal_kirim, tgl_transfer AS tanggal_terima, noreferensi AS nama_penerima, 
-  IF( noreferensi IS NULL, NULL, 'TELAH DITERIMA' ) AS status_terima, id FROM trx_pc_list ) a GROUP BY kd_transaksi ) h ON h.kd_transaksi = a.kd_transaksi 
+  IF( noreferensi IS NULL, NULL, 'TELAH DITERIMA' ) AS status_terima, id FROM trx_pc_list ) a GROUP BY kd_transaksi, tanggal_kirim, tanggal_terima, a.nama_penerima, a.status_terima, a.id ) h ON h.kd_transaksi = a.kd_transaksi 
   LEFT JOIN trx_pr_barang i ON i.kd_transaksi = a.kd_transaksi LEFT JOIN trx_pr j ON j.kode_pr = i.kode_pr 
   LEFT JOIN trx_confirm_detail k ON k.kd_transaksi = a.kd_transaksi LEFT JOIN trx_confirm l ON l.id_confirm = k.id_confirm 
   LEFT JOIN trx_status AS s ON a.kd_transaksi = s.kd_transaksi 
@@ -172,9 +174,9 @@ const getRedeemReportQuery = async (
   }
   if (level) {
     query +=
-        parseInt(level) === 1
-            ? " AND yy.`level` IS NULL"
-            : " AND yy.`level` = :level";
+      parseInt(level) === 1
+        ? " AND yy.`level` IS NULL"
+        : " AND yy.`level` = :level";
     level = "Level " + level;
   }
   if (quarter_id) {
