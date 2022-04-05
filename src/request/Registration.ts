@@ -258,15 +258,15 @@ class Registration {
       let { periode, id: periode_id } = check[0];
       req.validated.periode_id = periode_id;
       periode = `p-${periode_id}`;
-      const uploaded = await RegistrationService.getRegistrationForm(req);
-      if (uploaded.length < 1)
-        return response(
-          res,
-          false,
-          null,
-          "please upload registration form!",
-          400
-        );
+      // const uploaded = await RegistrationService.getRegistrationForm(req);
+      // if (uploaded.length < 1)
+      //   return response(
+      //     res,
+      //     false,
+      //     null,
+      //     "please upload registration form!",
+      //     400
+      //   );
       // req.validated.outlet = req.validated;
       req.validated.file = {
         type: req.body.type,
