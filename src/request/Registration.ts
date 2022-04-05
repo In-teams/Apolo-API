@@ -1,5 +1,5 @@
 import cryptoRandomString from "crypto-random-string";
-import { NextFunction, Request, Response } from "express";
+import {NextFunction, Request, Response} from "express";
 import joi from "joi";
 import config from "../config/app";
 import db from "../config/db";
@@ -8,13 +8,9 @@ import DateFormat from "../helpers/DateFormat";
 import FileSystem from "../helpers/FileSystem";
 import GetFileExtention from "../helpers/GetFileExtention";
 import response from "../helpers/Response";
-import City from "../services/City";
-import District from "../services/District";
 import Outlet from "../services/Outlet";
 import PeriodeService from "../services/Periode";
-import Province from "../services/Province";
 import RegistrationService from "../services/Registration";
-import SubDistrict from "../services/SubDistrict";
 
 class Registration {
   getHistory(req: Request, res: Response, next: NextFunction): any {
@@ -221,7 +217,7 @@ class Registration {
         cabang_bank: joi.string().required(),
         kota_bank: joi.string().required(),
         // jenis_badan: joi.string(),
-      });
+      }).unknown(true);
 
       req.body = {
         ...req.body,
