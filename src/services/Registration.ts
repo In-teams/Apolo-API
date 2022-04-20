@@ -284,7 +284,7 @@ class Registration {
     const { outlet_id } = req.validated;
     if (!type_file) type_file = 0;
     let query =
-      "SELECT f.*, s.status, s.level, f.filename AS file, p.periode FROM trx_file_registrasi AS f INNER JOIN ms_status_registrasi AS s ON s.id = f.status_registrasi INNER JOIN ms_periode_registrasi as p ON p.id = f.periode_id WHERE outlet_id = ? AND type_file = ?";
+      "SELECT f.*, s.status, s.level, f.filename AS file, p.periode FROM trx_file_registrasi AS f INNER JOIN ms_status_registrasi AS s ON s.id = f.status_registrasi INNER JOIN ms_periode_registrasi as p ON p.id = f.periode_id WHERE outlet_id = ? AND type_file = ? ORDER BY f.tgl_upload DESC";
 
     return await db.query(query, {
       raw: true,
