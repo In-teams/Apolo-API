@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import _, { isNull } from "lodash";
+import {Request, Response} from "express";
+import _ from "lodash";
 import config from "../config/app";
 import db from "../config/db";
 import DateFormat from "../helpers/DateFormat";
@@ -10,8 +10,8 @@ import response from "../helpers/Response";
 import Outlet from "../services/Outlet";
 import Service from "../services/Registration";
 import Periode from "../services/Periode";
+
 // import CreatePdf from "../helpers/CreatePdf";
-import NumberFormat from "../helpers/NumberFormat";
 
 class Registration {
   async getFile(req: Request, res: Response): Promise<object | undefined> {
@@ -51,6 +51,7 @@ class Registration {
       let bank_file = await Service.getRegistrationFile(req, 3);
       let npwp_file = await Service.getRegistrationFile(req, 2);
       let ektp_file = await Service.getRegistrationFile(req, 1);
+      console.log(bank_file, ektp_file, npwp_file);
       data[0].bank_file = bank_file[0]?.filename || null;
       data[0].npwp_file = npwp_file[0]?.filename || null;
       data[0].ektp_file = ektp_file[0]?.filename || null;
@@ -518,7 +519,7 @@ class Registration {
   //     const {outlet_id, periode} = req.validated
   //     let detailOutlet = await Service.getDetailOutlet(outlet_id)
   //     if(!detailOutlet) return response(res, false, null, 'outlet not found', 400)
-      
+
   //     const targetOutlet = await Service.getTargetOutlet(outlet_id, periode)
   //     let {get1, get2} = await Service.getTargetOutletPerQuarter(outlet_id, periode)
   //     get1 = NumberFormat(get1, true, 'target_sales')
@@ -526,9 +527,9 @@ class Registration {
 
   //     let quarterA = periode.toLowerCase() === "h1" ? 'Quarter 1' : 'Quarter 3'
   //     let quarterB = periode.toLowerCase() === "h1" ? 'Quarter 2' : 'Quarter 4'
-      
+
   //     const targetBiscuit = await Service.getTargetBiscuitOutlet(outlet_id)
-      
+
   //     detailOutlet.get1Count = Intl.NumberFormat("id").format(_.reduce(get1, function(sum, n) {
   //         return sum + n.target_sales || 0;
   //       }, 0));
@@ -540,7 +541,7 @@ class Registration {
   //       detailOutlet.isKodeposNull = 'ada isinya'
   //       delete detailOutlet.kodepos
   //     }
-      
+
   //     if(isNull(detailOutlet.npwp)){
   //       detailOutlet.isNpwpNull = 'ada isinya'
   //       delete detailOutlet.npwp
@@ -565,7 +566,7 @@ class Registration {
   //       detailOutlet.isnomor_rekeningNull = 'ada isinya'
   //       delete detailOutlet.nomor_rekening
   //     }
-      
+
   //     let months1: any = []
   //     get1.map((e: any) => e.month_target).map((e: any, i: number) => {
   //       if(i !== 1){
@@ -587,12 +588,12 @@ class Registration {
   //           ...detailOutlet,
   //           [key]: detailOutlet[key] || '.........................................'
   //         };
-          
+
   //       }
   //     }
   //     const pdf = new CreatePdf()
   //     await pdf.pdf({
-  //       ...detailOutlet, 
+  //       ...detailOutlet,
   //       quarterA,
   //       quarterB,
   //       get1,
