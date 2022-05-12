@@ -266,9 +266,9 @@ const getSalesByHirarki = (
             INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id 
             INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id `
 
-            if (ass_id || asm_id) {
-                groupBy += ` INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id `
-            }
+            // if (ass_id || asm_id) {
+            //     groupBy += ` INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id `
+            // }
 
             if (ass_id) {
                 groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.ass_id `
