@@ -1,12 +1,13 @@
-import { Sequelize } from 'sequelize';
+import {Sequelize} from 'sequelize';
 import app from './app';
+
 // import tunnel from 'tunnel-ssh'
 
 class Connection {
 	public connect = new Sequelize(app.DB_NAME, app.DB_USER, app.DB_PASS, {
 		host: app.DB_HOST,
 		dialect: 'mysql',
-		// logging: false
+		logging: true
 	});
 
 	constructor() {

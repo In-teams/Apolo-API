@@ -131,6 +131,8 @@ class Registration {
     );
   }
   async getRegistrationSummaryByDistributor(req: Request): Promise<any> {
+    console.log("regis summary distri")
+
     const { q, levelQ, levelPercen } = await getLevelQuery();
     const { sort } = req.validated;
     let { query: qocs, params: pocs } = FilterParams.count(
@@ -457,6 +459,24 @@ class Registration {
         transaction: t,
       }
     );
+
+    const existing: any = await db.query("SELECT * FROM trx_file_registrasi WHERE outlet_id = ? AND type_file = ?", {
+      raw: true,
+      type: QueryTypes.SELECT,
+      replacements: [outlet_id, 0],
+      transaction: t
+    })
+
+    if (existing && existing.id) {
+      console.log(existing)
+      await db.query(`DELETE FROM trx_file_registrasi WHERE id = ?`, {
+        raw: true,
+        type: QueryTypes.DELETE,
+        replacements: [existing.id],
+        transaction: t
+      })
+    }
+
     const insert = await db.query(query, {
       raw: true,
       type: QueryTypes.INSERT,
