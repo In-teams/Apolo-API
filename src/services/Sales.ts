@@ -271,7 +271,7 @@ const getSalesByHirarki = (
             // }
 
             if (ass_id) {
-                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.ass_id `
+                groupBy += ` INNER JOIN ms_pic as mp_ass ON mp_ass.kode_pic = pic.ass_id `
             }
 
             if (wilayah_id) {
@@ -303,7 +303,7 @@ const getSalesByHirarki = (
             // }
 
             if (asm_id) {
-                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id `
+                groupBy += ` INNER JOIN ms_pic as mp_asm ON mp_asm.kode_pic = pic.asm_id `
             }
 
             if (wilayah_id) {
@@ -360,9 +360,15 @@ const getSalesByHirarki = (
         CONCAT( TRUNCATE( ( COUNT(o.outlet_id) /(${outlets}) * 100 ), 2 ), '%' ) AS bobot_outlet 
         FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias 
         INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = r.head_region_id 
-        INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id 
-        INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id 
-        INNER JOIN mstr_distributor as d ON d.distributor_id = o.distributor_id 
+        INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id `;
+
+        if (hirarki === 'ass') {
+            query += `INNER JOIN ms_pic as mp ON mp.kode_pic = pic.ass_id `
+        } else {
+            query += `INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id `
+        }
+
+        query += `INNER JOIN mstr_distributor as d ON d.distributor_id = o.distributor_id 
         INNER JOIN ms_city_alias as c ON c.city_id_alias = o.city_id_alias 
         LEFT JOIN ( ${target} GROUP BY outlet_id ) AS t ON t.outlet_id = o.outlet_id 
         LEFT JOIN (${aktual} GROUP BY tr.no_id) AS a ON a.no_id = o.outlet_id 
