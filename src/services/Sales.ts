@@ -102,11 +102,11 @@ const getSalesByHirarki = (
             }
 
             if (ass_id) {
-                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.ass_id `
+                groupBy += ` INNER JOIN ms_pic as mp_ass ON mp_ass.kode_pic = pic.ass_id `
             }
 
             if (asm_id) {
-                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id `
+                groupBy += ` INNER JOIN ms_pic as mp_asm ON mp_asm.kode_pic = pic.asm_id `
             }
 
             groupBy += ' WHERE 1=1 '
@@ -133,11 +133,11 @@ const getSalesByHirarki = (
             }
 
             if (ass_id) {
-                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.ass_id `
+                groupBy += ` INNER JOIN ms_pic as mp_ass ON mp_ass.kode_pic = pic.ass_id `
             }
 
             if (asm_id) {
-                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id `
+                groupBy += ` INNER JOIN ms_pic as mp_asm ON mp_asm.kode_pic = pic.asm_id `
             }
 
             if (wilayah_id) {
@@ -168,11 +168,11 @@ const getSalesByHirarki = (
             }
 
             if (ass_id) {
-                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.ass_id `
+                groupBy += ` INNER JOIN ms_pic as mp_ass ON mp_ass.kode_pic = pic.ass_id `
             }
 
             if (asm_id) {
-                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id `
+                groupBy += ` INNER JOIN ms_pic as mp_asm ON mp_asm.kode_pic = pic.asm_id `
             }
 
             if (wilayah_id) {
@@ -203,11 +203,11 @@ const getSalesByHirarki = (
             }
 
             if (ass_id) {
-                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.ass_id `
+                groupBy += ` INNER JOIN ms_pic as mp_ass ON mp_ass.kode_pic = pic.ass_id `
             }
 
             if (asm_id) {
-                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id `
+                groupBy += ` INNER JOIN ms_pic as mp_asm ON mp_asm.kode_pic = pic.asm_id `
             }
 
             if (wilayah_id) {
@@ -237,11 +237,11 @@ const getSalesByHirarki = (
             }
 
             if (ass_id) {
-                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.ass_id `
+                groupBy += ` INNER JOIN ms_pic as mp_ass ON mp_ass.kode_pic = pic.ass_id `
             }
 
             if (asm_id) {
-                groupBy += ` INNER JOIN ms_pic as mp ON mp.kode_pic = pic.asm_id `
+                groupBy += ` INNER JOIN ms_pic as mp_asm ON mp_asm.kode_pic = pic.asm_id `
             }
 
             if (wilayah_id) {
