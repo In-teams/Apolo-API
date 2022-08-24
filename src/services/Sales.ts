@@ -355,27 +355,27 @@ const getSalesByHirarki = (
     let query = '';
     if (!isCount) {
         query = `SELECT ${cols}, 
-        TRUNCATE((CAST(IFNULL(SUM(aktual), 0) AS UNSIGNED)/(${totalTarget})) * 100, 2) as kontribusi_num,
-        CONCAT(TRUNCATE((CAST(IFNULL(SUM(aktual), 0) AS UNSIGNED)/(${totalTarget})) * 100, 2), '%') AS kontribusi, 
+        ROUND((CAST(IFNULL(SUM(aktual), 0) AS UNSIGNED)/(${totalTarget})) * 100, 2) as kontribusi_num,
+        CONCAT(ROUND((CAST(IFNULL(SUM(aktual), 0) AS UNSIGNED)/(${totalTarget})) * 100, 2), '%') AS kontribusi, 
         IFNULL(SUM(target), 0) AS target, 
         CAST(IFNULL(SUM(aktual), 0) AS UNSIGNED) AS aktual, 
-        IFNULL(TRUNCATE(CAST(IFNULL(SUM(aktual), 0) AS UNSIGNED) / IFNULL(SUM(target), 0) * 100, 2), 0) AS pencapaian, 
-        CONCAT( IFNULL(TRUNCATE(CAST(IFNULL(SUM(aktual), 0) AS UNSIGNED) / IFNULL(SUM(target), 0) * 100, 2), 0), '%' ) AS percentage, 
+        IFNULL(ROUND(CAST(IFNULL(SUM(aktual), 0) AS UNSIGNED) / IFNULL(SUM(target), 0) * 100, 2), 0) AS pencapaian, 
+        CONCAT( IFNULL(ROUND(CAST(IFNULL(SUM(aktual), 0) AS UNSIGNED) / IFNULL(SUM(target), 0) * 100, 2), 0), '%' ) AS percentage, 
         IFNULL(SUM(redeem), 0) AS redeem, IFNULL(SUM(achieve), 0) AS achieve, 
         COUNT(o.outlet_id) AS outlet, 
         IFNULL(SUM(registrasi), 0) AS regist, 
         ( COUNT(o.outlet_id) - IFNULL(SUM(registrasi), 0) ) AS notregist, 
-        CONCAT( TRUNCATE( (IFNULL(SUM(registrasi), 0)) / COUNT(o.outlet_id) * 100, 2 ), '%' ) AS regist_progress, 
+        CONCAT( ROUND( (IFNULL(SUM(registrasi), 0)) / COUNT(o.outlet_id) * 100, 2 ), '%' ) AS regist_progress, 
         COUNT(a.no_id) AS ao, 
-        CAST ( TRUNCATE(COUNT(a.no_id) / COUNT(o.outlet_id) * 10000, 2) AS UNSIGNED ) as aoro_num,
-        CONCAT( TRUNCATE(COUNT(a.no_id) / COUNT(o.outlet_id) * 100, 2), '%' ) AS aoro, 
+        CAST ( ROUND(COUNT(a.no_id) / COUNT(o.outlet_id) * 10000, 2) AS UNSIGNED ) as aoro_num,
+        CONCAT( ROUND(COUNT(a.no_id) / COUNT(o.outlet_id) * 100, 2), '%' ) AS aoro, 
         IFNULL(SUM(achieve), 0) - IFNULL(SUM(redeem), 0) AS diff_point, 
         CAST(IFNULL(SUM(aktual), 0) AS UNSIGNED) - IFNULL(SUM(target), 0) AS diff, 
         (${totalTarget}) AS total_target, 
-        TRUNCATE( IFNULL(SUM(target), 0) /(${totalTarget}) * 100, 2 ) as bobot_target_num,
-        CONCAT( TRUNCATE( IFNULL(SUM(target), 0) /(${totalTarget}) * 100, 2 ), '%' ) AS bobot_target, 
+        ROUND( IFNULL(SUM(target), 0) /(${totalTarget}) * 100, 2 ) as bobot_target_num,
+        CONCAT( ROUND( IFNULL(SUM(target), 0) /(${totalTarget}) * 100, 2 ), '%' ) AS bobot_target, 
         (${outlets}) AS total_outlet, 
-        CONCAT( TRUNCATE( ( COUNT(o.outlet_id) /(${outlets}) * 100 ), 2 ), '%' ) AS bobot_outlet 
+        CONCAT( ROUND( ( COUNT(o.outlet_id) /(${outlets}) * 100 ), 2 ), '%' ) AS bobot_outlet 
         FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias 
         INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = r.head_region_id 
         INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id `;
@@ -481,7 +481,7 @@ class Sales {
         let {query: qt, params: pt} = filterParams.target(req, qTarget);
         let {query: qa, params: pa} = filterParams.aktual(req, qAktual);
 
-        let query = `SELECT d.distributor_name as distributor, d.distributor_id, (${qt}) AS target, (${qa}) AS aktual, (TRUNCATE(((${qa})/(${qt})* 100), 2 )) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN mstr_distributor as d ON d.distributor_id = o.distributor_id INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE d.distributor_id IS NOT NULL`;
+        let query = `SELECT d.distributor_name as distributor, d.distributor_id, (${qt}) AS target, (${qa}) AS aktual, (ROUND(((${qa})/(${qt})* 100), 2 )) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN mstr_distributor as d ON d.distributor_id = o.distributor_id INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE d.distributor_id IS NOT NULL`;
 
         let {query: newQuery, params}: { query: string; params: string[] } =
             filterParams.query(req, query);
@@ -503,7 +503,7 @@ class Sales {
         let {query: qt, params: pt} = filterParams.target(req, qTarget);
         let {query: qa, params: pa} = filterParams.aktual(req, qAktual);
 
-        let query = `SELECT ci.city_name_alias as city, (${qt}) AS target, (${qa}) AS aktual, (TRUNCATE(((${qAktual})/(${qt})* 100), 2 )) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_city_alias as ci ON ci.city_id_alias = o.city_id_alias INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE ci.city_id_alias IS NOT NULL`;
+        let query = `SELECT ci.city_name_alias as city, (${qt}) AS target, (${qa}) AS aktual, (ROUND(((${qAktual})/(${qt})* 100), 2 )) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_city_alias as ci ON ci.city_id_alias = o.city_id_alias INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE ci.city_id_alias IS NOT NULL`;
 
         let {query: newQuery, params}: { query: string; params: string[] } =
             filterParams.query(req, query);
@@ -529,7 +529,7 @@ class Sales {
 
         // console.log(qt)
 
-        let query = `SELECT o.outlet_name as outlet_name, (${qt}) AS target, (${qa}) AS aktual, (TRUNCATE(((${qa})/(${qt})* 100), 2 )) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL`;
+        let query = `SELECT o.outlet_name as outlet_name, (${qt}) AS target, (${qa}) AS aktual, (ROUND(((${qa})/(${qt})* 100), 2 )) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL`;
 
         let {query: newQuery, params}: { query: string; params: string[] } =
             filterParams.query(req, query);
@@ -551,7 +551,7 @@ class Sales {
         let {query: qt, params: pt} = filterParams.target(req, qTarget);
         let {query: qa, params: pa} = filterParams.aktual(req, qAktual);
 
-        let query = `SELECT reg.nama_pulau_alias AS region, (${qt}) AS target, (${qa}) AS aktual, (TRUNCATE(((${qa})/(${qt})* 100), 2 )) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE reg.pulau_id_alias IS NOT NULL`;
+        let query = `SELECT reg.nama_pulau_alias AS region, (${qt}) AS target, (${qa}) AS aktual, (ROUND(((${qa})/(${qt})* 100), 2 )) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE reg.pulau_id_alias IS NOT NULL`;
 
         let {query: newQuery, params}: { query: string; params: string[] } =
             filterParams.query(req, query);
@@ -573,7 +573,7 @@ class Sales {
         let {query: qt, params: pt} = filterParams.target(req, qTarget);
         let {query: qa, params: pa} = filterParams.aktual(req, qAktual);
 
-        let query = `SELECT mhr.head_region_name AS wilayah, mhr.head_region_id AS wilayah_id, (${qt}) AS target, (${qa}) AS aktual, (TRUNCATE(((${qa})/(${qt})* 100), 2 )) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE mhr.head_region_id IS NOT NULL`;
+        let query = `SELECT mhr.head_region_name AS wilayah, mhr.head_region_id AS wilayah_id, (${qt}) AS target, (${qa}) AS aktual, (ROUND(((${qa})/(${qt})* 100), 2 )) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE mhr.head_region_id IS NOT NULL`;
 
         let {query: newQuery, params}: { query: string; params: string[] } =
             filterParams.query(req, query);
@@ -595,7 +595,7 @@ class Sales {
         let {query: qt, params: pt} = filterParams.target(req, qTarget);
         let {query: qa, params: pa} = filterParams.aktual(req, qAktual);
 
-        let query = `SELECT mp.nama_pic as nama_pic, (${qt}) AS target, (${qa}) AS aktual, (TRUNCATE(((${qa})/(${qt})* 100), 2 )) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN ms_pic as mp ON mp.kode_pic = dp.asm_id WHERE mp.kode_pic IS NOT NULL`;
+        let query = `SELECT mp.nama_pic as nama_pic, (${qt}) AS target, (${qa}) AS aktual, (ROUND(((${qa})/(${qt})* 100), 2 )) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN ms_pic as mp ON mp.kode_pic = dp.asm_id WHERE mp.kode_pic IS NOT NULL`;
 
         let {query: newQuery, params}: { query: string; params: string[] } =
             filterParams.query(req, query);
@@ -617,7 +617,7 @@ class Sales {
         let {query: qt, params: pt} = filterParams.target(req, qTarget);
         let {query: qa, params: pa} = filterParams.aktual(req, qAktual);
 
-        let query = `SELECT mp.nama_pic as nama_pic, (${qt}) AS target, (${qa}) AS aktual, (TRUNCATE(((${qa})/(${qt})* 100), 2 )) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN ms_pic as mp ON mp.kode_pic = dp.ass_id WHERE mp.kode_pic IS NOT NULL`;
+        let query = `SELECT mp.nama_pic as nama_pic, (${qt}) AS target, (${qa}) AS aktual, (ROUND(((${qa})/(${qt})* 100), 2 )) AS pencapaian, COUNT(o.outlet_id) AS outlet FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN ms_pic as mp ON mp.kode_pic = dp.ass_id WHERE mp.kode_pic IS NOT NULL`;
 
         let {query: newQuery, params}: { query: string; params: string[] } =
             filterParams.query(req, query);
@@ -634,10 +634,10 @@ class Sales {
     async getSalesByAchiev(data: any) {
         let sub = getSalesByHirarki('outlet', data, false, false);
         let totalTarget = getTarget(data, 'SUM(st.target_sales) AS target');
-        const query = `SELECT CONCAT(TRUNCATE((SUM(aktual)/(${totalTarget})) * 100, 2), '%') AS kontribusi, 
-        CONCAT( TRUNCATE( SUM(target) /(${totalTarget}) * 100, 2 ), '%' ) AS bobot_target, 
-        SUM(aktual) AS aktual, TRUNCATE(SUM(aktual) / SUM(target) * 100, 2) AS pencapaian, 
-        CONCAT( TRUNCATE(SUM(aktual) / SUM(target) * 100, 2), '%' ) AS percentage, 
+        const query = `SELECT CONCAT(ROUND((SUM(aktual)/(${totalTarget})) * 100, 2), '%') AS kontribusi, 
+        CONCAT( ROUND( SUM(target) /(${totalTarget}) * 100, 2 ), '%' ) AS bobot_target, 
+        SUM(aktual) AS aktual, ROUND(SUM(aktual) / SUM(target) * 100, 2) AS pencapaian, 
+        CONCAT( ROUND(SUM(aktual) / SUM(target) * 100, 2), '%' ) AS percentage, 
         CASE WHEN ((aktual / target) * 100) <= 0 OR ((aktual / target) * 100) IS NULL THEN 'ZERO ACHIEVER <= 0%' 
         WHEN ((aktual / target) * 100) > 0 AND ((aktual / target) * 100) < 70 THEN 'LOW ACHIEVER > 0%' 
         WHEN ((aktual / target) * 100) >= 70 AND ((aktual / target) * 100) < 90 THEN 'NEAR ACHIEVER >= 70%' 
@@ -653,11 +653,11 @@ class Sales {
         SUM(aktual) - SUM(target) AS diff, 
         SUM(ao) AS ao, 
         SUM(outlet) AS outlet, 
-        CONCAT(TRUNCATE(SUM(ao) / SUM(outlet) * 100, 2), '%') AS aoro, 
+        CONCAT(ROUND(SUM(ao) / SUM(outlet) * 100, 2), '%') AS aoro, 
         total_target, 
         total_outlet, 
-        CONCAT( TRUNCATE(SUM(outlet) / total_outlet * 100, 2), '%' ) AS bobot_outlet, 
-        CONCAT( TRUNCATE(SUM(outlet) / total_outlet * 100, 2), '%' ) AS bobot_outlet 
+        CONCAT( ROUND(SUM(outlet) / total_outlet * 100, 2), '%' ) AS bobot_outlet, 
+        CONCAT( ROUND(SUM(outlet) / total_outlet * 100, 2), '%' ) AS bobot_outlet 
         FROM (${sub}) AS sub 
         GROUP BY cluster, id, bobot_outlet, bobot_outlet, total_target, total_outlet
         ORDER BY id DESC`;
