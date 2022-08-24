@@ -20,15 +20,33 @@ let queryOutletCount =
     'SELECT COUNT(DISTINCT ou.outlet_id) AS total FROM mstr_outlet AS ou INNER JOIN ms_pulau_alias AS r ON ou.`region_id` = r. `pulau_id_alias` INNER JOIN ms_dist_pic AS pic ON ou.`distributor_id` = pic.`distributor_id` WHERE ou.`outlet_id` IS NOT NULL';
 
 const getTarget = (data: any, col: string) => {
-    let query = `SELECT ${col} FROM ( SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS st INNER JOIN ms_bulan AS b ON b.bulan = month_target INNER JOIN mstr_outlet AS o ON o.outlet_id = st.outlet_id WHERE 1 = 1`;
+    let query = `SELECT ${col} FROM ` +
+        `( SELECT * FROM mstr_sales_target UNION SELECT * FROM mstr_sales_target2 UNION SELECT * FROM mstr_sales_target3 UNION SELECT * FROM mstr_sales_target4 ) AS st ` +
+        `INNER JOIN ms_bulan AS b ON b.bulan = month_target ` +
+        `INNER JOIN mstr_outlet AS o ON o.outlet_id = st.outlet_id `;
 
-    const {month_id, quarter_id} = data;
+    const {month_id, quarter_id, ass_id, asm_id, wilayah_id} = data;
+
+    if (wilayah_id) {
+        query += `INNER JOIN ms_pulau_alias AS r ON o.region_id = r.pulau_id_alias `;
+    }
+
+    if (ass_id || asm_id) {
+        query += `INNER JOIN ms_dist_pic AS pic ON o.distributor_id = pic.distributor_id `;
+    }
+
+    query += `WHERE 1 = 1`;
+
+    query = filterParams.sales(query, data);
+
     if (month_id) {
         query += ' AND b.id = :month_id';
     }
+
     if (quarter_id) {
         query += ' AND b.id IN(:quarter_id)';
     }
+
     return query;
 };
 const getAktual = (data: any) => {
