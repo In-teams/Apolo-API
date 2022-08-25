@@ -279,7 +279,7 @@ class Registration {
       false
     );
 
-    return await db.query(newQuery + " GROUP BY level, level_status ORDER BY level", {
+    return await db.query(newQuery + " GROUP BY level ORDER BY level", {
       raw: true,
       type: QueryTypes.SELECT,
       replacements: [periode_id, ...params],
