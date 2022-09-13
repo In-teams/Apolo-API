@@ -1,5 +1,5 @@
-import { Request } from "express";
-import { QueryTypes } from "sequelize";
+import {Request} from "express";
+import {QueryTypes} from "sequelize";
 import db from "../config/db";
 import FilterParams from "../helpers/FilterParams";
 
@@ -28,7 +28,16 @@ class Region {
       replacements: params,
     });
   }
-  getSalesman(req: Request): any {}
+  async getSalesman(req: Request) {
+    let query =
+      "SELECT DISTINCT a.`sales_id`,`sales_name` FROM `ms_salesman` a " +
+      "INNER JOIN mstr_outlet AS o ON a.`sales_id` = o.`sales_id`";
+
+    return await db.query(query, {
+      raw: true,
+      type: QueryTypes.SELECT,
+    });
+  }
 }
 
 export default new Region();
