@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import {Request, Response} from "express";
 import Service from "../services/Example";
 
 class Example {
@@ -7,7 +7,7 @@ class Example {
       const result = await Service.postData();
       return res.send(result).status(200);
     } catch (error) {
-      return res.send({msg: "internal server error"}).status(500);
+      return res.send({ msg: "internal server error" }).status(500);
     }
   }
 }

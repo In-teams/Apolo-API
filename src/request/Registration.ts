@@ -56,7 +56,7 @@ class Registration {
     if (error) {
       return response(res, false, null, error.message, 400);
     }
-    let quarter: string[] | undefined = value.quarter_id
+    const quarter: string[] | undefined = value.quarter_id
       ? appHelper.getMonthIdByQuarter(value.quarter_id)
       : undefined;
     req.validated = {
@@ -90,7 +90,7 @@ class Registration {
       const check = await PeriodeService.checkData(req);
       if (check.length < 1)
         return response(res, false, null, "bukan periode upload", 400);
-      req.validated = {periode_id: check[0].id};
+      req.validated = { periode_id: check[0].id };
       next();
     } catch (error) {
       console.log(error);
@@ -181,43 +181,45 @@ class Registration {
       next();
     } catch (error) {
       t.rollback();
-      console.log(error)
+      console.log(error);
       // FileSystem.DeleteFile(req.validated.path)
       return response(res, false, null, error, 500);
     }
   }
   async update(req: Request, res: Response, next: NextFunction): Promise<any> {
     try {
-      const schema = joi.object({
-        outlet_id: joi.string().required(),
-        jenis_badan: joi.string().valid("personal", "PT/CV/FIRMA").required(),
-        type: joi.string().valid("ektp", "npwp").required(),
-        // nama: joi.string().required(),
-        ...(req.body.type === "ektp"
-          ? {
-              ektp: joi.string().min(16).max(16).required(),
-              ektp_file: joi.string().base64(),
-            }
-          : {
-              npwp: joi.string().min(15).max(15).required(),
-              npwp_file: joi.string().base64(),
-            }),
-        bank_file: joi.string().base64(),
-        no_wa: joi.string().min(11).max(13).required(),
-        alamat1: joi.string().required(),
-        rtrw: joi.string().required(),
-        kodepos: joi.string().min(5).max(5).required(),
-        propinsi: joi.string().required(),
-        kabupaten: joi.string().required(),
-        kecamatan: joi.string().required(),
-        kelurahan: joi.string().required(),
-        nama_rekening: joi.string().required(),
-        nomor_rekening: joi.string().required(),
-        nama_bank: joi.string().required(),
-        cabang_bank: joi.string().required(),
-        kota_bank: joi.string().required(),
-        // jenis_badan: joi.string(),
-      }).unknown(true);
+      const schema = joi
+        .object({
+          outlet_id: joi.string().required(),
+          jenis_badan: joi.string().valid("personal", "PT/CV/FIRMA").required(),
+          type: joi.string().valid("ektp", "npwp").required(),
+          // nama: joi.string().required(),
+          ...(req.body.type === "ektp"
+            ? {
+                ektp: joi.string().min(16).max(16).required(),
+                ektp_file: joi.string().base64(),
+              }
+            : {
+                npwp: joi.string().min(15).max(15).required(),
+                npwp_file: joi.string().base64(),
+              }),
+          bank_file: joi.string().base64(),
+          no_wa: joi.string().min(11).max(13).required(),
+          alamat1: joi.string().required(),
+          rtrw: joi.string().required(),
+          kodepos: joi.string().min(5).max(5).required(),
+          propinsi: joi.string().required(),
+          kabupaten: joi.string().required(),
+          kecamatan: joi.string().required(),
+          kelurahan: joi.string().required(),
+          nama_rekening: joi.string().required(),
+          nomor_rekening: joi.string().required(),
+          nama_bank: joi.string().required(),
+          cabang_bank: joi.string().required(),
+          kota_bank: joi.string().required(),
+          // jenis_badan: joi.string(),
+        })
+        .unknown(true);
 
       req.body = {
         ...req.body,
@@ -428,16 +430,16 @@ class Registration {
     }
   }
   getForm(req: Request, res: Response, next: NextFunction): any {
-		const schema = joi.object({
-			periode: joi.string().valid('h1', 'h2').required(),
-			outlet_id: joi.string().required(),
-		});
+    const schema = joi.object({
+      periode: joi.string().valid("h1", "h2").required(),
+      outlet_id: joi.string().required(),
+    });
 
-		const { value, error } = schema.validate(req.query);
-		if (error) return response(res, false, null, error.message, 400);
-    req.validated = value
-		next();
-	}
+    const { value, error } = schema.validate(req.query);
+    if (error) return response(res, false, null, error.message, 400);
+    req.validated = value;
+    next();
+  }
 }
 
 export default new Registration();

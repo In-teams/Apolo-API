@@ -1,8 +1,8 @@
-import { Request } from "express";
+import {Request} from "express";
 
 class filterParams {
   count(req: Request, query: string): { query: string; params: string[] } {
-    let {
+    const {
       outlet_id,
       area_id,
       wilayah_id,
@@ -14,7 +14,7 @@ class filterParams {
     } = req.validated;
     const { scope, level } = req.decoded;
     let addWhere: string | null = null;
-    let params: string[] = [];
+    const params: string[] = [];
     if (level === "4") addWhere = "ou.distributor_id";
     if (level === "2") addWhere = "ou.region_id";
     if (level === "3") addWhere = "ou.city_id_alias";
@@ -56,7 +56,7 @@ class filterParams {
     return { query, params };
   }
   query(req: Request, query: string): { query: string; params: string[] } {
-    let {
+    const {
       outlet_id,
       area_id,
       wilayah_id,
@@ -68,7 +68,7 @@ class filterParams {
     } = req.validated;
     const { scope, level } = req.decoded;
     let addWhere: string | null = null;
-    let params: string[] = [];
+    const params: string[] = [];
     if (level === "4") addWhere = "o.distributor_id";
     if (level === "2") addWhere = "o.region_id";
     if (level === "3") addWhere = "o.city_id_alias";
@@ -112,9 +112,9 @@ class filterParams {
   register(
     req: Request,
     query: string,
-    isMonthQuarter: boolean = true
+    isMonthQuarter = true
   ): { query: string; params: string[] } {
-    let {
+    const {
       outlet_id,
       area_id,
       wilayah_id,
@@ -128,7 +128,7 @@ class filterParams {
     } = req.validated;
     const { scope, level } = req.decoded;
     let addWhere: string | null = null;
-    let params: string[] = [];
+    const params: string[] = [];
     if (level === "4") addWhere = "o.distributor_id";
     if (level === "2") addWhere = "o.region_id";
     if (level === "3") addWhere = "o.city_id_alias";
@@ -180,7 +180,7 @@ class filterParams {
     return { query, params };
   }
   target(req: Request, query: string) {
-    let {
+    const {
       month_id,
       quarter_id,
       outlet_id,
@@ -193,7 +193,7 @@ class filterParams {
     } = req.validated;
     const { scope, level } = req.decoded;
     let addWhere: string | null = null;
-    let params: string[] = [];
+    const params: string[] = [];
     if (level === "4") addWhere = "ou.distributor_id";
     if (level === "2") addWhere = "ou.region_id";
     if (level === "3") addWhere = "ou.city_id_alias";
@@ -243,7 +243,7 @@ class filterParams {
     return { query, params };
   }
   aktual(req: Request, query: string) {
-    let {
+    const {
       month_id,
       quarter_id,
       outlet_id,
@@ -256,7 +256,7 @@ class filterParams {
     } = req.validated;
     const { scope, level } = req.decoded;
     let addWhere: string | null = null;
-    let params: string[] = [];
+    const params: string[] = [];
     if (level === "4") addWhere = "ou.distributor_id";
     if (level === "2") addWhere = "ou.region_id";
     if (level === "3") addWhere = "ou.city_id_alias";
@@ -306,8 +306,8 @@ class filterParams {
     return { query, params };
   }
   alamat(data: any, query: string) {
-    let { province, city, district, subdistrict } = data;
-    let params: string[] = [];
+    const { province, city, district, subdistrict } = data;
+    const params: string[] = [];
 
     if (province) {
       query += " AND p.name = ?";
@@ -328,7 +328,7 @@ class filterParams {
 
     return { query, params };
   }
-  sales(query: string, data: any){
+  sales(query: string, data: any) {
     const {
       outlet_id,
       area_id,
@@ -337,6 +337,9 @@ class filterParams {
       region_id,
       ass_id,
       asm_id,
+      kd_category,
+      brand_id,
+      sub_brand_id,
     } = data;
 
     if (distributor_id) {
@@ -359,6 +362,18 @@ class filterParams {
     }
     if (asm_id) {
       query += " AND pic.asm_id = :asm_id";
+    }
+
+    if (kd_category) {
+      query += " AND trb.kd_category = :kd_category";
+    }
+
+    if (brand_id) {
+      query += " AND trb.brand_id = :brand_id";
+    }
+
+    if (sub_brand_id) {
+      query += " AND trb.sub_brand_id = :sub_brand_id";
     }
 
     return query;

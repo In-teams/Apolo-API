@@ -1,18 +1,13 @@
-import { Request } from "express";
+import {Request} from "express";
 import Service from "../services/Sales";
 import NumberFormat from "./NumberFormat";
 
 class SalesHelper {
-  async index(
-    req: Request,
-    data: any[],
-    type: string,
-    isSingle: boolean = false
-  ) {
-    let aktual: number = 0,
-      outlets: number = 0,
-      poin: number = 0,
-      target: number = 0;
+  async index(req: Request, data: any[], type: string, isSingle = false) {
+    let aktual = 0,
+      outlets = 0,
+      poin = 0,
+      target = 0;
     let totalTarget: any = await Service.getTarget(req);
     totalTarget = totalTarget[0].target || 0;
     let totalOutlet: any = await Service.getOutletCount(req);
@@ -26,11 +21,11 @@ class SalesHelper {
     data = data.map((e: any) => ({
       ...e,
       aktual: +e.aktual,
-      diff: (+e.aktual) - e.target,
-      poin: e.poin && +e.poin || 0,
+      diff: +e.aktual - e.target,
+      poin: (e.poin && +e.poin) || 0,
       pencapaian: e.pencapaian
         ? e.pencapaian || 0 + "%"
-        : (((+e.aktual / +e.target) * 100) || 0).toFixed(2) + "%",
+        : ((+e.aktual / +e.target) * 100 || 0).toFixed(2) + "%",
       kontribusi: ((+e.aktual / totalTarget) * 100).toFixed(2) + "%",
       bobot_target: ((e.target / totalTarget) * 100).toFixed(2) + "%",
       bobot_outlet: ((e.outlets / totalOutlet) * 100).toFixed(2) + "%",

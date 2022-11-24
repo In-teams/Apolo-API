@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import {NextFunction, Request, Response} from "express";
 import joi from "joi";
 import App from "../helpers/App";
 import response from "../helpers/Response";
@@ -16,9 +16,11 @@ class Report {
       "pencapaian",
       "bulanan",
       "kuartal",
-      "poin_redeem", "poin_achieve", "tersedia"
+      "poin_redeem",
+      "poin_achieve",
+      "tersedia",
     ];
-    let status_registrasi = [];
+    const status_registrasi = [];
     for (let i = 1; i <= 13; i++) {
       status_registrasi.push(i);
     }
@@ -36,7 +38,7 @@ class Report {
       outlet_id: joi.string(),
       distributor_id: joi.string(),
       ass_id: joi.string(),
-      status_terima: joi.number().valid(1, 2, 3, 4), // 1 = otorisasi. 2 = pengadaan. 3 = proses pengiriman. 4 = telah diterima 
+      status_terima: joi.number().valid(1, 2, 3, 4), // 1 = otorisasi. 2 = pengadaan. 3 = proses pengiriman. 4 = telah diterima
       status_registrasi: joi.number().valid(...status_registrasi),
       status_redeem: joi.number().valid(...status_registrasi),
       asm_id: joi.string(),
@@ -48,7 +50,7 @@ class Report {
     if (error) {
       return response(res, false, null, error.message, 400);
     }
-    let quarter: string[] | undefined = value.quarter_id
+    const quarter: string[] | undefined = value.quarter_id
       ? App.getMonthIdByQuarter(value.quarter_id)
       : undefined;
     req.validated = {

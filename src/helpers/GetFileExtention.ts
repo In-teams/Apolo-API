@@ -9,14 +9,14 @@ class FileExt {
     };
 
     const detectMimeType = (b64: string) => {
-      for (var s in signatures) {
+      for (const s in signatures) {
         if (b64.indexOf(s) === 0) {
           return signatures[s];
         }
       }
     };
 
-    let ext: string|any = null;
+    let ext: string | any = null;
     switch (detectMimeType(base64)) {
       case "application/pdf":
         ext = ".pdf";

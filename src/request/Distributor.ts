@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import {NextFunction, Request, Response} from "express";
 import joi from "joi";
 import response from "../helpers/Response";
 
@@ -19,7 +19,7 @@ class Auth {
     if (error) {
       return response(res, false, null, error.message, 400);
     }
-    req.validated = value
+    req.validated = value;
     next();
   }
 }

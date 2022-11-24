@@ -1,10 +1,8 @@
-import { readFile, writeFile, unlink } from "fs";
-import sharp from "sharp";
-import { Buffer } from "buffer";
+import {readFile, unlink, writeFile} from "fs";
 import Jimp from "jimp";
 
 class FileSystem {
-  WriteFile(path: string, row: string, buffer: boolean = false, ext?: string) {
+  WriteFile(path: string, row: string, buffer = false, ext?: string) {
     return new Promise<boolean>((resolve, reject) => {
       writeFile(path, row, { ...(buffer && { encoding: "base64" }) }, (err) => {
         if (err) reject(err);

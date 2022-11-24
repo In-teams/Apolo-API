@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import {Request, Response} from "express";
 import response from "../helpers/Response";
 import appHelper from "../helpers/App";
 import service from "../services/App";
@@ -6,7 +6,7 @@ import service from "../services/App";
 class App {
   async getBanks(req: Request, res: Response): Promise<object | undefined> {
     try {
-      let data: any[] = await service.getBanks();
+      const data: any[] = await service.getBanks();
 
       return response(res, true, data, null, 200);
     } catch (error) {

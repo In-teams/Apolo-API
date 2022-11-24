@@ -84,7 +84,7 @@ export class RedeemTransactionFilters {
       required: true,
     };
 
-    for (let key of keys(query)) {
+    for (const key of keys(query)) {
       const distIsLoaded = outletRelation.include.some(
         ({ as }: any) => as === "distributor"
       );

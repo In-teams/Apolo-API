@@ -21,10 +21,11 @@ export interface AuthorizeRedeemBody {
   transactions: string[];
 }
 
-export interface RedeemRequest
-    extends Request<any, any, any, RedeemIndexQuery> {
-}
+export type RedeemRequest = Request<any, any, any, RedeemIndexQuery>;
 
-export interface AuthorizeRedeemRequest
-    extends Request<any, any, AuthorizeRedeemBody, any> {
-}
+export type AuthorizeRedeemRequest = Request<
+  any,
+  any,
+  AuthorizeRedeemBody,
+  any
+>;

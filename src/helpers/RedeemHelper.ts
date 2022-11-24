@@ -13,9 +13,12 @@ class RedeemHelper {
     hirarkiName?: any
   ): any[] {
     const { sort } = validated;
-    const sumDataBy = (data: any[], key: string) :number =>
-    _.sumBy(data, (o) => o[key]);
-    const totalAchieve = point.reduce((prev: any, curr: any) => prev + parseFloat(curr.achieve), 0)
+    const sumDataBy = (data: any[], key: string): number =>
+      _.sumBy(data, (o) => o[key]);
+    const totalAchieve = point.reduce(
+      (prev: any, curr: any) => prev + parseFloat(curr.achieve),
+      0
+    );
     data = data
       .map((e: any) => {
         const achieve = parseFloat(
@@ -28,7 +31,7 @@ class RedeemHelper {
           ...e,
           achieve: achieve,
           redeem: redeem,
-          bobot: ((redeem/totalAchieve) * 100).toFixed(2) + '%',
+          bobot: ((redeem / totalAchieve) * 100).toFixed(2) + "%",
           diff: parseFloat((achieve - redeem).toFixed(2)),
           percentage: parseFloat(((redeem / achieve) * 100).toFixed(2)) || 0,
           pencapaian: ((redeem / achieve) * 100).toFixed(2) + "%",
@@ -44,7 +47,8 @@ class RedeemHelper {
       [hirarki]: "Total Poin",
       achieve: sumDataBy(data, "achieve"),
       redeem: sumDataBy(data, "redeem"),
-      bobot: ((sumDataBy(data, "redeem")/totalAchieve) * 100).toFixed(2) + '%',
+      bobot:
+        ((sumDataBy(data, "redeem") / totalAchieve) * 100).toFixed(2) + "%",
       diff: sumDataBy(data, "diff"),
       percentage:
         parseFloat(

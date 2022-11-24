@@ -35,7 +35,7 @@ class Registration {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let data = await Service.getRegistrationStatus(req);
+      const data = await Service.getRegistrationStatus(req);
       return response(res, true, data, null, 200);
     } catch (error) {
       console.log(error);
@@ -48,16 +48,16 @@ class Registration {
   ): Promise<object | undefined> {
     try {
       let data = await Service.getOutletData(req.validated.outlet_id);
-      let bank_file = await Service.getRegistrationFile(req, 3);
-      let npwp_file = await Service.getRegistrationFile(req, 2);
-      let ektp_file = await Service.getRegistrationFile(req, 1);
+      const bank_file = await Service.getRegistrationFile(req, 3);
+      const npwp_file = await Service.getRegistrationFile(req, 2);
+      const ektp_file = await Service.getRegistrationFile(req, 1);
       console.log(bank_file, ektp_file, npwp_file);
       data[0].bank_file = bank_file[0]?.filename || null;
       data[0].npwp_file = npwp_file[0]?.filename || null;
       data[0].ektp_file = ektp_file[0]?.filename || null;
       data[0].fill_alamat = 0;
       data[0].fill_data_bank = 0;
-      let program: any[] = await Service.getOutletProgram(
+      const program: any[] = await Service.getOutletProgram(
         req.validated.outlet_id
       );
 
@@ -411,11 +411,11 @@ class Registration {
         ...req.validated,
         periode_id: req.validated.periode_id || thisPeriode[0].id,
       };
-      let outletCount = await Outlet.getOutletCount(req)
-      outletCount = outletCount[0].total
+      let outletCount = await Outlet.getOutletCount(req);
+      outletCount = outletCount[0].total;
       let regist: any[] = await Service.getRegistrationSummaryByLevel(req);
       let status: any[] = await Service.getDistinctRegistrationStatus();
-      let statusLengkap: any[] = await Service.getRegistrationStatus();
+      const statusLengkap: any[] = await Service.getRegistrationStatus();
       status = status
         .map((e: any) => {
           return e.level;
@@ -482,15 +482,17 @@ class Registration {
         });
       regist = _.sortBy(regist, ["level"]);
       regist = regist.map((e: any) => {
-        let add: any = {};
+        const add: any = {};
         items
           .filter((x: any) => x.includes(e.level.split(" ").pop()))
           .map((b: any) => {
             add[b] = e[b];
-            add[`${b}percent`] = ((e[b]/outletCount) * 100).toFixed(2) + '%';
-            add[`${b}status`] = e[`${b}status`] || statusLengkap
-            .find((z: any) => z.level_status.includes(b))
-            ?.status.substring(11);
+            add[`${b}percent`] = ((e[b] / outletCount) * 100).toFixed(2) + "%";
+            add[`${b}status`] =
+              e[`${b}status`] ||
+              statusLengkap
+                .find((z: any) => z.level_status.includes(b))
+                ?.status.substring(11);
             // if (e[b] !== 0) {
             // }
           });

@@ -57,7 +57,7 @@ function mapRelations(include: any) {
         };
       }
 
-      return {model: modelMapping[model], as: model};
+      return { model: modelMapping[model], as: model };
     };
 
     include = include.map(mapper);
@@ -84,8 +84,8 @@ class Outlet {
   }
 
   async getOutletActive(
-      req: Request,
-      res: Response
+    req: Request,
+    res: Response
   ): Promise<object | undefined> {
     try {
       let active: any[] = await Service.getOutletActive(req);
@@ -101,43 +101,45 @@ class Outlet {
   }
 
   async show(req: Request, res: Response) {
-    const {id} = req.params;
+    const { id } = req.params;
 
     try {
       const data = await OutletModel.findByPk(id, {
         include: req.query.include,
       });
 
-      return res.status(200).json({data});
+      return res.status(200).json({ data });
     } catch (error) {
-      return res.status(500).json({error});
+      return res.status(500).json({ error });
     }
   }
 
   async getRegistration(req: Request, res: Response) {
-    const {id: outlet_id} = req.params;
+    const { id: outlet_id } = req.params;
 
     try {
       const data = await OutletRegistrationModel.findAll({
-        where: {outlet_id},
+        where: { outlet_id },
       });
 
-      return res.status(200).json({data});
+      return res.status(200).json({ data });
     } catch (error) {
-      return res.status(500).json({error});
+      return res.status(500).json({ error });
     }
   }
 
   async getRedemptions(
-      req: Request<{ id: string },
-          any,
-          any,
-          { page?: number; per_page?: number; include?: any }>,
-      res: Response
+    req: Request<
+      { id: string },
+      any,
+      any,
+      { page?: number; per_page?: number; include?: any }
+    >,
+    res: Response
   ) {
-    const {id: no_id} = req.params;
+    const { id: no_id } = req.params;
 
-    let {page = 1, per_page: limit = 10, include} = req.query;
+    let { page = 1, per_page: limit = 10, include } = req.query;
 
     const offset = limit * Math.max(page - 1, 0);
 
@@ -146,33 +148,33 @@ class Outlet {
     include = mapRelations(include);
 
     try {
-      const {
-        count: total,
-        rows: data,
-      } = await RedeemTransactionModel.findAndCountAll({
-        where: {no_id},
-        limit,
-        offset,
-        include,
-      });
+      const { count: total, rows: data } =
+        await RedeemTransactionModel.findAndCountAll({
+          where: { no_id },
+          limit,
+          offset,
+          include,
+        });
 
-      return res.status(200).json({data, total, from: offset + 1, to});
+      return res.status(200).json({ data, total, from: offset + 1, to });
     } catch (error) {
       console.error(error);
-      return res.status(500).json({error});
+      return res.status(500).json({ error });
     }
   }
 
   async getRedemption(
-      req: Request<{ outletId: string; id: string },
-          any,
-          any,
-          { attributes?: any; include?: any }>,
-      res: Response
+    req: Request<
+      { outletId: string; id: string },
+      any,
+      any,
+      { attributes?: any; include?: any }
+    >,
+    res: Response
   ) {
-    const {outletId: outlet_id, id} = req.params;
+    const { outletId: outlet_id, id } = req.params;
 
-    let {attributes, include} = req.query;
+    let { attributes, include } = req.query;
 
     include = mapRelations(include);
 
@@ -182,25 +184,25 @@ class Outlet {
         include: include,
       });
 
-      return res.status(200).json({data});
+      return res.status(200).json({ data });
     } catch (error) {
       console.error(error);
-      return res.status(500).json({error});
+      return res.status(500).json({ error });
     }
   }
 
   async update(req: Request<{ id: string }>, res: Response) {
-    const {id} = req.params;
+    const { id } = req.params;
 
     const data = req.body;
 
     const outlet = await OutletModel.findByPk(id);
 
     if (outlet == null) {
-      return res.status(404).json({message: "Not Found."});
+      return res.status(404).json({ message: "Not Found." });
     }
 
-    return res.status(200).json({data: await outlet.update(data)});
+    return res.status(200).json({ data: await outlet.update(data) });
   }
 }
 

@@ -8,9 +8,9 @@ const request = new RedeemRequest();
 
 RedeemRouter.get("/", (req, res, next) => controller.index(req, res));
 RedeemRouter.post(
-    "/authorize",
-    (req, res, next) => request.authorize(req, res, next),
-    (req, res, next) => controller.authorize(req, res)
+  "/authorize",
+  (req, res, next) => request.authorize(req, res, next),
+  (req, res, next) => controller.authorize(req, res)
 );
 
 export default RedeemRouter;

@@ -3,8 +3,8 @@ import db from "../config/db";
 
 const getRegistrationReportQuery = async (
   data: any,
-  isCount: boolean = false,
-  isPaging: boolean = true
+  isCount = false,
+  isPaging = true
 ) => {
   let {
     show,
@@ -121,8 +121,8 @@ const getRegistrationReportQuery = async (
 
 const getRedeemReportQuery = async (
   data: any,
-  isCount: boolean = false,
-  isPaging: boolean = true
+  isCount = false,
+  isPaging = true
 ) => {
   let {
     month,
@@ -258,8 +258,8 @@ const getRedeemReportQuery = async (
 
 const getPointActivityQuery = async (
   data: any,
-  isCount: boolean = false,
-  isPaging: boolean = true
+  isCount = false,
+  isPaging = true
 ) => {
   let {
     month,
@@ -414,7 +414,7 @@ class Report {
       distributor_id,
     } = data;
 
-    let params = [];
+    const params = [];
     let q = "";
     if (month) {
       q += " AND MONTH(fr.tgl_upload) = ?";
@@ -474,7 +474,7 @@ class Report {
       distributor_id,
     } = data;
 
-    let params = [];
+    const params = [];
     let q = "";
     if (month) {
       q += " AND MONTH(fp.tgl_upload) = ?";

@@ -12,10 +12,8 @@ export class RedeemController {
     try {
       const [options, meta] = this.filters.filter(req.query);
 
-      const {
-        rows: data,
-        count: total,
-      } = await RedeemTransactionModel.findAndCountAll(options);
+      const { rows: data, count: total } =
+        await RedeemTransactionModel.findAndCountAll(options);
 
       const to = Math.min(total, meta.to);
       const last_page = Math.ceil(total / meta.per_page);
