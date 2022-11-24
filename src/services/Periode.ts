@@ -1,6 +1,6 @@
-import { Request } from "express";
+import {Request} from "express";
 import moment from "moment";
-import { QueryTypes } from "sequelize";
+import {QueryTypes} from "sequelize";
 import db from "../config/db";
 
 class Periode {
@@ -14,7 +14,7 @@ class Periode {
     return await db.query("SELECT * FROM ms_periode_registrasi WHERE id = ?", {
       raw: true,
       type: QueryTypes.SELECT,
-      replacements: [id]
+      replacements: [id],
     });
   }
   async checkData(req: Request): Promise<any> {

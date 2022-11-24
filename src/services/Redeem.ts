@@ -1,14 +1,14 @@
-import { Request } from "express";
-import { QueryTypes } from "sequelize";
+import {Request} from "express";
+import {QueryTypes} from "sequelize";
 import db from "../config/db";
 import ArrayOfObjToObj from "../helpers/ArrayOfObjToObj";
 import DateFormat from "../helpers/DateFormat";
 import FilterParams from "../helpers/FilterParams";
 
-let getPointQuery =
+const getPointQuery =
   "SELECT CAST(SUM(trb.point_satuan) AS DECIMAL(20,2)) AS achieve FROM trx_transaksi AS tr INNER JOIN trx_transaksi_barang AS trb ON tr.kd_transaksi = trb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id";
 
-let getPointRedeemQuery =
+const getPointRedeemQuery =
   "SELECT CAST(SUM(trrb.point_satuan * trrb.quantity) AS DECIMAL(20,2)) AS redeem FROM trx_transaksi_redeem AS tr INNER JOIN trx_transaksi_redeem_barang AS trrb ON tr.kd_transaksi = trrb.kd_transaksi INNER JOIN mstr_outlet AS ou ON tr.no_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.region_id = r.pulau_id_alias INNER JOIN ms_dist_pic AS pic ON ou.distributor_id = pic.distributor_id";
 
 const getPointByHirarki = (col: string): string =>
@@ -115,14 +115,14 @@ class Redeem {
           transaction: t,
         }
       );
-      let count = id.pop();
+      const count = id.pop();
       id = id.shift();
       const ids = [id];
       for (let i = 1; i < count; i++) {
         ids.push(id + i);
       }
 
-      let histories = [];
+      const histories = [];
       for (let i = 0; i < data.length; i++) {
         histories.push([data[i][0], ids[i], data[i][2]]);
       }
@@ -156,7 +156,7 @@ class Redeem {
         {
           raw: true,
           type: QueryTypes.INSERT,
-          replacements: [outlet_id, filename, tgl_upload, user_id, 'PPR'],
+          replacements: [outlet_id, filename, tgl_upload, user_id, "PPR"],
           transaction: t,
         }
       );
@@ -237,7 +237,7 @@ class Redeem {
         }
       );
 
-      return checked.length > 0 ? checked[0] : null
+      return checked.length > 0 ? checked[0] : null;
     } catch (error) {}
   }
   async getHistoryRedeemFile(req: Request): Promise<any> {
@@ -314,15 +314,15 @@ class Redeem {
     } catch (error) {}
   }
   async getPointSummary(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(req, getPointQuery);
-    let { query: prq, params: prp } = FilterParams.aktual(
+    const { query: pq, params: pp } = FilterParams.aktual(req, getPointQuery);
+    const { query: prq, params: prp } = FilterParams.aktual(
       req,
       getPointRedeemQuery
     );
 
-    let q = `SELECT DISTINCT (${pq}) AS achieve, (${prq}) AS redeem FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL`;
+    const q = `SELECT DISTINCT (${pq}) AS achieve, (${prq}) AS redeem FROM mstr_outlet AS o INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg.pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL`;
 
-    let { query, params } = FilterParams.query(req, q);
+    const { query, params } = FilterParams.query(req, q);
 
     return await db.query(query, {
       raw: true,
@@ -331,9 +331,9 @@ class Redeem {
     });
   }
   async getRedeemLast(req: Request): Promise<any> {
-    let q =
+    const q =
       "SELECT DISTINCT ou.outlet_id, ou.outlet_name, tgl_transaksi FROM trx_transaksi_redeem AS tr INNER JOIN mstr_outlet AS ou ON ou.outlet_id = tr.no_id INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = ou.region_id INNER JOIN ms_head_region AS mhr on mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON ou.distributor_id = dp.distributor_id WHERE ou.outlet_id IS NOT NULL";
-    let { query: pq, params: pp } = FilterParams.aktual(req, q);
+    const { query: pq, params: pp } = FilterParams.aktual(req, q);
 
     return await db.query(pq + " ORDER BY tgl_transaksi DESC LIMIT 5", {
       raw: true,
@@ -342,8 +342,11 @@ class Redeem {
     });
   }
   async getPointPerMonth(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(req, getPointByMonth());
-    const data = await db.query(pq + ' GROUP BY bulan', {
+    const { query: pq, params: pp } = FilterParams.aktual(
+      req,
+      getPointByMonth()
+    );
+    const data = await db.query(pq + " GROUP BY bulan", {
       raw: true,
       type: QueryTypes.SELECT,
       replacements: pp,
@@ -352,12 +355,12 @@ class Redeem {
     return ArrayOfObjToObj(data, "bulan", "achieve");
   }
   async getPointRedeemPerMonth(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(
+    const { query: pq, params: pp } = FilterParams.aktual(
       req,
       getPointRedeemByMonth()
     );
 
-    const data = await db.query(pq + ' GROUP BY bulan', {
+    const data = await db.query(pq + " GROUP BY bulan", {
       raw: true,
       type: QueryTypes.SELECT,
       replacements: pp,
@@ -366,7 +369,7 @@ class Redeem {
     return ArrayOfObjToObj(data, "bulan", "redeem");
   }
   async getPoint(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(req, getPointQuery);
+    const { query: pq, params: pp } = FilterParams.aktual(req, getPointQuery);
 
     return await db.query(pq, {
       raw: true,
@@ -375,7 +378,7 @@ class Redeem {
     });
   }
   async getPointByHR(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(
+    const { query: pq, params: pp } = FilterParams.aktual(
       req,
       getPointByHirarki("r.head_region_id")
     );
@@ -387,7 +390,7 @@ class Redeem {
     });
   }
   async getPointByRegion(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(
+    const { query: pq, params: pp } = FilterParams.aktual(
       req,
       getPointByHirarki("r.pulau_id_alias")
     );
@@ -399,7 +402,7 @@ class Redeem {
     });
   }
   async getPointByArea(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(
+    const { query: pq, params: pp } = FilterParams.aktual(
       req,
       getPointByHirarki("ou.city_id_alias")
     );
@@ -411,7 +414,7 @@ class Redeem {
     });
   }
   async getPointByDistributor(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(
+    const { query: pq, params: pp } = FilterParams.aktual(
       req,
       getPointByHirarki("ou.distributor_id")
     );
@@ -423,7 +426,7 @@ class Redeem {
     });
   }
   async getPointByOutlet(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(
+    const { query: pq, params: pp } = FilterParams.aktual(
       req,
       getPointByHirarki("ou.outlet_id")
     );
@@ -459,7 +462,7 @@ class Redeem {
       select = "ass.kode_pic AS ass_id, ass.nama_pic";
       groupBy = "ass_id";
     }
-    let { query: pq, params: pp } = FilterParams.aktual(
+    const { query: pq, params: pp } = FilterParams.aktual(
       req,
       getPointByHirarki(select)
     );
@@ -495,7 +498,7 @@ class Redeem {
       select = "ass.kode_pic AS ass_id, ass.nama_pic";
       groupBy = "ass_id";
     }
-    let { query: pq, params: pp } = FilterParams.aktual(
+    const { query: pq, params: pp } = FilterParams.aktual(
       req,
       getPointRedeemByHirarki(select)
     );
@@ -507,7 +510,7 @@ class Redeem {
     });
   }
   async getPointByASM(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(
+    const { query: pq, params: pp } = FilterParams.aktual(
       req,
       getPointByHirarki("pic.asm_id")
     );
@@ -519,7 +522,7 @@ class Redeem {
     });
   }
   async getPointByASS(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(
+    const { query: pq, params: pp } = FilterParams.aktual(
       req,
       getPointByHirarki("pic.ass_id")
     );
@@ -531,7 +534,7 @@ class Redeem {
     });
   }
   async getPointRedeem(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(
+    const { query: pq, params: pp } = FilterParams.aktual(
       req,
       getPointRedeemQuery
     );
@@ -543,7 +546,7 @@ class Redeem {
     });
   }
   async getPointRedeemByHR(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(
+    const { query: pq, params: pp } = FilterParams.aktual(
       req,
       getPointRedeemByHirarki("r.head_region_id")
     );
@@ -555,7 +558,7 @@ class Redeem {
     });
   }
   async getPointRedeemByRegion(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(
+    const { query: pq, params: pp } = FilterParams.aktual(
       req,
       getPointRedeemByHirarki("r.pulau_id_alias")
     );
@@ -567,7 +570,7 @@ class Redeem {
     });
   }
   async getPointRedeemByArea(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(
+    const { query: pq, params: pp } = FilterParams.aktual(
       req,
       getPointRedeemByHirarki("ou.city_id_alias")
     );
@@ -579,7 +582,7 @@ class Redeem {
     });
   }
   async getPointRedeemByDistributor(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(
+    const { query: pq, params: pp } = FilterParams.aktual(
       req,
       getPointRedeemByHirarki("ou.distributor_id")
     );
@@ -591,7 +594,7 @@ class Redeem {
     });
   }
   async getPointRedeemByOutlet(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(
+    const { query: pq, params: pp } = FilterParams.aktual(
       req,
       getPointRedeemByHirarki("ou.outlet_id")
     );
@@ -603,7 +606,7 @@ class Redeem {
     });
   }
   async getPointRedeemByASM(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(
+    const { query: pq, params: pp } = FilterParams.aktual(
       req,
       getPointRedeemByHirarki("pic.asm_id")
     );
@@ -615,7 +618,7 @@ class Redeem {
     });
   }
   async getPointRedeemByASS(req: Request): Promise<any> {
-    let { query: pq, params: pp } = FilterParams.aktual(
+    const { query: pq, params: pp } = FilterParams.aktual(
       req,
       getPointRedeemByHirarki("pic.ass_id")
     );
@@ -630,7 +633,7 @@ class Redeem {
     const { category } = data;
     let q =
       "SELECT mp.product_id, mp.product_name, mpb.point, category FROM ms_product AS mp INNER JOIN ms_program_barang AS mpb ON mp.product_id =  mpb.product_id WHERE point <= ?";
-    let params = [point];
+    const params = [point];
     if (category) {
       q += " AND category = ?";
       params.push(category);
@@ -799,15 +802,12 @@ class Redeem {
     );
   }
   async purchase(data: any, detail: string[], t: any): Promise<any> {
-    await db.query(
-      "INSERT INTO trx_pr (`kode_pr`, tanggal) VALUES (?, ?)",
-      {
-        raw: true,
-        type: QueryTypes.INSERT,
-        transaction: t,
-        replacements: [data.kode_pr, data.tanggal],
-      }
-    );
+    await db.query("INSERT INTO trx_pr (`kode_pr`, tanggal) VALUES (?, ?)", {
+      raw: true,
+      type: QueryTypes.INSERT,
+      transaction: t,
+      replacements: [data.kode_pr, data.tanggal],
+    });
 
     return await db.query(
       "INSERT INTO trx_pr_barang (kd_transaksi, kode_pr) VALUES ?",

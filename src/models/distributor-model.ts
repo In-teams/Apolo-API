@@ -73,9 +73,9 @@ DistPic.belongsTo(Pic, {
 });
 
 DistPic.belongsTo(Pic, {
-    foreignKey: "ass_id",
-    as: "ass",
-    scope: { level_pic: "ASS" },
+  foreignKey: "ass_id",
+  as: "ass",
+  scope: { level_pic: "ASS" },
 });
 
 Distributor.hasOne(DistPic, { foreignKey: "distributor_id", as: "pics" });

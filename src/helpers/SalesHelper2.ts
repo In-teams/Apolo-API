@@ -109,7 +109,7 @@
 
 // export default new SalesHelper2().index;
 
-import { Request } from "express";
+import {Request} from "express";
 import Redeem from "../services/Redeem";
 import Registration from "../services/Registration";
 import Sales from "../services/Sales";
@@ -200,7 +200,7 @@ class SalesHelper2 {
     const sumDataBy = (data: any[], key: string) =>
       _.sumBy(data, (o) => o[key]);
     let targets: any = await Sales.getTargetByHirarki(req, key);
-    let totalOutlet: number = sumDataBy(targets, "outlet");
+    const totalOutlet: number = sumDataBy(targets, "outlet");
     const totalTarget: number = sumDataBy(targets, "target");
     targets = ArrayOfObjToObj(targets, key2, "target", "outlet");
     let aktuals: any = await Sales.getAktualByHirarki(req, key);
@@ -215,7 +215,7 @@ class SalesHelper2 {
     const isChrome = req.useragent?.isChrome;
     const isAndroid = req.useragent?.isAndroid;
 
-    let result: any[] = data.map((e: any) => {
+    const result: any[] = data.map((e: any) => {
       const target = targets[e[key2]]?.target || 0;
       const outlet = targets[e[key2]]?.outlet || 0;
       const ao = aktuals[e[key2]]?.outlet || 0;
@@ -229,10 +229,11 @@ class SalesHelper2 {
       const pencapaian = parseFloat(percen) || 0;
       return {
         ...e,
-        ...(outlet_id && key === "outlet" && {
-          registStatus:
-            registThisPeriode?.status || "Level 1A - Formulir Tidak Ada",
-        }),
+        ...(outlet_id &&
+          key === "outlet" && {
+            registStatus:
+              registThisPeriode?.status || "Level 1A - Formulir Tidak Ada",
+          }),
         [hirarki]: e[hirarkiName],
         target,
         aktual,

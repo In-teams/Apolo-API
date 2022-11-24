@@ -132,10 +132,10 @@ class Redeem {
       return response(res, false, null, error.message, 400);
     }
 
-    let quarter: number[] | undefined = value.quarter_id
+    const quarter: number[] | undefined = value.quarter_id
       ? appHelper.getMonthIdByQuarter(value.quarter_id)
       : undefined;
-    let semester: number[] | undefined = value.sem
+    const semester: number[] | undefined = value.sem
       ? appHelper.getMonthIdBySemester(value.sem)
       : undefined;
     req.validated = {

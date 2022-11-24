@@ -1,9 +1,8 @@
-import { Request, Response } from "express";
+import {Request, Response} from "express";
 import _ from "lodash";
 import ExportExcel from "../helpers/ExportExcel";
 import NumberFormat from "../helpers/NumberFormat";
 import response from "../helpers/Response";
-import Outlet from "../services/Outlet";
 import Service from "../services/Report";
 
 const sumDataBy = (data: any[], key: string) => _.sumBy(data, (o) => o[key]);
@@ -158,7 +157,7 @@ class Report {
         ...e,
         target: +e.target,
         aktual: +e.aktual,
-      }))
+      }));
       const columns = data.length > 0 ? Object.keys(data[0]) : [];
       return await ExportExcel(res, columns, data);
     } catch (error) {

@@ -9,8 +9,7 @@ import {DistrictModel} from "../models/admin-district-model";
 import {SubdistrictModel} from "../models/admin-subdistrict-model";
 import {mapRelations} from "./map-relations";
 
-interface ProvincesQuery extends LengthAwarePaginationQuery {
-}
+type ProvincesQuery = LengthAwarePaginationQuery;
 
 const mapping: { [s: string]: any } = {
   kabupaten: CityModel,
@@ -21,7 +20,7 @@ const mapping: { [s: string]: any } = {
 class Provinsi {
   async get(req: Request, res: Response): Promise<object | undefined> {
     try {
-      let data: any[] = await Service.get(req.validated);
+      const data: any[] = await Service.get(req.validated);
       return response(res, true, data, null, 200);
     } catch (error) {
       return response(res, false, null, error, 500);
@@ -30,7 +29,7 @@ class Provinsi {
 
   async index(req: Request<any, any, any, ProvincesQuery>, res: Response) {
     try {
-      let {search = "", page = 1, per_page: limit = 15, include} = req.query;
+      let { search = "", page = 1, per_page: limit = 15, include } = req.query;
 
       limit = Number(limit);
       page = Number(page);
@@ -40,8 +39,8 @@ class Provinsi {
 
       include = mapRelations(include, mapping);
 
-      const {rows: data, count: total} = await ProvinceModel.findAndCountAll({
-        where: {name: {[Op.like]: `%${search}%`}},
+      const { rows: data, count: total } = await ProvinceModel.findAndCountAll({
+        where: { name: { [Op.like]: `%${search}%` } },
         limit,
         offset,
         include,
@@ -56,39 +55,39 @@ class Provinsi {
         per_page: limit,
       });
     } catch (error) {
-      return res.status(500).json({error});
+      return res.status(500).json({ error });
     }
   }
 
   async show(
-      req: Request<{ id?: string }, any, any, { include: any }>,
-      res: Response
+    req: Request<{ id?: string }, any, any, { include: any }>,
+    res: Response
   ) {
     try {
-      let {include} = req.query;
+      let { include } = req.query;
 
       include = mapRelations(include, mapping);
 
-      const data = await ProvinceModel.findByPk(req.params.id, {include});
+      const data = await ProvinceModel.findByPk(req.params.id, { include });
 
       if (!data) {
-        return res.status(404).json({message: "Not found."});
+        return res.status(404).json({ message: "Not found." });
       }
 
-      return res.status(200).json({data});
+      return res.status(200).json({ data });
     } catch (error) {
-      return res.status(500).json({error});
+      return res.status(500).json({ error });
     }
   }
 
   async cities(
-      req: Request<{ id?: string }, any, any, LengthAwarePaginationQuery>,
-      res: Response
+    req: Request<{ id?: string }, any, any, LengthAwarePaginationQuery>,
+    res: Response
   ) {
     try {
-      let {id} = req.params;
+      const { id } = req.params;
 
-      let {search = "", page = 1, per_page: limit = 15, include} = req.query;
+      let { search = "", page = 1, per_page: limit = 15, include } = req.query;
 
       limit = Number(limit);
       page = Number(page);
@@ -98,8 +97,8 @@ class Provinsi {
 
       include = mapRelations(include, mapping);
 
-      const {rows: data, count: total} = await CityModel.findAndCountAll({
-        where: {provinces_id: id, name: {[Op.like]: `%${search}%`}},
+      const { rows: data, count: total } = await CityModel.findAndCountAll({
+        where: { provinces_id: id, name: { [Op.like]: `%${search}%` } },
         limit,
         offset,
         include,
@@ -114,43 +113,45 @@ class Provinsi {
         per_page: limit,
       });
     } catch (error) {
-      return res.status(500).json({error});
+      return res.status(500).json({ error });
     }
   }
 
   async city(
-      req: Request<{ id?: string; cityId?: string }, any, any, { include?: any }>,
-      res: Response
+    req: Request<{ id?: string; cityId?: string }, any, any, { include?: any }>,
+    res: Response
   ) {
     try {
-      let {include} = req.query;
+      let { include } = req.query;
 
       include = mapRelations(include, mapping);
 
-      const data = await CityModel.findByPk(req.params.cityId, {include});
+      const data = await CityModel.findByPk(req.params.cityId, { include });
 
       // @ts-ignore
       if (!data || data.provinces_id !== req.params.id) {
-        return res.status(404).json({message: "Not found."});
+        return res.status(404).json({ message: "Not found." });
       }
 
-      return res.status(200).json({data});
+      return res.status(200).json({ data });
     } catch (error) {
-      return res.status(500).json({error});
+      return res.status(500).json({ error });
     }
   }
 
   async districts(
-      req: Request<{ id?: string; cityId?: string },
-          any,
-          any,
-          LengthAwarePaginationQuery>,
-      res: Response
+    req: Request<
+      { id?: string; cityId?: string },
+      any,
+      any,
+      LengthAwarePaginationQuery
+    >,
+    res: Response
   ) {
     try {
-      let {cityId} = req.params;
+      const { cityId } = req.params;
 
-      let {search = "", page = 1, per_page: limit = 15, include} = req.query;
+      let { search = "", page = 1, per_page: limit = 15, include } = req.query;
 
       limit = Number(limit);
       page = Number(page);
@@ -160,10 +161,10 @@ class Provinsi {
 
       include = mapRelations(include, mapping);
 
-      const {rows: data, count: total} = await DistrictModel.findAndCountAll({
+      const { rows: data, count: total } = await DistrictModel.findAndCountAll({
         where: {
           cities_id: cityId,
-          name: {[Op.like]: `%${search}%`},
+          name: { [Op.like]: `%${search}%` },
         },
         limit,
         offset,
@@ -179,19 +180,21 @@ class Provinsi {
         per_page: limit,
       });
     } catch (error) {
-      return res.status(500).json({error});
+      return res.status(500).json({ error });
     }
   }
 
   async district(
-      req: Request<{ id?: string; cityId?: string; districtId?: string },
-          any,
-          any,
-          { include?: any }>,
-      res: Response
+    req: Request<
+      { id?: string; cityId?: string; districtId?: string },
+      any,
+      any,
+      { include?: any }
+    >,
+    res: Response
   ) {
     try {
-      let {include} = req.query;
+      let { include } = req.query;
 
       include = mapRelations(include, mapping);
 
@@ -201,26 +204,28 @@ class Provinsi {
 
       // @ts-ignore
       if (!data || data.cities_id !== req.params.cityId) {
-        return res.status(404).json({message: "Not found."});
+        return res.status(404).json({ message: "Not found." });
       }
 
-      return res.status(200).json({data});
+      return res.status(200).json({ data });
     } catch (error) {
-      return res.status(500).json({error});
+      return res.status(500).json({ error });
     }
   }
 
   async subdistricts(
-      req: Request<{ id?: string; cityId?: string; districtId?: string },
-          any,
-          any,
-          LengthAwarePaginationQuery>,
-      res: Response
+    req: Request<
+      { id?: string; cityId?: string; districtId?: string },
+      any,
+      any,
+      LengthAwarePaginationQuery
+    >,
+    res: Response
   ) {
     try {
-      let {districtId} = req.params;
+      const { districtId } = req.params;
 
-      let {search = "", page = 1, per_page: limit = 15, include} = req.query;
+      let { search = "", page = 1, per_page: limit = 15, include } = req.query;
 
       limit = Number(limit);
       page = Number(page);
@@ -230,18 +235,16 @@ class Provinsi {
 
       include = mapRelations(include, mapping);
 
-      const {
-        rows: data,
-        count: total,
-      } = await SubdistrictModel.findAndCountAll({
-        where: {
-          districts_id: districtId,
-          name: {[Op.like]: `%${search}%`},
-        },
-        limit,
-        offset,
-        include,
-      });
+      const { rows: data, count: total } =
+        await SubdistrictModel.findAndCountAll({
+          where: {
+            districts_id: districtId,
+            name: { [Op.like]: `%${search}%` },
+          },
+          limit,
+          offset,
+          include,
+        });
 
       return res.status(200).json({
         data,
@@ -252,19 +255,26 @@ class Provinsi {
         per_page: limit,
       });
     } catch (error) {
-      return res.status(500).json({error});
+      return res.status(500).json({ error });
     }
   }
 
   async subdistrict(
-      req: Request<{ id?: string; cityId?: string; districtId?: string; subdistrictId?: string },
-          any,
-          any,
-          { include?: any }>,
-      res: Response
+    req: Request<
+      {
+        id?: string;
+        cityId?: string;
+        districtId?: string;
+        subdistrictId?: string;
+      },
+      any,
+      any,
+      { include?: any }
+    >,
+    res: Response
   ) {
     try {
-      let {include} = req.query;
+      let { include } = req.query;
 
       include = mapRelations(include, mapping);
 
@@ -274,12 +284,12 @@ class Provinsi {
 
       // @ts-ignore
       if (!data || data.districts_id !== req.params.districtId) {
-        return res.status(404).json({message: "Not found."});
+        return res.status(404).json({ message: "Not found." });
       }
 
-      return res.status(200).json({data});
+      return res.status(200).json({ data });
     } catch (error) {
-      return res.status(500).json({error});
+      return res.status(500).json({ error });
     }
   }
 }

@@ -4,7 +4,7 @@ import db from "../config/db";
 import DateFormat from "../helpers/DateFormat";
 import FilterParams from "../helpers/FilterParams";
 
-let queryOutletCount =
+const queryOutletCount =
   "SELECT COUNT(DISTINCT ou.outlet_id) AS total FROM mstr_outlet AS ou INNER JOIN ms_pulau_alias AS r ON ou.`region_id` = r. `pulau_id_alias` INNER JOIN ms_dist_pic AS pic ON ou.`distributor_id` = pic.`distributor_id` WHERE ou.`outlet_id` IS NOT NULL";
 
 const getLevelQuery = async () => {
@@ -23,7 +23,7 @@ const getLevelQuery = async () => {
       .join("")}'`;
     if (i + 1 !== status.length) return (q += ", ");
   });
-  let level = status.map((e: any) => e.level.split(" ").join(""));
+  const level = status.map((e: any) => e.level.split(" ").join(""));
   let levelQ = "";
   let levelPercen = "";
   level.map((e: any, i: number) => {
@@ -36,10 +36,10 @@ const getLevelQuery = async () => {
 
 class Registration {
   async getRegistrationSummary(req: Request): Promise<any> {
-    let q =
+    const q =
       "SELECT COUNT(*) AS regist FROM mstr_outlet AS o INNER JOIN trx_file_registrasi AS rf ON rf.outlet_id = o.outlet_id AND rf.type_file = 0 INNER JOIN ms_status_registrasi AS sr ON sr.id = rf.status_registrasi INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN mstr_distributor AS d ON o.distributor_id = d.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL";
 
-    let { query, params } = FilterParams.register(req, q);
+    const { query, params } = FilterParams.register(req, q);
     return await db.query(query, {
       raw: true,
       type: QueryTypes.SELECT,
@@ -50,7 +50,7 @@ class Registration {
     const { q, levelQ, levelPercen } = await getLevelQuery();
 
     const { sort } = req.validated;
-    let { query: qocs, params: pocs } = FilterParams.count(
+    const { query: qocs, params: pocs } = FilterParams.count(
       req,
       queryOutletCount
     );
@@ -61,7 +61,7 @@ class Registration {
 
     qr += " GROUP BY mhr.head_region_id";
 
-    let { query, params } = FilterParams.query(
+    const { query, params } = FilterParams.query(
       req,
       `SELECT mhr.head_region_name AS wilayah, ${levelPercen} ${levelQ} IFNULL(regist, 0) AS regist, IFNULL((COUNT(o.outlet_id) - IFNULL(regist, 0)), 0) AS notregist, COUNT(o.outlet_id) AS total, (${qocs}) AS totals, CONCAT(ROUND((COUNT(o.outlet_id)/(${qocs}) * 100), 2), '%') AS bobot_outlet, ROUND((IFNULL(regist, 0)/(COUNT(o.outlet_id)) * 100), 2) AS pencapaian FROM ms_head_region AS mhr LEFT JOIN (${qr}) AS sub ON sub.wilayah = mhr.head_region_id INNER JOIN ms_pulau_alias AS reg ON reg.head_region_id = mhr.head_region_id INNER JOIN mstr_outlet AS o ON o.region_id = reg.pulau_id_alias INNER JOIN mstr_distributor AS d ON o.distributor_id = d.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL`
     );
@@ -78,7 +78,7 @@ class Registration {
     const { q, levelQ, levelPercen } = await getLevelQuery();
 
     const { sort } = req.validated;
-    let { query: qocs, params: pocs } = FilterParams.count(
+    const { query: qocs, params: pocs } = FilterParams.count(
       req,
       queryOutletCount
     );
@@ -89,7 +89,7 @@ class Registration {
 
     qr += " GROUP BY reg.pulau_id_alias";
 
-    let { query, params } = FilterParams.query(
+    const { query, params } = FilterParams.query(
       req,
       `SELECT reg.nama_pulau_alias AS region , ${levelPercen} ${levelQ} IFNULL(regist, 0) AS regist, IFNULL((COUNT(o.outlet_id) - IFNULL(regist, 0)), 0) AS notregist, COUNT(o.outlet_id) AS total, (${qocs}) AS totals, CONCAT(ROUND((COUNT(o.outlet_id)/(${qocs}) * 100), 2), '%') AS bobot_outlet, ROUND((IFNULL(regist, 0)/(COUNT(o.outlet_id)) * 100), 2) AS pencapaian FROM ms_head_region AS mhr INNER JOIN ms_pulau_alias AS reg ON reg.head_region_id = mhr.head_region_id LEFT JOIN (${qr}) AS sub ON sub.region_id = reg.pulau_id_alias INNER JOIN mstr_outlet AS o ON o.region_id = reg.pulau_id_alias INNER JOIN mstr_distributor AS d ON o.distributor_id = d.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL`
     );
@@ -106,7 +106,7 @@ class Registration {
     const { q, levelQ, levelPercen } = await getLevelQuery();
 
     const { sort } = req.validated;
-    let { query: qocs, params: pocs } = FilterParams.count(
+    const { query: qocs, params: pocs } = FilterParams.count(
       req,
       queryOutletCount
     );
@@ -117,7 +117,7 @@ class Registration {
 
     qr += " GROUP BY city_id_alias";
 
-    let { query, params } = FilterParams.query(
+    const { query, params } = FilterParams.query(
       req,
       `SELECT c.city_name_alias AS area , ${levelPercen} ${levelQ} IFNULL(regist, 0) AS regist, IFNULL((COUNT(o.outlet_id) - IFNULL(regist, 0)), 0) AS notregist, COUNT(o.outlet_id) AS total, (${qocs}) AS totals, CONCAT(ROUND((COUNT(o.outlet_id)/(${qocs}) * 100), 2), '%') AS bobot_outlet, ROUND((IFNULL(regist, 0)/(COUNT(o.outlet_id)) * 100), 2) AS pencapaian FROM ms_head_region AS mhr INNER JOIN ms_pulau_alias AS reg ON reg.head_region_id = mhr.head_region_id INNER JOIN mstr_outlet AS o ON o.region_id = reg.pulau_id_alias INNER JOIN ms_city_alias AS c on c.city_id_alias = o.city_id_alias LEFT JOIN (${qr}) AS sub ON sub.area_id = c.city_id_alias INNER JOIN mstr_distributor AS d ON o.distributor_id = d.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE o.outlet_id IS NOT NULL`
     );
@@ -131,11 +131,11 @@ class Registration {
     );
   }
   async getRegistrationSummaryByDistributor(req: Request): Promise<any> {
-    console.log("regis summary distri")
+    console.log("regis summary distri");
 
     const { q, levelQ, levelPercen } = await getLevelQuery();
     const { sort } = req.validated;
-    let { query: qocs, params: pocs } = FilterParams.count(
+    const { query: qocs, params: pocs } = FilterParams.count(
       req,
       queryOutletCount
     );
@@ -146,7 +146,7 @@ class Registration {
 
     qr += " GROUP BY distributor_id";
 
-    let { query, params } = FilterParams.query(
+    const { query, params } = FilterParams.query(
       req,
       `SELECT d.distributor_name AS distributor , ${levelPercen} ${levelQ} IFNULL(regist, 0) AS regist, IFNULL((COUNT(o.outlet_id) - IFNULL(regist, 0)), 0) AS notregist, COUNT(o.outlet_id) AS total, (${qocs}) AS totals, CONCAT(ROUND((COUNT(o.outlet_id)/(${qocs}) * 100), 2), '%') AS bobot_outlet, ROUND((IFNULL(regist, 0)/(COUNT(o.outlet_id)) * 100), 2) AS pencapaian FROM ms_head_region AS mhr INNER JOIN ms_pulau_alias AS reg ON reg.head_region_id = mhr.head_region_id INNER JOIN mstr_outlet AS o ON o.region_id = reg.pulau_id_alias INNER JOIN mstr_distributor AS d ON o.distributor_id = d.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id LEFT JOIN (${qr}) AS sub ON sub.distributor_id = d.distributor_id WHERE o.outlet_id IS NOT NULL`
     );
@@ -162,7 +162,7 @@ class Registration {
   async getRegistrationSummaryByOutlet(req: Request): Promise<any> {
     const { q, levelQ, levelPercen } = await getLevelQuery();
     const { sort } = req.validated;
-    let { query: qocs, params: pocs } = FilterParams.count(
+    const { query: qocs, params: pocs } = FilterParams.count(
       req,
       queryOutletCount
     );
@@ -173,7 +173,7 @@ class Registration {
 
     qr += " GROUP BY outlet_id";
 
-    let { query, params } = FilterParams.query(
+    const { query, params } = FilterParams.query(
       req,
       `SELECT o.outlet_name AS outlet , ${levelPercen} ${levelQ} IFNULL(regist, 0) AS regist, IFNULL((COUNT(o.outlet_id) - IFNULL(regist, 0)), 0) AS notregist, COUNT(o.outlet_id) AS total, (${qocs}) AS totals, CONCAT(ROUND((COUNT(o.outlet_id)/(${qocs}) * 100), 2), '%') AS bobot_outlet, ROUND((IFNULL(regist, 0)/(COUNT(o.outlet_id)) * 100), 2) AS pencapaian FROM ms_head_region AS mhr INNER JOIN ms_pulau_alias AS reg ON reg.head_region_id = mhr.head_region_id INNER JOIN mstr_outlet AS o ON o.region_id = reg.pulau_id_alias INNER JOIN mstr_distributor AS d ON o.distributor_id = d.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id LEFT JOIN (${qr}) AS sub ON sub.outlet_id = o.outlet_id WHERE o.outlet_id IS NOT NULL`
     );
@@ -189,7 +189,7 @@ class Registration {
   async getRegistrationSummaryByASM(req: Request): Promise<any> {
     const { q, levelQ, levelPercen } = await getLevelQuery();
     const { sort } = req.validated;
-    let { query: qocs, params: pocs } = FilterParams.count(
+    const { query: qocs, params: pocs } = FilterParams.count(
       req,
       queryOutletCount
     );
@@ -200,7 +200,7 @@ class Registration {
 
     qr += " GROUP BY asm_id";
 
-    let { query, params } = FilterParams.query(
+    const { query, params } = FilterParams.query(
       req,
       `SELECT pic.nama_pic AS nama_pic , ${levelPercen} ${levelQ} IFNULL(regist, 0) AS regist, IFNULL((COUNT(o.outlet_id) - IFNULL(regist, 0)), 0) AS notregist, COUNT(o.outlet_id) AS total, (${qocs}) AS totals, CONCAT(ROUND((COUNT(o.outlet_id)/(${qocs}) * 100), 2), '%') AS bobot_outlet, ROUND((IFNULL(regist, 0)/(COUNT(o.outlet_id)) * 100), 2) AS pencapaian FROM ms_head_region AS mhr INNER JOIN ms_pulau_alias AS reg ON reg.head_region_id = mhr.head_region_id INNER JOIN mstr_outlet AS o ON o.region_id = reg.pulau_id_alias INNER JOIN mstr_distributor AS d ON o.distributor_id = d.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN ms_pic AS pic ON pic.kode_pic = dp.asm_id LEFT JOIN (${qr}) AS sub ON sub.asm_id = pic.kode_pic WHERE o.outlet_id IS NOT NULL`
     );
@@ -216,7 +216,7 @@ class Registration {
   async getRegistrationSummaryByASS(req: Request): Promise<any> {
     const { q, levelQ, levelPercen } = await getLevelQuery();
     const { sort } = req.validated;
-    let { query: qocs, params: pocs } = FilterParams.count(
+    const { query: qocs, params: pocs } = FilterParams.count(
       req,
       queryOutletCount
     );
@@ -227,7 +227,7 @@ class Registration {
 
     qr += " GROUP BY ass_id";
 
-    let { query, params } = FilterParams.query(
+    const { query, params } = FilterParams.query(
       req,
       `SELECT pic.nama_pic AS nama_pic , ${levelPercen} ${levelQ} IFNULL(regist, 0) AS regist, IFNULL((COUNT(o.outlet_id) - IFNULL(regist, 0)), 0) AS notregist, COUNT(o.outlet_id) AS total, (${qocs}) AS totals, CONCAT(ROUND((COUNT(o.outlet_id)/(${qocs}) * 100), 2), '%') AS bobot_outlet, ROUND((IFNULL(regist, 0)/(COUNT(o.outlet_id)) * 100), 2) AS pencapaian FROM ms_head_region AS mhr INNER JOIN ms_pulau_alias AS reg ON reg.head_region_id = mhr.head_region_id INNER JOIN mstr_outlet AS o ON o.region_id = reg.pulau_id_alias INNER JOIN mstr_distributor AS d ON o.distributor_id = d.distributor_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id INNER JOIN ms_pic AS pic ON pic.kode_pic = dp.ass_id LEFT JOIN (${qr}) AS sub ON sub.ass_id = pic.kode_pic WHERE o.outlet_id IS NOT NULL`
     );
@@ -249,29 +249,31 @@ class Registration {
     if (quarter_id) {
       subQueryForm += ` AND MONTH(tgl_upload) IN(${quarter_id})`;
     }
-    let status: any[] = await this.getRegistrationStatus();
+    const status: any[] = await this.getRegistrationStatus();
     let countLevelStatusQuery =
       "COUNT(CASE WHEN level_status IS NULL THEN o.`outlet_id` END) AS 1A, " +
-        "CONCAT(ROUND((COUNT(CASE WHEN level_status IS NULL THEN o.`outlet_id` END)/COUNT(o.outlet_id) * 100), 2), '%') AS 1Apercent, " +
-        "CASE WHEN level_status IS NULL THEN 'Formulir Tidak Ada' END AS 1Astatus";
+      "CONCAT(ROUND((COUNT(CASE WHEN level_status IS NULL THEN o.`outlet_id` END)/COUNT(o.outlet_id) * 100), 2), '%') AS 1Apercent, " +
+      "CASE WHEN level_status IS NULL THEN 'Formulir Tidak Ada' END AS 1Astatus";
 
     status.slice(1).forEach((e: any) => {
-      countLevelStatusQuery += `, ` +
-          `COUNT(CASE WHEN level_status = '${e.level_status}' THEN o.outlet_id END) AS ${e.level_status}, ` +
-          `CONCAT(ROUND((COUNT(CASE WHEN level_status = '${e.level_status}' THEN o.outlet_id END)/COUNT(o.outlet_id) * 100), 2), '%') AS ${e.level_status}percent, ` +
-          `MAX(SUBSTRING(CASE WHEN level_status = '${e.level_status}' THEN STATUS END, 12)) AS '${e.level_status}status'`;
+      countLevelStatusQuery +=
+        `, ` +
+        `COUNT(CASE WHEN level_status = '${e.level_status}' THEN o.outlet_id END) AS ${e.level_status}, ` +
+        `CONCAT(ROUND((COUNT(CASE WHEN level_status = '${e.level_status}' THEN o.outlet_id END)/COUNT(o.outlet_id) * 100), 2), '%') AS ${e.level_status}percent, ` +
+        `MAX(SUBSTRING(CASE WHEN level_status = '${e.level_status}' THEN STATUS END, 12)) AS '${e.level_status}status'`;
     });
 
-    let query = `SELECT ` +
-        `IFNULL(level, 'Level 1') AS level, ` +
-        `COUNT(o.outlet_id) AS total, ` +
-        `${countLevelStatusQuery} FROM mstr_outlet AS o ` +
-        `INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id ` +
-        `INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id ` +
-        `INNER JOIN mstr_distributor AS d ON o.distributor_id = d.distributor_id ` +
-        `INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id ` +
-        `INNER JOIN ms_pic AS pic ON pic.kode_pic = dp.ass_id ` +
-        `LEFT JOIN (SELECT fp.*, sp.level, sp.status, sp.level_status FROM trx_file_registrasi AS fp LEFT JOIN ms_status_registrasi AS sp ON sp.id = fp.status_registrasi LEFT JOIN ms_periode_registrasi AS pr ON pr.id = fp.periode_id WHERE fp.type_file = 0 AND (periode_id = ? OR periode_id IS NULL)${subQueryForm}) AS a ON a.outlet_id = o.outlet_id WHERE 1=1`;
+    const query =
+      `SELECT ` +
+      `IFNULL(level, 'Level 1') AS level, ` +
+      `COUNT(o.outlet_id) AS total, ` +
+      `${countLevelStatusQuery} FROM mstr_outlet AS o ` +
+      `INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id ` +
+      `INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id ` +
+      `INNER JOIN mstr_distributor AS d ON o.distributor_id = d.distributor_id ` +
+      `INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id ` +
+      `INNER JOIN ms_pic AS pic ON pic.kode_pic = dp.ass_id ` +
+      `LEFT JOIN (SELECT fp.*, sp.level, sp.status, sp.level_status FROM trx_file_registrasi AS fp LEFT JOIN ms_status_registrasi AS sp ON sp.id = fp.status_registrasi LEFT JOIN ms_periode_registrasi AS pr ON pr.id = fp.periode_id WHERE fp.type_file = 0 AND (periode_id = ? OR periode_id IS NULL)${subQueryForm}) AS a ON a.outlet_id = o.outlet_id WHERE 1=1`;
 
     const { query: newQuery, params } = FilterParams.register(
       req,
@@ -286,10 +288,10 @@ class Registration {
     });
   }
   async getLastRegistration(req: Request): Promise<any> {
-    let q =
+    const q =
       "SELECT rf.outlet_id, rf.tgl_upload, o.outlet_name FROM trx_file_registrasi AS rf INNER JOIN mstr_outlet AS o ON o.outlet_id = rf.outlet_id INNER JOIN ms_pulau_alias AS reg ON o.region_id = reg. pulau_id_alias INNER JOIN ms_head_region AS mhr ON mhr.head_region_id = reg.head_region_id INNER JOIN ms_dist_pic AS dp ON o.distributor_id = dp.distributor_id WHERE rf.type_file = 0";
 
-    let { query, params } = FilterParams.register(req, q);
+    const { query, params } = FilterParams.register(req, q);
 
     return await db.query(query + " order by rf.tgl_upload DESC LIMIT 5", {
       raw: true,
@@ -300,7 +302,7 @@ class Registration {
   async getRegistrationFile(req: Request, type_file?: number): Promise<any> {
     const { outlet_id } = req.validated;
     if (!type_file) type_file = 0;
-    let query =
+    const query =
       "SELECT f.*, s.status, s.level, f.filename AS file, p.periode FROM trx_file_registrasi AS f INNER JOIN ms_status_registrasi AS s ON s.id = f.status_registrasi INNER JOIN ms_periode_registrasi as p ON p.id = f.periode_id WHERE outlet_id = ? AND type_file = ? ORDER BY f.tgl_upload DESC";
 
     return await db.query(query, {
@@ -316,7 +318,7 @@ class Registration {
     const { outlet_id } = req.validated;
     const today: string = DateFormat.getToday("YYYY-MM-DD");
     if (!type_file) type_file = 0;
-    let query =
+    const query =
       "SELECT f.*, s.status, s.level, f.filename AS file, p.periode FROM trx_file_registrasi AS f INNER JOIN ms_status_registrasi AS s ON s.id = f.status_registrasi INNER JOIN ms_periode_registrasi as p ON p.id = f.periode_id WHERE (:today BETWEEN tgl_mulai AND tgl_selesai OR :today BETWEEN tgl_mulai AND tgl_selesai) AND outlet_id = :outlet_id AND type_file = :type_file";
 
     const get = await db.query(query, {
@@ -329,7 +331,7 @@ class Registration {
   }
   async getRegistrationHistory(req: Request): Promise<any> {
     const { file_id } = req.validated;
-    let query =
+    const query =
       "SELECT h.*, s.status FROM trx_history_registrasi AS h INNER JOIN ms_status_registrasi AS s ON h.status_registrasi = s.id WHERE h.file_id = ?";
 
     return await db.query(query, {
@@ -341,7 +343,7 @@ class Registration {
   async getRegistrationForm(req: Request, type_file?: number): Promise<any> {
     if (!type_file) type_file = 0;
     const { outlet_id, periode_id, file_id } = req.validated;
-    let query =
+    const query =
       "SELECT fr.*, s.level FROM trx_file_registrasi AS fr INNER JOIN ms_status_registrasi AS s ON s.id = fr.status_registrasi WHERE outlet_id = ? AND (periode_id = ? OR fr.id = ?) AND type_file = ?";
 
     return await db.query(query, {
@@ -354,7 +356,7 @@ class Registration {
     outletIds: any[],
     periode_id: number
   ): Promise<any> {
-    let query =
+    const query =
       "SELECT fr.*, s.level FROM trx_file_registrasi AS fr INNER JOIN ms_status_registrasi AS s ON s.id = fr.status_registrasi WHERE outlet_id IN(?) AND type_file = 0 AND periode_id = ?";
 
     return await db.query(query, {
@@ -419,9 +421,9 @@ class Registration {
     });
   }
   async insertBulkyRegistrationForm(data: any, t: any): Promise<any> {
-    let query =
+    const query =
       "INSERT INTO trx_file_registrasi (outlet_id, filename, tgl_upload, periode_id, uploaded_by, type_file) VALUES ?";
-    let queryHistory =
+    const queryHistory =
       "INSERT INTO trx_history_registrasi (outlet_id, file_id, created_at) VALUES ?";
 
     await db.query(
@@ -439,14 +441,14 @@ class Registration {
       replacements: [data],
       transaction: t,
     });
-    let count = insert.pop();
+    const count = insert.pop();
     insert = insert.shift();
     const ids = [insert];
     for (let i = 1; i < count; i++) {
       ids.push(insert + i);
     }
 
-    let histories = [];
+    const histories = [];
     for (let i = 0; i < data.length; i++) {
       histories.push([data[i][0], ids[i], data[i][2]]);
     }
@@ -460,9 +462,9 @@ class Registration {
   }
   async insertRegistrationForm(data: any, t: any): Promise<any> {
     const { outlet_id, periode_id, filename, tgl_upload, user_id } = data;
-    let query =
+    const query =
       "INSERT INTO trx_file_registrasi (outlet_id, periode_id, filename, tgl_upload, uploaded_by) VALUES(?, ?, ?, ?, ?)";
-    let queryHistory =
+    const queryHistory =
       "INSERT INTO trx_history_registrasi (outlet_id, file_id, created_at) VALUES(?, ?, ?)";
 
     await db.query(
@@ -475,21 +477,24 @@ class Registration {
       }
     );
 
-    const existing: any = await db.query("SELECT * FROM trx_file_registrasi WHERE outlet_id = ? AND type_file = ?", {
-      raw: true,
-      type: QueryTypes.SELECT,
-      replacements: [outlet_id, 0],
-      transaction: t
-    })
+    const existing: any = await db.query(
+      "SELECT * FROM trx_file_registrasi WHERE outlet_id = ? AND type_file = ?",
+      {
+        raw: true,
+        type: QueryTypes.SELECT,
+        replacements: [outlet_id, 0],
+        transaction: t,
+      }
+    );
 
     if (existing && existing.id) {
-      console.log(existing)
+      console.log(existing);
       await db.query(`DELETE FROM trx_file_registrasi WHERE id = ?`, {
         raw: true,
         type: QueryTypes.DELETE,
         replacements: [existing.id],
-        transaction: t
-      })
+        transaction: t,
+      });
     }
 
     const insert = await db.query(query, {
@@ -513,17 +518,12 @@ class Registration {
     });
   }
   async validation(data: any, t: any): Promise<any> {
-    const {
-      outlet_id,
-      file_id,
-      status_registrasi,
-      validated_at,
-      user_id,
-    } = data;
-    let query =
+    const { outlet_id, file_id, status_registrasi, validated_at, user_id } =
+      data;
+    const query =
       "UPDATE trx_file_registrasi SET status_registrasi = ?, validated_at = ?, validated_by = ? WHERE outlet_id = ? AND id = ?";
 
-    let queryHistory =
+    const queryHistory =
       "INSERT INTO trx_history_registrasi (outlet_id, status_registrasi, file_id, created_at, validated_by) VALUES(?, ?, ?, ?, ?)";
 
     let level: any = await db.query(
@@ -578,7 +578,7 @@ class Registration {
   }
   async updateRegistrationForm(data: any, t: any): Promise<any> {
     const { outlet_id, periode_id, filename, tgl_upload, user_id } = data;
-    let query =
+    const query =
       "UPDATE trx_file_registrasi SET filename = ?, tgl_upload = ?, status_registrasi = ?, uploaded_by = ? WHERE outlet_id = ? AND periode_id = ?";
 
     await db.query(
@@ -598,7 +598,7 @@ class Registration {
     });
   }
   async getRegistrationStatus(req?: Request): Promise<any> {
-    let query = "SELECT * FROM ms_status_registrasi";
+    const query = "SELECT * FROM ms_status_registrasi";
 
     return await db.query(query, {
       raw: true,
@@ -606,7 +606,7 @@ class Registration {
     });
   }
   async getDistinctRegistrationStatus(req?: Request): Promise<any> {
-    let query = "SELECT DISTINCT level FROM ms_status_registrasi";
+    const query = "SELECT DISTINCT level FROM ms_status_registrasi";
 
     return await db.query(query, {
       raw: true,
@@ -614,8 +614,8 @@ class Registration {
     });
   }
   async getRegistrationSummaryByMonth(req: Request): Promise<any> {
-    let { query, params } = FilterParams.count(req, queryOutletCount);
-    let { query: qreg, params: preg } = FilterParams.count(
+    const { query, params } = FilterParams.count(req, queryOutletCount);
+    const { query: qreg, params: preg } = FilterParams.count(
       req,
       "SELECT COUNT(*) AS regist, MONTH(tgl_upload) AS bulan FROM mstr_outlet AS ou INNER JOIN trx_file_registrasi AS fr ON fr.outlet_id = ou.outlet_id INNER JOIN ms_pulau_alias AS r ON ou.`region_id` = r. `pulau_id_alias` INNER JOIN ms_dist_pic AS pic ON ou.`distributor_id` = pic.`distributor_id` WHERE ou.`outlet_id` IS NOT NULL AND fr.type_file = 0"
     );
@@ -641,9 +641,9 @@ class Registration {
       if (i + 1 !== status.length) return (q += ", ");
     });
 
-    let { query: qoc, params } = FilterParams.count(req, queryOutletCount);
+    const { query: qoc, params } = FilterParams.count(req, queryOutletCount);
 
-    let query = `SELECT b.id, b.bulan, COUNT(tr.outlet_id) AS outlet, (${qoc}) AS totals, ${q} FROM ms_bulan AS b LEFT JOIN trx_file_registrasi AS tr ON b.id = MONTH(tr.tgl_upload) LEFT JOIN ms_status_registrasi AS s ON tr.status_registrasi = s.id WHERE tr.type_file = 0 OR tr.type_file IS NULL GROUP BY b.id`;
+    const query = `SELECT b.id, b.bulan, COUNT(tr.outlet_id) AS outlet, (${qoc}) AS totals, ${q} FROM ms_bulan AS b LEFT JOIN trx_file_registrasi AS tr ON b.id = MONTH(tr.tgl_upload) LEFT JOIN ms_status_registrasi AS s ON tr.status_registrasi = s.id WHERE tr.type_file = 0 OR tr.type_file IS NULL GROUP BY b.id`;
 
     return await db.query(query, {
       raw: true,
@@ -652,7 +652,7 @@ class Registration {
     });
   }
   async deleteRegistrationFile(id: number): Promise<any> {
-    let query = "DELETE FROM trx_file_registrasi WHERE id = ?";
+    const query = "DELETE FROM trx_file_registrasi WHERE id = ?";
 
     return await db.query(query, {
       raw: true,
@@ -662,7 +662,7 @@ class Registration {
   }
   async getOutletData(outlet_id: string): Promise<any> {
     // const { outlet_id } = req.validated;
-    let query =
+    const query =
       "SELECT outlet_id, outlet_name, jenis_badan, ektp, npwp, kodepos, rtrw, kelurahan, kecamatan, kabupaten, propinsi, no_wa, alamat1, nama_rekening, nomor_rekening, nama_bank, cabang_bank, kota_bank FROM mstr_outlet WHERE outlet_id = ?";
 
     return await db.query(query, {
@@ -673,7 +673,7 @@ class Registration {
   }
   async getOutletProgram(outlet_id: string): Promise<any> {
     // const { outlet_id } = req.validated;
-    let query =
+    const query =
       "SELECT po.*, mp.nama_program, mp.jenis_hadiah FROM trx_program_outlet AS po INNER JOIN ms_program AS mp ON mp.kode_program = po.kode_program WHERE outlet_id = ?";
 
     return await db.query(query, {
@@ -847,7 +847,7 @@ class Registration {
     }
     const q = `SELECT DISTINCT ${select}, COUNT(DISTINCT fr.outlet_id) AS registrasi FROM mstr_outlet AS o INNER JOIN mstr_distributor AS d ON d.distributor_id = o.distributor_id INNER JOIN ms_dist_pic AS dp ON dp.distributor_id = d.distributor_id INNER JOIN ms_pic AS p ON p.kode_pic = dp.asm_id INNER JOIN ms_pic AS ass ON ass.kode_pic = dp.ass_id INNER JOIN ms_pulau_alias AS reg ON reg.pulau_id_alias = o.region_id INNER JOIN ms_city_alias AS c ON c.city_id_alias = o.city_id_alias INNER JOIN ms_head_region AS hr ON hr.head_region_id = reg.head_region_id LEFT JOIN trx_file_registrasi AS fr ON fr.outlet_id = o.outlet_id AND fr.type_file = 0 WHERE o.outlet_id IS NOT NULL`;
 
-    let { query, params } = FilterParams.query(req, q);
+    const { query, params } = FilterParams.query(req, q);
     return await db.query(query + ` GROUP BY ${groupBy}`, {
       type: QueryTypes.SELECT,
       replacements: [...params],
@@ -899,9 +899,9 @@ class Registration {
     periode: string
   ): Promise<any> {
     if (periode.toLowerCase() === "h1") {
-      let query1 =
+      const query1 =
         "SELECT * FROM mstr_sales_target WHERE outlet_id = :outlet_id";
-      let query2 =
+      const query2 =
         "SELECT * FROM mstr_sales_target2 WHERE outlet_id = :outlet_id";
       const get1 = await db.query(query1, {
         type: QueryTypes.SELECT,
@@ -918,9 +918,9 @@ class Registration {
       };
     }
     if (periode.toLowerCase() === "h2") {
-      let query1 =
+      const query1 =
         "SELECT * FROM mstr_sales_target3 WHERE outlet_id = :outlet_id";
-      let query2 =
+      const query2 =
         "SELECT * FROM mstr_sales_target4 WHERE outlet_id = :outlet_id";
       const get1 = await db.query(query1, {
         type: QueryTypes.SELECT,

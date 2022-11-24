@@ -1,31 +1,31 @@
 export function mapRelations(include: any, mapping: any) {
-    if (!include || !mapping) {
-        return undefined;
-    }
+  if (!include || !mapping) {
+    return undefined;
+  }
 
-    if (typeof include !== "string") {
-        const mapper = (model: string): any => {
-            if (model.includes(".")) {
-                const relations = model.split(".");
+  if (typeof include !== "string") {
+    const mapper = (model: string): any => {
+      if (model.includes(".")) {
+        const relations = model.split(".");
 
-                const related = relations.shift();
+        const related = relations.shift();
 
-                if (!related) {
-                    return null;
-                }
+        if (!related) {
+          return null;
+        }
 
-                return {
-                    model: mapping[related],
-                    as: related,
-                    include: mapper(relations.join(".")),
-                };
-            }
-
-            return {model: mapping[model], as: model};
+        return {
+          model: mapping[related],
+          as: related,
+          include: mapper(relations.join(".")),
         };
+      }
 
-        include = include.map(mapper);
-    }
+      return { model: mapping[model], as: model };
+    };
 
-    return include;
+    include = include.map(mapper);
+  }
+
+  return include;
 }

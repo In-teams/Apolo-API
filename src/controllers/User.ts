@@ -7,7 +7,7 @@ class User {
     try {
       const { level } = req.validated;
       let add = {};
-      let key = "";
+      const key = "";
       let data: any[] = [];
       if (level === "asm") {
         data = await Service.getAsm(req);

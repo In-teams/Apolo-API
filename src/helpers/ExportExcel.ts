@@ -1,8 +1,8 @@
 import excelJs from "exceljs";
-import { Response } from "express";
+import {Response} from "express";
 
 const camelCase = (str: string) => {
-  let result: string[] = [];
+  const result: string[] = [];
   if (str.includes("_")) {
     const splitted = str.toLowerCase().split("_");
 
@@ -18,13 +18,13 @@ const camelCase = (str: string) => {
   return str.substring(0, 1).toUpperCase() + str.substring(1);
 };
 class exportExcel {
-  async index(res: Response, columns: any[], rows: any[]) : Promise<any> {
-    let workbook = new excelJs.Workbook();
-    let worksheet = workbook.addWorksheet("Sheet1");
+  async index(res: Response, columns: any[], rows: any[]): Promise<any> {
+    const workbook = new excelJs.Workbook();
+    const worksheet = workbook.addWorksheet("Sheet1");
     columns = columns.map((e: any) => ({
       header: camelCase(e),
       key: e,
-      width: 30
+      width: 30,
     }));
     worksheet.columns = columns;
     worksheet.addRows(rows);

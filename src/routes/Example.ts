@@ -1,14 +1,14 @@
-import { Router, Request, Response } from "express";
+import {Router} from "express";
 import IRouter from "../types/RouterInterface";
-import ExRequest from '../request/Example'
-import ExController from '../controllers/Example'
+import ExRequest from "../request/Example";
+import ExController from "../controllers/Example";
 
 class Example implements IRouter {
   public router: Router;
 
   constructor() {
     this.router = Router();
-    this.routes()
+    this.routes();
   }
 
   public routes(): void {
@@ -16,4 +16,4 @@ class Example implements IRouter {
   }
 }
 
-export default new Example().router
+export default new Example().router;

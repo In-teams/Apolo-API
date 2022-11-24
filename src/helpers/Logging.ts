@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Request } from "express";
+import {Request} from "express";
 import moment from "moment";
 import cron from "node-cron";
 import config from "../config/app";
@@ -15,12 +15,14 @@ class Logging {
     return moment().format("DD-MM-YYYY");
   };
 
-  writeLog = async (req: Request, error: boolean = false, data: string) => {
-    let date = new Date(); // Now
+  writeLog = async (req: Request, error = false, data: string) => {
+    const date = new Date(); // Now
     date.setDate(date.getDate() + config.deleteLogger); // Set now + deleteLogger days as the new date
     let row: string[] = [];
     row.push(
-      `${await this.getTimestampAndIp()} [${error ? "ERROR" : "INFO"}] [${req.originalUrl}] ${data}`
+      `${await this.getTimestampAndIp()} [${error ? "ERROR" : "INFO"}] [${
+        req.originalUrl
+      }] ${data}`
     );
     try {
       const deletedFile = cron.schedule(

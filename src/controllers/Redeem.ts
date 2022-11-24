@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import {Request, Response} from "express";
 import _ from "lodash";
 import db from "../config/db";
 import App from "../helpers/App";
@@ -29,11 +29,11 @@ class Redeem {
       const payload = {
         id_confirm: lastId,
         tgl_confirm: DateFormat.getToday("YYYY-MM-DD"),
-        relased_by: req.decoded.user_id
+        relased_by: req.decoded.user_id,
       };
-      
-      const detail = req.validated.items.map((e: any) => [e, lastId])
-      await Service.otorisasi(payload, detail, t)
+
+      const detail = req.validated.items.map((e: any) => [e, lastId]);
+      await Service.otorisasi(payload, detail, t);
       t.commit();
       return response(res, true, "Otorisasi sukses", null, 200);
     } catch (error) {
@@ -49,11 +49,11 @@ class Redeem {
       lastId = IncrementCustom(lastId, "LV", 4);
       const payload = {
         kode_pr: lastId,
-        tanggal: DateFormat.getToday("YYYY-MM-DD HH:mm:ss")
+        tanggal: DateFormat.getToday("YYYY-MM-DD HH:mm:ss"),
       };
-      
-      const detail = req.validated.items.map((e: any) => [e, lastId])
-      await Service.purchase(payload, detail, t)
+
+      const detail = req.validated.items.map((e: any) => [e, lastId]);
+      await Service.purchase(payload, detail, t);
       t.commit();
       return response(res, true, "Purchase Request Sukses", null, 200);
     } catch (error) {
@@ -65,14 +65,14 @@ class Redeem {
   async checkout(req: Request, res: Response) {
     const t = await db.transaction();
     try {
-      let outletPoint = await Service.getPointByOutlet(req);
-      let outletPointRedeem = await Service.getPointRedeemByOutlet(req);
-      let diff =
+      const outletPoint = await Service.getPointByOutlet(req);
+      const outletPointRedeem = await Service.getPointRedeemByOutlet(req);
+      const diff =
         parseInt(outletPoint[0]?.achieve || 0) -
         parseInt(outletPointRedeem[0]?.redeem || 0);
-      let product: any[] = await Service.getProduct(req.validated, diff);
-      let temp: any[] = [];
-      let total: number = 0;
+      const product: any[] = await Service.getProduct(req.validated, diff);
+      const temp: any[] = [];
+      let total = 0;
       let trCode = await Service.getLastTrRedeemCode();
       const today = DateFormat.getToday("YYYY-MM-DD HH:mm:ss");
       trCode = IncrementNumber(trCode);
@@ -151,15 +151,15 @@ class Redeem {
   }
   async getProductCategory(req: Request, res: Response) {
     try {
-      let outletPoint = await Service.getPointByOutlet(req);
-      let outletPointRedeem = await Service.getPointRedeemByOutlet(req);
-      let diff = parseFloat(
+      const outletPoint = await Service.getPointByOutlet(req);
+      const outletPointRedeem = await Service.getPointRedeemByOutlet(req);
+      const diff = parseFloat(
         (
           parseFloat(outletPoint[0]?.achieve || 0) -
           parseFloat(outletPointRedeem[0]?.redeem || 0)
         ).toFixed(2)
       );
-      let product = await Service.getProductCategory(req, diff);
+      const product = await Service.getProductCategory(req, diff);
       return response(res, true, product, null, 200);
     } catch (error) {
       console.log(error);
@@ -167,15 +167,15 @@ class Redeem {
   }
   async getProduct(req: Request, res: Response) {
     try {
-      let outletPoint = await Service.getPointByOutlet(req);
-      let outletPointRedeem = await Service.getPointRedeemByOutlet(req);
-      let diff = parseFloat(
+      const outletPoint = await Service.getPointByOutlet(req);
+      const outletPointRedeem = await Service.getPointRedeemByOutlet(req);
+      const diff = parseFloat(
         (
           parseFloat(outletPoint[0]?.achieve || 0) -
           parseFloat(outletPointRedeem[0]?.redeem || 0)
         ).toFixed(2)
       );
-      let product = await Service.getProduct(req.validated, diff);
+      const product = await Service.getProduct(req.validated, diff);
       return response(res, true, product, null, 200);
     } catch (error) {
       console.log(error);
@@ -183,9 +183,9 @@ class Redeem {
   }
   async getOutletPoin(req: Request, res: Response) {
     try {
-      let outletPoint = await Service.getPointByOutlet(req);
-      let outletPointRedeem = await Service.getPointRedeemByOutlet(req);
-      let diff = parseFloat(
+      const outletPoint = await Service.getPointByOutlet(req);
+      const outletPointRedeem = await Service.getPointRedeemByOutlet(req);
+      const diff = parseFloat(
         (
           parseFloat(outletPoint[0]?.achieve || 0) -
           parseFloat(outletPointRedeem[0]?.redeem || 0)
@@ -215,7 +215,7 @@ class Redeem {
   }
   async getRedeemStatus(req: Request, res: Response) {
     try {
-      let status = await Service.getRedeemStatus();
+      const status = await Service.getRedeemStatus();
       return response(res, true, status, null, 200);
     } catch (error) {
       console.log(error);
@@ -293,7 +293,9 @@ class Redeem {
       let file = await Service.getHistoryRedeemFile(req);
       let isRegis = await Outlet.outletIsRegist(req.validated.outlet_id);
       isRegis = ["Yes+", "Yes"].includes(isRegis);
-      let isAllowCheckout = await Service.getRedeemFileByIdWithoutMonthFilter(req);
+      let isAllowCheckout = await Service.getRedeemFileByIdWithoutMonthFilter(
+        req
+      );
       isAllowCheckout = ["Level 4"].includes(isAllowCheckout.level);
       file = DateFormat.index(file, "DD MMMM YYYY, HH:mm:ss", "created_at");
       return response(
@@ -415,9 +417,9 @@ class Redeem {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let point = await Service.getPoint(req);
-      let pointRedeem = await Service.getPointRedeem(req);
-      let pointDiff = point[0].achieve - pointRedeem[0].redeem;
+      const point = await Service.getPoint(req);
+      const pointRedeem = await Service.getPointRedeem(req);
+      const pointDiff = point[0].achieve - pointRedeem[0].redeem;
       let result = NumberFormat(
         { ...point[0], ...pointRedeem[0], diff: pointDiff },
         false,
@@ -500,7 +502,7 @@ class Redeem {
       const target = await Sales.getTargetByMonth(req);
       const point: any[] = await Service.getPointPerMonth(req);
       const pointRedeem: any[] = await Service.getPointRedeemPerMonth(req);
-      let result = months.map((e: any) => ({
+      const result = months.map((e: any) => ({
         ...e,
         quarter: App.getQuarter(e.id)[0].quarter,
         aktual: +aktual[e.id]?.aktual || 0,
@@ -589,7 +591,7 @@ class Redeem {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let { sort } = req.validated;
+      const { sort } = req.validated;
       const point: any[] = await Service.getPointByArea(req);
       const pointRedeem: any[] = await Service.getPointRedeemByArea(req);
       let area: any[] = await Area.get(req);
@@ -613,8 +615,8 @@ class Redeem {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let point: any[] = await Service.getPointByDistributor(req);
-      let pointRedeem: any[] = await Service.getPointRedeemByDistributor(req);
+      const point: any[] = await Service.getPointByDistributor(req);
+      const pointRedeem: any[] = await Service.getPointRedeemByDistributor(req);
       let distributor: any[] = await Distributor.get(req);
       distributor = RedeemHelper(
         distributor,
@@ -681,7 +683,7 @@ class Redeem {
     res: Response
   ): Promise<object | undefined> {
     try {
-      let { sort } = req.validated;
+      const { sort } = req.validated;
       const point: any[] = await Service.getPointByASS(req);
       const pointRedeem: any[] = await Service.getPointRedeemByASS(req);
       let ass: any[] = await User.getAss(req);
